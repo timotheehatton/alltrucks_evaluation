@@ -1,0 +1,42 @@
+.category-scores {
+    list-style-type: none;
+    padding: 0;
+}
+
+.category-score {
+    margin-bottom: 35px;
+}
+
+.category-score:last-child {
+    margin-bottom: 0;
+}
+
+.category-title {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.progress {
+    height: 5px;
+    background: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.determinate.green {
+    background: #4caf50;
+}
+
+.determinate.orange {
+    background: #ff9800;
+}
+
+.score-percentage {
+    font-weight: normal;
+}
+
+#radarChart {
+    width: 100% !important;
+    height: auto !important;
+}

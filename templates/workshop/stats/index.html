@@ -1,0 +1,100 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/templates/workshop/stats/style.css' %}">
+{% endblock %}
+
+{% block body %}
+<h2><i class="material-icons">bar_chart</i> Workshop stats</h2>
+
+<div class="row">
+    <div class="col s12 m8">
+        <div class="card">
+            <canvas id="radarChart" height="540"></canvas>
+        </div>
+    </div>
+    <div class="col s12 m4">
+        <div class="card">
+            <div class="category-scores">
+                {% for category, score in global_scores.items %}
+                    <div class="category-score">
+                        <div class="category-title">{{ category }} <span class="score-percentage">{{ score }}%</span></div>
+                        <div class="progress">
+                            <div class="determinate {% if score >= 30 %}green{% else %}orange{% endif %}" style="width: {{ score }}%"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    const data = {
+        labels: [
+            {% for category in global_scores.keys %}
+                "{{ category }}",
+            {% endfor %}
+        ],
+        datasets: [
+            {% for technician, categories in technician_scores.items %}
+            {
+                label: "{{ technician.first_name }} {{ technician.last_name }}",
+                data: [
+                    {% for category, score in categories.items %}
+                        {{ score }},
+                    {% endfor %}
+                ],
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 4
+            },
+            {% endfor %}
+        ]
+    };
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    pointLabels: {
+                        display: false
+                    },
+                    ticks: {
+                        display: false
+                    },
+                    angleLines: {
+                        display: true
+                    },
+                    grid: {
+                        display: true
+                    },
+                    pointLabels: {
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

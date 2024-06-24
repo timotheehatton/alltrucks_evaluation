@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="header">
+<h2>{{ site_title }}</h2>
+<a href="{% url 'admin:create_company' %}" class="btn blue">Add Company</a>
+</div>
+
+<div class="model-list-table">
+    <table class="highlight responsive-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>NAME</th>
+                <th>MANAGER</th>
+                <th>EMAIL</th>
+                <th>COUNTRY</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for company in companies %}
+            <tr>
+                <td>{{ company.id }}</td>
+                <td>{{ company.name }}</td>
+                <td>{{ company.manager }}</td>
+                <td>{{ company.email }}</td>
+                <td>{{ company.country }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

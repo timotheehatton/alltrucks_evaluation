@@ -1,0 +1,13 @@
+.card {
+    margin-top: 100px;
+}
+
+#modal1 {
+    top: 50% !important;
+    left: 50% !important;
+    width: 80%;
+    max-width: 80%;
+    height: 90%;
+    max-height: 90%;
+    transform: scaleX(1) scaleY(1) translate(-50%, -50%) !important;
+}

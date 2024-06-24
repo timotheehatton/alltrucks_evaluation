@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/templates/technician/stats/style.css' %}">
+{% endblock %}
+
+{% block body %}
+<h2><i class="material-icons">bar_chart</i> My stats</h2>
+
+<div class="row">
+    <div class="col s12 m9">
+        <div class="card">
+            <canvas id="radarChart" height="450"></canvas>
+        </div>
+    </div>
+    <div class="col s12 m3">
+       <div class="card center-align diploma">
+            <img src="{% static 'img/illu-diploma.svg' %}">
+            <h5 class="spaced-row">Congratulation ! Your evaluation diploma is available</h5>
+            <a href="{% url 'technician:download_pdf' %}" class="btn white">Download</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    const data = {
+        labels: [
+            {% for score in scores_by_category %}
+                "{{ score.question_type }}",
+            {% endfor %}
+        ],
+        datasets: [
+            {
+                data: [
+                    {% for score in scores_by_category %}
+                        {{ score.total_score }},
+                    {% endfor %}
+                ],
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 4
+            }
+        ]
+    };
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                r: {
+                    pointLabels: {
+                        display: false
+                    },
+                    ticks: {
+                        display: false
+                    },
+                    angleLines: {
+                        display: true
+                    },
+                    grid: {
+                        display: true
+                    },
+                    pointLabels: {
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
