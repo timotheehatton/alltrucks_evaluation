@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Company, User, Score
 from common.views.forms import CompanyUserForm
 from django.contrib import messages
@@ -17,6 +17,7 @@ class MyAdminSite(admin.AdminSite):
             path('workshops/', self.admin_view(self.companies_view), name='workshops'),
             path('users/', self.admin_view(self.users_view), name='users'),
             path('create-company/', self.admin_view(self.create_company_view), name='create_company'),
+            path('user/<int:user_id>/', self.admin_view(self.single_user_view), name='single_user'),  
         ]
         return custom_urls + urls
 
@@ -40,6 +41,14 @@ class MyAdminSite(admin.AdminSite):
             companies=companies_with_emails,
         )
         return render(request, 'admin/workshops/index.html', context)
+    
+
+    def single_user_view(self, request, user_id):
+        user = get_object_or_404(User, pk=user_id)
+        context = {
+            'user': user,
+        }
+        return render(request, 'admin/users/single_user.html', context)
 
 
     def users_view(self, request):

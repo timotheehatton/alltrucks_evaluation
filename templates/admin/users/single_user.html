@@ -1,0 +1,21 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h2><i class="material-icons">person</i> {{ user.first_name }} {{ user.last_name }} stats</h2>
+
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Username:</strong> {{ user.username }}</p>
+<p><strong>Language:</strong> {{ user.get_language_display }}</p>
+<p><strong>User Type:</strong> {{ user.user_type }}</p>
+<p><strong>Company:</strong> {{ user.company }}</p>
+
+<h3>Scores</h3>
+<ul>
+    {% for score in scores %}
+    <li><strong>{{ score.question_type }}:</strong> {{ score.total_score }}</li>
+    {% endfor %}
+</ul>
+<p><strong>Total Score:</strong> {{ total_score }}</p>
+
+<a href="{% url 'admin:users' %}">Back to user List</a>
+{% endblock %}

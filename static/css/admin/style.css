@@ -35,3 +35,7 @@
 .sidenav a.active i {
     color: #2196F3 !important;
 }
+
+.responsive-table tr {
+    cursor: pointer;
+}

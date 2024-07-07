@@ -48,7 +48,7 @@
         </thead>
         <tbody>
             {% for user in users %}
-            <tr>
+            <tr class="clickable-row" data-href="{% url 'admin:single_user' user.id %}">
                 <td>{{ user.id }}</td>
                 <td>{{ user.user_type }}</td>
                 <td>{{ user.last_name }} {{ user.first_name }}</td>
