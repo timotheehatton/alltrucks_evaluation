@@ -18,9 +18,9 @@
                     <span class="white-text email">{{ user.email }}</span>
                 </div>
             </li>
-            <li><a href="{% url 'admin:index' %}"><i class="material-icons">business</i>Workshops</a></li>
-            <li><a href="{% url 'admin:index' %}"><i class="material-icons">person</i>Technicians</a></li>
-            <li><a href="{% url 'admin:index' %}"><i class="material-icons">manage_accounts</i>Admins</a></li>
+            <li><a class="{% if request.resolver_match.url_name == "workshops" %}active{% endif %}" href="{% url 'admin:workshops' %}"><i class="material-icons">business</i>Workshops</a></li>
+            <li><a class="{% if request.resolver_match.url_name == "users" %}active{% endif %}" href="{% url 'admin:users' %}"><i class="material-icons">person</i>Users</a></li>
+            <li><a class="{% if request.resolver_match.url_name == "admins" %}active{% endif %}" href="{% url 'admin:index' %}"><i class="material-icons">manage_accounts</i>Admins</a></li>
         </ul>
     </header>
     <main class="main-content">

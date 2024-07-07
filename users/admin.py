@@ -4,6 +4,7 @@ from django.shortcuts import render, redirect
 from .models import Company, User, Score
 from common.views.forms import CompanyUserForm
 from django.contrib import messages
+from django.db.models import Q
 
 
 class MyAdminSite(admin.AdminSite):
@@ -13,7 +14,8 @@ class MyAdminSite(admin.AdminSite):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('', self.admin_view(self.companies_view), name='index'),
+            path('workshops/', self.admin_view(self.companies_view), name='workshops'),
+            path('users/', self.admin_view(self.users_view), name='users'),
             path('create-company/', self.admin_view(self.create_company_view), name='create_company'),
         ]
         return custom_urls + urls
@@ -38,6 +40,39 @@ class MyAdminSite(admin.AdminSite):
             companies=companies_with_emails,
         )
         return render(request, 'admin/workshops/index.html', context)
+
+
+    def users_view(self, request):
+        search_query = request.GET.get('search', '')
+        user_type_filter = request.GET.get('user_type', '')
+        company_country_filter = request.GET.get('country', '')
+
+        users = User.objects.select_related('company').all()
+        if search_query != '':
+            users = users.filter(
+                Q(first_name__icontains=search_query) |
+                Q(last_name__icontains=search_query) |
+                Q(email__icontains=search_query)
+            )
+        
+        if user_type_filter and user_type_filter != 'ALL':
+            users = users.filter(user_type=user_type_filter)
+
+        if company_country_filter and company_country_filter != 'ALL':
+            users = users.filter(company__country=company_country_filter)
+        
+        data = [{
+            'id': user.id,
+            'user_type': user.user_type,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'email': user.email,
+            'company_name': user.company.name if user.company else 'N/A',
+            'company_country': user.company.country if user.company else 'N/A',
+        } for user in users if user.is_superuser != True]
+
+        return render(request, 'admin/users/index.html', {'users': data})
+
 
     def create_company_view(self, request):
         if request.method == 'POST':

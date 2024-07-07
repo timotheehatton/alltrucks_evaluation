@@ -1,0 +1,72 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div class="header">
+    <h2>Users</h2>
+</div>
+
+<form method="GET" action="{% url 'admin:users' %}" class="col s12">
+    <div class="row">
+        <div class="input-field col s2">
+            <select name="user_type">
+                <option value="ALL" {% if request.GET.user_type == 'ALL' %}selected{% endif %}>ALL</option>
+                <option value="workshop" {% if request.GET.user_type == 'workshop' %}selected{% endif %}>Workshop</option>
+                <option value="technician" {% if request.GET.user_type == 'technician' %}selected{% endif %}>Technician</option>
+            </select>
+            <label>User Type</label>
+        </div>
+        <div class="input-field col s2">
+            <select name="country">
+                <option value="ALL" {% if request.GET.user_type == 'ALL' %}selected{% endif %}>ALL</option>
+                <option value="FR" {% if request.GET.user_type == 'FR' %}selected{% endif %}>FR</option>
+                <option value="ES" {% if request.GET.user_type == 'ES' %}selected{% endif %}>ES</option>
+            </select>
+            <label>Country</label>
+        </div>
+        <div class="input-field col s3">
+            <input id="search" type="text" name="search" value="{{ request.GET.search }}">
+            <label for="search">Search Users</label>
+        </div>
+        <div class="input-field col s2">
+            <button class="btn blue" type="submit">Filter
+                <i class="material-icons right">search</i>
+            </button>
+        </div>
+    </div>
+</form>
+<div class="model-list-table">
+    <table class="highlight responsive-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>USER TYPE</th>
+                <th>NAME</th>
+                <th>EMAIL</th>
+                <th>WORKSHOP</th>
+                <th>COUNTRY</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.user_type }}</td>
+                <td>{{ user.last_name }} {{ user.first_name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.company_name }}</td>
+                <td>{{ user.company_country }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('select');
+        var instances = M.FormSelect.init(elems);
+    });
+</script>
+{% endblock %}

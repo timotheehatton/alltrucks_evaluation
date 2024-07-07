@@ -26,3 +26,12 @@
     justify-content: space-between;
     align-items: center;
 }
+
+.sidenav a.active {
+    color: #2196F3;
+    font-weight: bold;
+}
+
+.sidenav a.active i {
+    color: #2196F3 !important;
+}
