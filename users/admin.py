@@ -3,6 +3,8 @@ from django.urls import path
 from django.shortcuts import render, redirect
 from .models import Company, User, Score
 from common.views.forms import CompanyUserForm
+from django.contrib import messages
+
 
 class MyAdminSite(admin.AdminSite):
     site_header = 'Alltrucks AMCAT Admin'
@@ -41,20 +43,44 @@ class MyAdminSite(admin.AdminSite):
         if request.method == 'POST':
             form = CompanyUserForm(request.POST)
             if form.is_valid():
-                form.save()
+                company = form.save()
+                workshop_user = User.objects.create_user(
+                    username=form.cleaned_data['workshop_email'],
+                    email=form.cleaned_data['workshop_email'],
+                    first_name=form.cleaned_data['workshop_first_name'],
+                    last_name=form.cleaned_data['workshop_last_name'],
+                    user_type='workshop',
+                    language=company.country,
+                    company=company,
+                    ct_number=form.cleaned_data['workshop_ct_number']
+                )
+                workshop_user.save()
+
+                i = 1
+                while f'technician_first_name_{i}' in request.POST:
+                    print(request.POST[f'technician_email_{i}'])
+                    technician_user = User.objects.create_user(
+                        username=request.POST[f'technician_email_{i}'],
+                        email=request.POST[f'technician_email_{i}'],
+                        first_name=request.POST[f'technician_first_name_{i}'],
+                        last_name=request.POST[f'technician_last_name_{i}'],
+                        user_type='technician',
+                        company=company,
+                        ct_number=request.POST[f'technician_ct_number_{i}']
+                    )
+                    technician_user.save()
+                    i += 1
+
                 return redirect('admin:index')
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        print(f"{field}: {error}")
+                        messages.error(request, f"{field}: {error}")
         else:
             form = CompanyUserForm()
 
-        context = dict(
-            self.each_context(request),
-            form=form,
-        )
-        return render(request, 'admin/workshops/create_company.html', context)
+        return render(request, 'admin/workshops/create_company.html', {'form': form})
+
 
 admin_site = MyAdminSite(name='myadmin')
-
-# Register your models with this custom admin site
-# admin_site.register(User)
-admin_site.register(Company)
-# admin_site.register(Score)

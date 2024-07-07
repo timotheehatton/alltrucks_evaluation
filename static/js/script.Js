@@ -1,8 +1,8 @@
-var elems = document.querySelectorAll('.sidenav');
-var instances = M.Sidenav.init(elems);
+var sidenav = document.querySelectorAll('.sidenav');
+var sidenav = M.Sidenav.init(sidenav);
 
-var elems = document.querySelectorAll('select');
-var instances = M.FormSelect.init(elems);
+var select = document.querySelectorAll('select');
+var select = M.FormSelect.init(select);
 
 const rows = document.querySelectorAll('.clickable-row');
 rows.forEach(row => {
