@@ -61,7 +61,8 @@ class MyAdminSite(admin.AdminSite):
             users = users.filter(
                 Q(first_name__icontains=search_query) |
                 Q(last_name__icontains=search_query) |
-                Q(email__icontains=search_query)
+                Q(email__icontains=search_query) |
+                Q(company__name__icontains=search_query)
             )
         
         if user_type_filter and user_type_filter != 'ALL':

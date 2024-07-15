@@ -1,0 +1,140 @@
+/* training-progress */
+.training-progress {
+    margin-top: 70px;
+}
+
+.progress-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.progress-percentage {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+
+.progress-title {
+    font-size: 18px;
+    color: #757575;
+}
+
+.progress-bar-container {
+    position: relative;
+    height: 4px;
+    background-color: #F0F0F0;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.progress-bar,
+.progress-bar-dashed {
+    background-color: #01B5E2;
+    height: 100%;
+}
+
+.progress-bar-dashed {
+    position: absolute;
+    right: 20%;
+    top: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        #8fe9ff 0px,
+        #8fe9ff 10px,
+        transparent 10px,
+        transparent 20px
+    );
+}
+
+.progress-indicator {
+    position: absolute;
+    left: 50%;
+    top: -11px;
+    width: 25px;
+    height: 25px;
+    border: 1px solid #D8D8D8;
+    background-color: #fff;
+    border-radius: 50%;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
+    transform: translateX(-50%);
+}
+
+.progress-indicator::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    background-color: #D8D8D8;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.progress-indicator.checked {
+    background-color: #01B5E2;
+    border: 1px solid #01B5E2;
+}
+.progress-indicator.checked::after {
+    display: none;
+}
+
+.progress-indicator.active {
+    border: 1px solid #01B5E2;
+}
+
+.progress-indicator.active::after {
+    background-color: #01B5E2;
+}
+
+.progress-indicator.active {
+    box-shadow: 0px 0px 0px 5px #B3E9F6
+}
+
+.progress-indicator:nth-of-type(4) {
+    left: 80%;
+}
+
+.training-recommendation {
+    text-align: left;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    top: -90px;
+    width: 300px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: #fafafa;
+}
+
+.progress-indicator-icon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.recommendation-title {
+    color: #ff9800;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 5px;
+}
+
+.recommendation-title i {
+    font-size: 16px;
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.recommendation-description {
+    color: #757575;
+}

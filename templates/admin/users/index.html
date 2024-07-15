@@ -17,15 +17,15 @@
         </div>
         <div class="input-field col s2">
             <select name="country">
-                <option value="ALL" {% if request.GET.user_type == 'ALL' %}selected{% endif %}>ALL</option>
-                <option value="FR" {% if request.GET.user_type == 'FR' %}selected{% endif %}>FR</option>
-                <option value="ES" {% if request.GET.user_type == 'ES' %}selected{% endif %}>ES</option>
+                <option value="ALL" {% if request.GET.country == 'ALL' %}selected{% endif %}>ALL</option>
+                <option value="FR" {% if request.GET.country == 'FR' %}selected{% endif %}>FR</option>
+                <option value="ES" {% if request.GET.country == 'ES' %}selected{% endif %}>ES</option>
             </select>
             <label>Country</label>
         </div>
         <div class="input-field col s3">
             <input id="search" type="text" name="search" value="{{ request.GET.search }}">
-            <label for="search">Search Users</label>
+            <label for="search">Search</label>
         </div>
         <div class="input-field col s2">
             <button class="btn blue" type="submit">Filter

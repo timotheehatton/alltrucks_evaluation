@@ -15,6 +15,7 @@ def index(request):
         'scores_by_category': scores_by_category
     })
 
+
 @technician_required
 def download_pdf(request):
     user = request.user

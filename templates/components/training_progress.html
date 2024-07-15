@@ -1,0 +1,28 @@
+<div class="training-progress">
+    <div class="progress-info">
+        <span class="progress-percentage">{{ progress }}%</span>
+        <span class="progress-title">{{ title }}</span>
+    </div>
+    <div class="progress-bar-container">
+        <div class="progress-bar" style="width: {{ progress }}%"></div>
+        <div class="progress-bar-dashed" style="width: {% if progress >= 50 %}calc(80% - {{ progress }}%){% else %}calc(50% - {{ progress }}%){% endif %}; left: {{ progress }}%;"></div>
+        <div class="progress-indicator {% if progress >= 50 %}checked{% elif progress < 50 %}active{% endif %}">
+            {% if progress < 50 %}
+            <div class="training-recommendation">
+                <span class="recommendation-title"><i class="material-icons">info_outline</i>{{ recommandation_label }}</span>
+                <span class="recommendation-description">{{ recommandation_content }}</span>
+            </div>
+            {% endif %}
+            <i class="progress-indicator-icon material-icons">check</i>
+        </div>
+        <div class="progress-indicator {% if progress >= 80 %}checked{% elif progress < 80 and progress >= 50 %}active{% endif %}">
+            {% if progress >= 50 and progress < 80 %}
+            <div class="training-recommendation">
+                <span class="recommendation-title"><i class="material-icons">info_outline</i>{{ recommandation_label }}</span>
+                <span class="recommendation-description">{{ recommandation_content }}</span>
+            </div>
+            {% endif %}
+            <i class="progress-indicator-icon material-icons">check</i>
+        </div>
+    </div>
+</div>
