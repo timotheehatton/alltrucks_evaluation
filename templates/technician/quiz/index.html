@@ -25,38 +25,138 @@
 <div id="modal1" class="modal">
     <a href="#!" class="modal-close btn red">Close</a>
     <div class="modal-content">
-        <h6>Question 1/100</6>
-        <h6>00:34:12</6>
-        <h5>Powertrain</5>
-        <h4>What intensity can provide this battery coupling ?</h4>
+        <h6 class="quiz-progress"></h6>
+        <h6 class="quiz-timer">00:34:12</h6>
+        <h5 class="quiz-category"></h5>
+        <h4 class="quiz-question"></h4>
         <hr>
-            <img src="{% static 'img/illu-diploma.svg' %}">
-            <div>
-                <label>
-                    <input type="checkbox" class="filled-in" />
-                    <span>Label for Checkbox</span>
-                </label>
-                <label>
-                    <input type="checkbox" class="filled-in" />
-                    <span>Label for Checkbox</span>
-                </label>
-                <label>
-                    <input type="checkbox" class="filled-in" />
-                    <span>Label for Checkbox</span>
-                </label>
-                <label>
-                    <input type="checkbox" class="filled-in" />
-                    <span>Label for Checkbox</span>
-                </label>
-            </div>
+        <img class="quiz-image" src="{% static 'img/illu-diploma.svg' %}">
+        <div>
+            <label>
+                <input type="checkbox" name="choice" class="filled-in" value="choice_1" />
+                <span class="quiz-answer-1"></span>
+            </label>
+            <label>
+                <input type="checkbox" name="choice" class="filled-in" value="choice_2" />
+                <span class="quiz-answer-2"></span>
+            </label>
+            <label>
+                <input type="checkbox" name="choice" class="filled-in" value="choice_3" />
+                <span class="quiz-answer-3"></span>
+            </label>
+            <label>
+                <input type="checkbox" name="choice" class="filled-in" value="choice_4" />
+                <span class="quiz-answer-4"></span>
+            </label>
+        </div>
         <hr>
-        <a href="#" class="btn white">Previous</a>
-        <a href="#" class="btn blue">Next</a>
+        <a href="#" class="btn quiz-next disabled">Next</a>
+    </div>
+    <div class="success-message" style="display: none;">
+        <h5>Congratulations !</h5>
+        <p>You have successfully passed the test. You can download your evaluation diploma.</p>
+        <a href="{% url 'technician:download_pdf' %}" class="btn white">Download</a>
+        <a href="{% url 'technician:stats' %}" class="btn blue">See my result</a>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
+{% autoescape off %}
+<script>
+    const questions = {{questions|safe}};
+    let currentQuestionIndex = 0;
+    const userAnswers = {};
+
+    const quizProgress = document.querySelector('.quiz-progress');
+    const quizCategory = document.querySelector('.quiz-category');
+    const quizQuestion = document.querySelector('.quiz-question');
+    const quizImage = document.querySelector('.quiz-image');
+    const quizAnswer1 = document.querySelector('.quiz-answer-1');
+    const quizAnswer2 = document.querySelector('.quiz-answer-2');
+    const quizAnswer3 = document.querySelector('.quiz-answer-3');
+    const quizAnswer4 = document.querySelector('.quiz-answer-4');
+    const quizNextBtn = document.querySelector('.quiz-next');
+    const quizChoices = document.querySelectorAll('input[name="choice"]');
+
+    function displayQuestion(index) {
+        if (index < 0 || index >= questions.length) {
+            return;
+        }
+
+        const question = questions[index];
+        quizProgress.innerText = `${index + 1}/${questions.length}`;
+        quizCategory.innerText = question.category;
+        quizQuestion.innerText = question.question;
+        quizImage.src = `http://localhost:1337${question.image}`;
+        quizAnswer1.innerText = question.choice_1;
+        quizAnswer2.innerText = question.choice_2;
+        quizAnswer3.innerText = question.choice_3;
+        quizAnswer4.innerText = question.choice_4;
+
+        quizChoices.forEach(input => {
+            input.checked = false;
+        });
+
+        quizNextBtn.classList.add('disabled');
+        quizNextBtn.classList.remove('blue');
+    }
+
+    function enableNextButton() {
+        const checkedChoices = document.querySelectorAll('input[name="choice"]:checked');
+        if (checkedChoices.length > 0) {
+            quizNextBtn.classList.remove('disabled');
+            quizNextBtn.classList.add('blue');
+        }
+    }
+
+    quizNextBtn.addEventListener('click', () => {
+        const checkedChoices = document.querySelectorAll('input[name="choice"]:checked');
+        if (checkedChoices.length > 0) {
+            const selectedChoices = [];
+            checkedChoices.forEach(choice => {
+                selectedChoices.push(choice.value);
+            });
+            userAnswers[questions[currentQuestionIndex].id] = selectedChoices;
+
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
+            } else {
+                console.log("User Answers:", userAnswers);
+
+                // Send userAnswers to the view controller for correction
+                fetch("{% url 'technician:quiz' %}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": "{{ csrf_token }}"
+                    },
+                    body: JSON.stringify({ answers: userAnswers })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('data', data)
+                    if (data.success) {
+                        document.querySelector('.modal-content').remove();
+                        document.querySelector('.success-message').style.display = 'block';
+                    } else {
+                        alert("There was an error processing your answers. Please try again.");
+                    }
+                })
+                .catch(error => console.error("Error:", error));
+            }
+        }
+    });
+
+    quizChoices.forEach(input => {
+        input.addEventListener('change', enableNextButton);
+    });
+
+    displayQuestion(currentQuestionIndex);
+</script>
+{% endautoescape %}
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var elems = document.querySelectorAll('.modal');
