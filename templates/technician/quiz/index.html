@@ -23,10 +23,9 @@
 
 <!-- Modal Structure -->
 <div id="modal1" class="modal">
-    <a href="#!" class="modal-close btn red">Close</a>
     <div class="modal-content">
         <h6 class="quiz-progress"></h6>
-        <h6 class="quiz-timer">00:34:12</h6>
+        <h6 class="quiz-timer">01:00:00</h6>
         <h5 class="quiz-category"></h5>
         <h4 class="quiz-question"></h4>
         <hr>
@@ -68,6 +67,7 @@
     let currentQuestionIndex = 0;
     const userAnswers = {};
 
+    const quizTimer = document.querySelector('.quiz-timer');
     const quizProgress = document.querySelector('.quiz-progress');
     const quizCategory = document.querySelector('.quiz-category');
     const quizQuestion = document.querySelector('.quiz-question');
@@ -125,9 +125,6 @@
                 currentQuestionIndex++;
                 displayQuestion(currentQuestionIndex);
             } else {
-                console.log("User Answers:", userAnswers);
-
-                // Send userAnswers to the view controller for correction
                 fetch("{% url 'technician:quiz' %}", {
                     method: "POST",
                     headers: {
@@ -138,7 +135,6 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    console.log('data', data)
                     if (data.success) {
                         document.querySelector('.modal-content').remove();
                         document.querySelector('.success-message').style.display = 'block';
@@ -156,13 +152,56 @@
     });
 
     displayQuestion(currentQuestionIndex);
-</script>
-{% endautoescape %}
 
-<script>
+    function startTimer(duration, display) {
+        let timer = duration, hours, minutes, seconds;
+        timerInterval = setInterval(() => {
+            hours = parseInt(timer / 3600, 10);
+            minutes = parseInt((timer % 3600) / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.textContent = `${hours}:${minutes}:${seconds}`;
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                alert("Time is up!");
+            }
+
+            localStorage.setItem('quizTimer', timer);
+        }, 1000);
+    }
+
+    function calculateRemainingTime(endTime) {
+        const now = new Date().getTime();
+        return Math.max((endTime - now) / 1000, 0);
+    }
+
+    document.querySelector('.modal-trigger').addEventListener('click', () => {
+        let endTime = localStorage.getItem('quizEndTime');
+        if (!endTime) {
+            const duration = 60 * 60 * 1000; // 120 minutes in milliseconds
+            endTime = new Date().getTime() + duration;
+            localStorage.setItem('quizEndTime', endTime);
+        }
+
+        const remainingTime = calculateRemainingTime(endTime);
+        startTimer(remainingTime, quizTimer);
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
-        var elems = document.querySelectorAll('.modal');
-        var instances = M.Modal.init(elems);
+        const elems = document.querySelectorAll('.modal');
+        const instances = M.Modal.init(elems);
+
+        const endTime = localStorage.getItem('quizEndTime');
+        if (endTime) {
+            const remainingTime = calculateRemainingTime(endTime);
+            startTimer(remainingTime, quizTimer);
+        }
     });
 </script>
+{% endautoescape %}
 {% endblock %}
