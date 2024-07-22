@@ -117,7 +117,9 @@
             checkedChoices.forEach(choice => {
                 selectedChoices.push(choice.value);
             });
-            userAnswers[questions[currentQuestionIndex].id] = selectedChoices;
+            userAnswers[questions[currentQuestionIndex].id] = {
+                category: questions[currentQuestionIndex].category, choice: selectedChoices
+            };
 
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;

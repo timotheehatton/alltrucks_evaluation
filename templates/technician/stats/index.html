@@ -27,7 +27,7 @@
         <h5>Training Recommendation</h5>
         <div class="card">
             {% for score in scores_by_category %}
-                {% with progress=score.total_score title=score.question_type recommandation_label="Training recommendation" recommandation_content="101 - General mechanic intermediary" %}
+                {% with progress=score.success_percentage title=score.question_type recommandation_label="Training recommendation" recommandation_content="101 - General mechanic intermediary" %}
                     {% include 'components/training_progress.html' %}
                 {% endwith %}
             {% endfor %}

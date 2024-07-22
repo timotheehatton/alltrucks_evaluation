@@ -3,11 +3,13 @@ import requests
 import collections
 import json
 
+from django.utils import timezone
 from django.http import JsonResponse
 from django.shortcuts import render
 from users.decorators import technician_required
 
 from common.content.strapi import strapi_content
+from users.models import Score
 
 
 @technician_required
@@ -17,19 +19,30 @@ def index(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
+            date = timezone.now()
             user_answers = data.get('answers', {})
-            print('user_answers', user_answers)
-
             correct_answers = {item['id']: item['attributes']['anwser'] for item in questions['data']}
-            print('correct_answers', correct_answers)
-        
-            score = 0
-            for question_id, choices in user_answers.items():
-                if correct_answers.get(int(question_id)) in choices:
-                    score += 1
-            print('score', score)
+            all_categories = [item['attributes']['category'] for item in questions['data']]
+            scores = {}
 
-            return JsonResponse({"success": True, "message": "Quiz successfully corrected.", "score": score})
+            for category in all_categories:
+                scores[category] = 0
+
+            for question_id, choices in user_answers.items():
+                if correct_answers.get(int(question_id)) in choices['choice']:
+                    scores[choices['category']] += 1
+            
+            print(scores)
+            
+            # Store the scores in the database
+            for category, category_score in scores.items():
+                Score.objects.create(
+                    user=request.user,
+                    date=date,
+                    question_type=category,
+                    score=category_score
+                )
+            return JsonResponse({"success": True, "message": "Quiz successfully corrected."})
         except Exception as e:
             return JsonResponse({"success": False, "message": str(e)})
 

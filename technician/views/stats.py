@@ -1,15 +1,23 @@
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from django.shortcuts import render
-from django.db.models import Sum
 from users.decorators import technician_required
 from users.models import Score
+from django.db.models import Max, Sum, ExpressionWrapper, IntegerField
 
 
 @technician_required
 def index(request):
     user = request.user
-    scores_by_category = Score.objects.filter(user=user).values('question_type').annotate(total_score=Sum('score'))
+    last_datetime = Score.objects.filter(user=user).aggregate(date=Max('date'))['date']
+    scores_by_category = Score.objects.filter(
+        user=user, date=last_datetime
+    ).values('question_type').annotate(
+        total_score=Sum('score'),
+        success_percentage=ExpressionWrapper((Sum('score') * 100.0) / 20.0, output_field=IntegerField())
+    )
+
+    print(scores_by_category)
 
     return render(request, 'technician/stats/index.html', {
         'scores_by_category': scores_by_category

@@ -21,7 +21,7 @@ class User(AbstractUser):
 
 class Score(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField()
+    date = models.DateTimeField()
     question_type = models.CharField(max_length=255)
     score = models.IntegerField()
 
