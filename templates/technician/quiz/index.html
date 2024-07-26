@@ -183,7 +183,7 @@
     document.querySelector('.modal-trigger').addEventListener('click', () => {
         let endTime = localStorage.getItem('quizEndTime');
         if (!endTime) {
-            const duration = 60 * 60 * 1000; // 120 minutes in milliseconds
+            const duration = 60 * 60 * 1000;
             endTime = new Date().getTime() + duration;
             localStorage.setItem('quizEndTime', endTime);
         }
@@ -194,7 +194,9 @@
 
     document.addEventListener('DOMContentLoaded', function() {
         const elems = document.querySelectorAll('.modal');
-        const instances = M.Modal.init(elems);
+        const instances = M.Modal.init(elems, {
+            dismissible: false
+        });
 
         const endTime = localStorage.getItem('quizEndTime');
         if (endTime) {
