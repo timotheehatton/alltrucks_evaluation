@@ -21,35 +21,42 @@
     </div>
 </div>
 
-<!-- Modal Structure -->
 <div id="modal1" class="modal">
     <div class="modal-content">
-        <h6 class="quiz-progress"></h6>
-        <h6 class="quiz-timer">01:00:00</h6>
-        <h5 class="quiz-category"></h5>
-        <h4 class="quiz-question"></h4>
-        <hr>
-        <img class="quiz-image" src="{% static 'img/illu-diploma.svg' %}">
-        <div>
-            <label>
-                <input type="checkbox" name="choice" class="filled-in" value="choice_1" />
-                <span class="quiz-answer-1"></span>
-            </label>
-            <label>
-                <input type="checkbox" name="choice" class="filled-in" value="choice_2" />
-                <span class="quiz-answer-2"></span>
-            </label>
-            <label>
-                <input type="checkbox" name="choice" class="filled-in" value="choice_3" />
-                <span class="quiz-answer-3"></span>
-            </label>
-            <label>
-                <input type="checkbox" name="choice" class="filled-in" value="choice_4" />
-                <span class="quiz-answer-4"></span>
-            </label>
+        <div class="modal-content-header">
+            <h6 class="quiz-progress"></h6>
+            <h6 class="quiz-timer">01:00:00</h6>
         </div>
-        <hr>
-        <a href="#" class="btn quiz-next disabled">Next</a>
+        <div class="modal-content-question">
+            <h5 class="quiz-category"></h5>
+            <h4 class="quiz-question"></h4>
+            <div class="quiz-image-anwsers-container">
+                <img class="quiz-image" src="{% static 'img/illu-diploma.svg' %}">
+                <div class="quiz-answers">
+                    <label>
+                        <input type="checkbox" name="choice" class="filled-in" value="choice_1" />
+                        <span class="quiz-answer-1"></span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="choice" class="filled-in" value="choice_2" />
+                        <span class="quiz-answer-2"></span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="choice" class="filled-in" value="choice_3" />
+                        <span class="quiz-answer-3"></span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="choice" class="filled-in" value="choice_4" />
+                        <span class="quiz-answer-4"></span>
+                    </label>
+                    <label>
+                        <input type="checkbox" name="choice" class="filled-in" value="choice_5" />
+                        <span class="quiz-answer-5"></span>
+                    </label>
+                </div>
+            </div>
+            <a href="#" class="btn quiz-next disabled">Next question</a>
+        </div>
     </div>
     <div class="success-message" style="display: none;">
         <h5>Your evaluation is completed</h5>
@@ -70,8 +77,18 @@
 {% autoescape off %}
 <script>
     const questions = {{questions|safe}};
-    let currentQuestionIndex = 0;
-    const userAnswers = {};
+    const userAnswers = JSON.parse(localStorage.getItem('userAnswers')) || {};
+
+    function findFirstUnansweredQuestion() {
+        for (let i = 0; i < questions.length; i++) {
+            if (!userAnswers[questions[i].id]) {
+                return i;
+            }
+        }
+        return questions.length; // all questions answered
+    }
+
+    let currentQuestionIndex = findFirstUnansweredQuestion();
 
     const quizTimer = document.querySelector('.quiz-timer');
     const quizProgress = document.querySelector('.quiz-progress');
@@ -82,6 +99,7 @@
     const quizAnswer2 = document.querySelector('.quiz-answer-2');
     const quizAnswer3 = document.querySelector('.quiz-answer-3');
     const quizAnswer4 = document.querySelector('.quiz-answer-4');
+    const quizAnswer5 = document.querySelector('.quiz-answer-5');
     const quizNextBtn = document.querySelector('.quiz-next');
     const quizChoices = document.querySelectorAll('input[name="choice"]');
 
@@ -99,10 +117,17 @@
         quizAnswer2.innerText = question.choice_2;
         quizAnswer3.innerText = question.choice_3;
         quizAnswer4.innerText = question.choice_4;
+        quizAnswer5.innerText = question.choice_5;
 
         quizChoices.forEach(input => {
             input.checked = false;
         });
+
+        if (userAnswers[question.id]) {
+            userAnswers[question.id].choice.forEach(choice => {
+                document.querySelector(`input[value="${choice}"]`).checked = true;
+            });
+        }
 
         quizNextBtn.classList.add('disabled');
         quizNextBtn.classList.remove('blue');
@@ -113,6 +138,9 @@
         if (checkedChoices.length > 0) {
             quizNextBtn.classList.remove('disabled');
             quizNextBtn.classList.add('blue');
+        } else {
+            quizNextBtn.classList.add('disabled');
+            quizNextBtn.classList.remove('blue');
         }
     }
 
@@ -131,17 +159,17 @@
 
             if (--timer < 0) {
                 clearInterval(timerInterval);
-                alert("Time is up!");
-                timoutModal();
+                timeoutModal();
                 saveScore();
                 resetTimer();
+                clearQuizData();
             }
 
             localStorage.setItem('quizTimer', timer);
         }, 1000);
     }
 
-    function timoutModal() {
+    function timeoutModal() {
         document.querySelector('.modal-content').remove();
         document.querySelector('.timeout-message').style.display = 'block';
     }
@@ -160,8 +188,7 @@
             if (data.success) {
                 document.querySelector('.modal-content').remove();
                 document.querySelector('.success-message').style.display = 'block';
-            } else {
-                alert("There was an error processing your answers. Please try again.");
+                clearQuizData();
             }
         })
         .catch(error => console.error("Error:", error));
@@ -170,6 +197,11 @@
     function resetTimer() {
         localStorage.removeItem('quizEndTime');
         localStorage.removeItem('quizTimer');
+    }
+
+    function clearQuizData() {
+        localStorage.removeItem('userAnswers');
+        localStorage.removeItem('currentQuestionIndex');
     }
 
     function calculateRemainingTime(endTime) {
@@ -200,12 +232,16 @@
                 category: questions[currentQuestionIndex].category, choice: selectedChoices
             };
 
+            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
+            localStorage.setItem('currentQuestionIndex', currentQuestionIndex);
+
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
                 displayQuestion(currentQuestionIndex);
             } else {
                 saveScore();
                 resetTimer();
+                clearQuizData();
             }
         }
     });

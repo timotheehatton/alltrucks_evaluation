@@ -109,3 +109,8 @@ html {
 .score-percentage {
     float: right;
 }
+
+input[type="checkbox"].filled-in:checked+span:not(.lever):after {
+    border: 2px solid #01B5E2 !important;
+    background-color: #01B5E2 !important;
+}
