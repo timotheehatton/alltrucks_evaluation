@@ -67,7 +67,7 @@ def index(request):
             'choice_2': item['attributes']['choice_2'],
             'choice_3': item['attributes']['choice_3'],
             'choice_4': item['attributes']['choice_4'],
-            'image': item['attributes']['image']['data']['attributes']['url'] if item['attributes']['image'] else None,
+            'image': '/static/img/logo.png' if not item['attributes']['image']['data'] else f"http://localhost:1337{item['attributes']['image']['data']['attributes']['url']}",
         }
         for item in selected_questions
     ]

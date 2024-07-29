@@ -52,9 +52,15 @@
         <a href="#" class="btn quiz-next disabled">Next</a>
     </div>
     <div class="success-message" style="display: none;">
-        <h5>Congratulations !</h5>
-        <p>You have successfully passed the test. You can download your evaluation diploma.</p>
+        <h5>Your evaluation is completed</h5>
+        <p>You can download your evaluation diploma.</p>
         <a href="{% url 'technician:download_pdf' %}" class="btn white">Download</a>
+        <a href="{% url 'technician:stats' %}" class="btn blue">See my result</a>
+    </div>
+    <div class="timeout-message" style="display: none;">
+        <h5>The time to complete your evaluation is over</h5>
+        <p>You can download your evaluation diploma.</p>
+        <a href="{% url 'technician:quiz' %}" class="btn white">Retry</a>
         <a href="{% url 'technician:stats' %}" class="btn blue">See my result</a>
     </div>
 </div>
@@ -88,7 +94,7 @@
         quizProgress.innerText = `${index + 1}/${questions.length}`;
         quizCategory.innerText = question.category;
         quizQuestion.innerText = question.question;
-        quizImage.src = `http://localhost:1337${question.image}`;
+        quizImage.src = question.image;
         quizAnswer1.innerText = question.choice_1;
         quizAnswer2.innerText = question.choice_2;
         quizAnswer3.innerText = question.choice_3;
@@ -110,49 +116,6 @@
         }
     }
 
-    quizNextBtn.addEventListener('click', () => {
-        const checkedChoices = document.querySelectorAll('input[name="choice"]:checked');
-        if (checkedChoices.length > 0) {
-            const selectedChoices = [];
-            checkedChoices.forEach(choice => {
-                selectedChoices.push(choice.value);
-            });
-            userAnswers[questions[currentQuestionIndex].id] = {
-                category: questions[currentQuestionIndex].category, choice: selectedChoices
-            };
-
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                displayQuestion(currentQuestionIndex);
-            } else {
-                fetch("{% url 'technician:quiz' %}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRFToken": "{{ csrf_token }}"
-                    },
-                    body: JSON.stringify({ answers: userAnswers })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.querySelector('.modal-content').remove();
-                        document.querySelector('.success-message').style.display = 'block';
-                    } else {
-                        alert("There was an error processing your answers. Please try again.");
-                    }
-                })
-                .catch(error => console.error("Error:", error));
-            }
-        }
-    });
-
-    quizChoices.forEach(input => {
-        input.addEventListener('change', enableNextButton);
-    });
-
-    displayQuestion(currentQuestionIndex);
-
     function startTimer(duration, display) {
         let timer = duration, hours, minutes, seconds;
         timerInterval = setInterval(() => {
@@ -169,10 +132,44 @@
             if (--timer < 0) {
                 clearInterval(timerInterval);
                 alert("Time is up!");
+                timoutModal();
+                saveScore();
+                resetTimer();
             }
 
             localStorage.setItem('quizTimer', timer);
         }, 1000);
+    }
+
+    function timoutModal() {
+        document.querySelector('.modal-content').remove();
+        document.querySelector('.timeout-message').style.display = 'block';
+    }
+
+    function saveScore() {
+        fetch("{% url 'technician:quiz' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({ answers: userAnswers })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.querySelector('.modal-content').remove();
+                document.querySelector('.success-message').style.display = 'block';
+            } else {
+                alert("There was an error processing your answers. Please try again.");
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    function resetTimer() {
+        localStorage.removeItem('quizEndTime');
+        localStorage.removeItem('quizTimer');
     }
 
     function calculateRemainingTime(endTime) {
@@ -192,16 +189,46 @@
         startTimer(remainingTime, quizTimer);
     });
 
+    quizNextBtn.addEventListener('click', () => {
+        const checkedChoices = document.querySelectorAll('input[name="choice"]:checked');
+        if (checkedChoices.length > 0) {
+            const selectedChoices = [];
+            checkedChoices.forEach(choice => {
+                selectedChoices.push(choice.value);
+            });
+            userAnswers[questions[currentQuestionIndex].id] = {
+                category: questions[currentQuestionIndex].category, choice: selectedChoices
+            };
+
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                displayQuestion(currentQuestionIndex);
+            } else {
+                saveScore();
+                resetTimer();
+            }
+        }
+    });
+
+    displayQuestion(currentQuestionIndex);
+
+    quizChoices.forEach(input => {
+        input.addEventListener('change', enableNextButton);
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         const elems = document.querySelectorAll('.modal');
-        const instances = M.Modal.init(elems, {
+        const modalInstance = M.Modal.init(elems, {
             dismissible: false
         });
 
         const endTime = localStorage.getItem('quizEndTime');
         if (endTime) {
             const remainingTime = calculateRemainingTime(endTime);
-            startTimer(remainingTime, quizTimer);
+            if (remainingTime > 0) {
+                modalInstance[0].open();
+                startTimer(remainingTime, quizTimer);
+            }
         }
     });
 </script>
