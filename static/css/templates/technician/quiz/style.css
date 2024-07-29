@@ -69,21 +69,21 @@
     font-size: 20px;
     line-height: 24px;
     color: #363636;
+    display: block;
 }
 
 .quiz-image {
-
+    margin-right: 80px;
 }
 
 .quiz-answers {
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
-    margin-left: 80px;
+    align-items: flex-start;
 }
 
 .quiz-answers span {
-    margin: 10px auto;
+    margin: 15px auto;
     font-style: normal;
     font-weight: 600;
     font-size: 18px;

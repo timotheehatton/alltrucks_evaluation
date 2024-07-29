@@ -14,7 +14,7 @@ from users.models import Score
 
 @technician_required
 def index(request):
-    questions = strapi_content.get_all_questions(parameters={'local': 'fr', 'populate': 'image'})
+    questions = strapi_content.get_all_questions(parameters={'local': 'fr', 'populate': 'image', 'size': 'big'})
 
     if request.method == 'POST':
         try:

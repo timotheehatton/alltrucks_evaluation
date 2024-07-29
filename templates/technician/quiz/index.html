@@ -24,32 +24,32 @@
 <div id="modal1" class="modal">
     <div class="modal-content">
         <div class="modal-content-header">
-            <h6 class="quiz-progress"></h6>
-            <h6 class="quiz-timer">01:00:00</h6>
+            <span class="quiz-progress">Question <span class="quiz-progress-number"></span></span>
+            <span class="quiz-timer">01:00:00</span>
         </div>
         <div class="modal-content-question">
-            <h5 class="quiz-category"></h5>
-            <h4 class="quiz-question"></h4>
+            <span class="quiz-category"></span>
+            <span class="quiz-question"></span>
             <div class="quiz-image-anwsers-container">
-                <img class="quiz-image" src="{% static 'img/illu-diploma.svg' %}">
+                <img class="quiz-image" src="#">
                 <div class="quiz-answers">
-                    <label>
+                    <label class="answer-1" style="display:none;">
                         <input type="checkbox" name="choice" class="filled-in" value="choice_1" />
                         <span class="quiz-answer-1"></span>
                     </label>
-                    <label>
+                    <label class="answer-2" style="display:none;">
                         <input type="checkbox" name="choice" class="filled-in" value="choice_2" />
                         <span class="quiz-answer-2"></span>
                     </label>
-                    <label>
+                    <label class="answer-3" style="display:none;">
                         <input type="checkbox" name="choice" class="filled-in" value="choice_3" />
                         <span class="quiz-answer-3"></span>
                     </label>
-                    <label>
+                    <label class="answer-4" style="display:none;">
                         <input type="checkbox" name="choice" class="filled-in" value="choice_4" />
                         <span class="quiz-answer-4"></span>
                     </label>
-                    <label>
+                    <label class="answer-5" style="display:none;">
                         <input type="checkbox" name="choice" class="filled-in" value="choice_5" />
                         <span class="quiz-answer-5"></span>
                     </label>
@@ -91,7 +91,7 @@
     let currentQuestionIndex = findFirstUnansweredQuestion();
 
     const quizTimer = document.querySelector('.quiz-timer');
-    const quizProgress = document.querySelector('.quiz-progress');
+    const quizProgress = document.querySelector('.quiz-progress-number');
     const quizCategory = document.querySelector('.quiz-category');
     const quizQuestion = document.querySelector('.quiz-question');
     const quizImage = document.querySelector('.quiz-image');
@@ -102,6 +102,13 @@
     const quizAnswer5 = document.querySelector('.quiz-answer-5');
     const quizNextBtn = document.querySelector('.quiz-next');
     const quizChoices = document.querySelectorAll('input[name="choice"]');
+    const answerLabels = [
+        document.querySelector('.answer-1'),
+        document.querySelector('.answer-2'),
+        document.querySelector('.answer-3'),
+        document.querySelector('.answer-4'),
+        document.querySelector('.answer-5')
+    ];
 
     function displayQuestion(index) {
         if (index < 0 || index >= questions.length) {
@@ -112,12 +119,28 @@
         quizProgress.innerText = `${index + 1}/${questions.length}`;
         quizCategory.innerText = question.category;
         quizQuestion.innerText = question.question;
-        quizImage.src = question.image;
-        quizAnswer1.innerText = question.choice_1;
-        quizAnswer2.innerText = question.choice_2;
-        quizAnswer3.innerText = question.choice_3;
-        quizAnswer4.innerText = question.choice_4;
-        quizAnswer5.innerText = question.choice_5;
+        if (question.image) {
+            quizImage.src = question.image;
+        } else {
+            quizImage.style.display = 'none';
+        }
+
+        const answers = [
+            question.choice_1,
+            question.choice_2,
+            question.choice_3,
+            question.choice_4,
+            question.choice_5
+        ];
+
+        answers.forEach((answer, i) => {
+            if (answer) {
+                answerLabels[i].style.display = 'block';
+                answerLabels[i].querySelector('span').innerText = answer;
+            } else {
+                answerLabels[i].style.display = 'none';
+            }
+        });
 
         quizChoices.forEach(input => {
             input.checked = false;
