@@ -24,7 +24,7 @@
 .quiz-progress {
     text-align: left;
     font-style: normal;
-    font-weight: 400;
+    font-weight: 300;
     font-size: 26px;
     text-align: center;
     color: #363636;
@@ -33,7 +33,7 @@
 .quiz-timer {
     text-align: right;
     font-style: normal;
-    font-weight: 400;
+    font-weight: 300;
     font-size: 26px;
     text-align: center;
     color: #363636;
@@ -93,4 +93,31 @@
 
 .quiz-next {
     margin-top: 40px;
+}
+
+.launcher {
+    padding: 75px 50px;
+}
+
+.launcher-image {
+}
+
+.launcher-title {
+    margin-top: 25px;
+    color: #4D4D4D;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 26px;
+    text-align: center;
+}
+
+.launcher-description {
+    margin-top: 15px;
+    color: #4D4D4D;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    text-align: center;
+    margin-bottom: 25px;
 }

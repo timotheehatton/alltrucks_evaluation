@@ -2,107 +2,99 @@
 {% load static %}
 
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/templates/common/account/style.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/templates/account/style.css' %}">
 {% endblock %}
 
 {% block body %}
-<h2><i class="material-icons">manage_accounts</i> Account</h2>
+<div class="account">
+    <h1 class="page-title"><i class="material-icons page-title-icon">manage_accounts</i> Account</h1>
 
-<div class="row">
-    <div class="col s12 m7">
-        <!-- Contact Information Card -->
-        <div class="card">
-            <span class="card-title"><i class="material-icons left">person</i>Contact Information</span>
-            <div class="row">
-                <div class="col s12">
-                    <p><b>Name</b></p>
-                    <p>{{ request.user.first_name }} {{ request.user.last_name }}</p>
+    <div class="row">
+        <div class="col s7">
+            <div class="card">
+                <div class="account-info-title"><i class="material-icons left">person</i>Contact Information</div>
+                <div class="account-info-item">
+                    <span class="account-info-item-label">Name</span>
+                    <p class="account-info-item-content">{{ request.user.first_name }} {{ request.user.last_name }}</p>
                 </div>
-                <div class="col s12">
-                    <p><b>Email Address</b></p>
-                    <p>{{ request.user.email }}</p>
+                <div class="account-info-item">
+                    <span class="account-info-item-label">Email Address</span>
+                    <p class="account-info-item-content">{{ request.user.email }}</p>
                 </div>
-                <div class="col s12">
-                    <p><b>CT Number</b></p>
-                    <p>{{ request.user.ct_number }}</p>
+                <div class="account-info-item">
+                    <span class="account-info-item-label">CT Number</span>
+                    <p class="account-info-item-content">{{ request.user.ct_number }}</p>
                 </div>
-            </div>
-            <span class="card-title"><i class="material-icons left">business</i>Workshop Information</span>
-            <div class="row">
-                <div class="col s12">
-                    <p><b>Company Name</b></p>
-                    <p>{{ request.user.company.name }}</p>
+                <div class="separator"></div>
+                <div class="account-info-title"><i class="material-icons left">business</i>Workshop Information</div>
+                <div class="account-info-item">
+                    <span class="account-info-item-label">Company Name</span>
+                    <p class="account-info-item-content">{{ request.user.company.name }}</p>
                 </div>
-                <div class="col s12">
-                    <p><b>City</b></p>
-                    <p>{{ request.user.company.city }}</p>
+                <div class="account-info-item">
+                    <span class="account-info-item-label">City</span>
+                    <p class="account-info-item-content">{{ request.user.company.city }}</p>
                 </div>
-                <div class="col s12">
-                    <p><b>Country</b></p>
-                    <p>{{ request.user.company.country }}</p>
+                <div class="account-info-item">
+                    <span class="account-info-item-label">Country</span>
+                    <p class="account-info-item-content">{{ request.user.company.country }}</p>
                 </div>
-                <div class="col s12">
-                    <p><b>CU Number</b></p>
-                    <p>{{ request.user.company.cu_number }}</p>
+                <div class="account-info-item">
+                    <span class="account-info-item-label">CU Number</span>
+                    <p class="account-info-item-content">{{ request.user.company.cu_number }}</p>
                 </div>
-            </div>
 
-            {% if request.user.user_type == 'technician' %}
-            <span class="card-title"><i class="material-icons left">person</i>Workshop manager</span>
-            <div class="row">
-                <div class="col s12">
-                    <p><b>Name</b></p>
-                    <p>{{ request.user.first_name }} {{ request.user.last_name }}</p>
+                {% if request.user.user_type == 'technician' %}
+                <div class="separator"></div>
+                <div class="account-info-title"><i class="material-icons left">person</i>Workshop manager</div>
+                <div class="account-info-item">
+                    <span class="account-info-item-label">Name</span>
+                    <p class="account-info-item-content">{{ request.user.first_name }} {{ request.user.last_name }}</p>
                 </div>
-                <div class="col s12">
-                    <p><b>Email Address</b></p>
-                    <p>{{ request.user.email }}</p>
+                <div class="account-info-item">
+                    <span class="account-info-item-label">Email Address</span>
+                    <p class="account-info-item-content">{{ request.user.email }}</p>
                 </div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
-    </div>
-    <div class="col s12 m5">
-        <!-- Change Password Card -->
-        <div class="card">
-            <span class="card-title"><i class="material-icons left">lock</i>Change Password</span>
-            <form method="post" action="{% url 'common:change-password' %}">
-                {% csrf_token %}
-                <div class="row">
+        <div class="col s5">
+            <div class="card">
+                <div class="account-info-title"><i class="material-icons left">lock</i>Change Password</div>
+                <form method="post" action="{% url 'common:change-password' %}">
+                    {% csrf_token %}
                     {% for field in password_form %}
-                        <div class="input-field col s12">
+                        <div class="input-field">
                             {{ field.label_tag }}
                             {{ field }}
                             {{ field.errors }}
                         </div>
                     {% endfor %}
-                </div>
-                <button type="submit" class="btn blue">Change Password</button>
-            </form>
-            <ul>
-                {% for message in messages %}
-                    {% if "password" in message.message %}
-                        <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
-                            {% if "success" in message.tags %}
-                                <div class="green lighten-4 green-text">{{ message }}</div>
-                            {% elif "error" in message.tags %}
-                                <div class="red lighten-4 red-text">{{ message }}</div>
-                            {% else %}
-                                <div class="grey lighten-4 grey-text">{{ message }}</div>
-                            {% endif %}
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        </div>
-        <!-- Settings Card -->
-        <div class="card">
-            <span class="card-title"><i class="material-icons left">settings</i>Settings</span>
-            <form method="post" action="{% url 'common:change-language' %}">
-                {% csrf_token %}
-                <div class="row">
+                    <button type="submit" class="btn blue">Change Password</button>
+                </form>
+                <ul>
+                    {% for message in messages %}
+                        {% if "password" in message.message %}
+                            <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                                {% if "success" in message.tags %}
+                                    <div class="green lighten-4 green-text">{{ message }}</div>
+                                {% elif "error" in message.tags %}
+                                    <div class="red lighten-4 red-text">{{ message }}</div>
+                                {% else %}
+                                    <div class="grey lighten-4 grey-text">{{ message }}</div>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="separator"></div>
+            <div class="card">
+                <div class="account-info-title"><i class="material-icons left">settings</i>Settings</div>
+                <form method="post" action="{% url 'common:change-language' %}">
+                    {% csrf_token %}
                     {% for field in language_form %}
-                        <div class="input-field col s12">
+                        <div class="input-field">
                             <label for="{{ field.id_for_label }}" class="active">{{ field.label }}</label>
                             {{ field }}
                             {% if field.errors %}
@@ -110,25 +102,35 @@
                             {% endif %}
                         </div>
                     {% endfor %}
-                </div>
-                <button type="submit" class="btn blue">Update Language</button>
-            </form>
-            {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    {% if "language" in message.message %}
-                        <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
-                            {% if "success" in message.tags %}
-                                <div class="green lighten-4 green-text">{{ message }}</div>
-                            {% elif "error" in message.tags %}
-                                <div class="red lighten-4 red-text">{{ message }}</div>
-                            {% else %}
-                                <div class="grey lighten-4 grey-text">{{ message }}</div>
-                            {% endif %}
-                        </li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
+                    <button type="submit" class="btn blue">Update Language</button>
+                </form>
+                {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        {% if "language" in message.message %}
+                            <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                                {% if "success" in message.tags %}
+                                    <div class="green lighten-4 green-text">{{ message }}</div>
+                                {% elif "error" in message.tags %}
+                                    <div class="red lighten-4 red-text">{{ message }}</div>
+                                {% else %}
+                                    <div class="grey lighten-4 grey-text">{{ message }}</div>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+            {% if request.user.is_authenticated %}
+            <div class="separator"></div>
+            <div class="card">
+                <div class="account-info-title"><i class="material-icons left">power_settings_new</i>Logout from your account</div>
+                <form action="{% url 'logout' %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn red">Logout</button>
+                </form>
+            </div>
             {% endif %}
         </div>
     </div>

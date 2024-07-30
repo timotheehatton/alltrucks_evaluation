@@ -6,15 +6,15 @@
 {% endblock %}
 
 {% block body %}
-<h2><i class="material-icons">edit_note</i> Evaluation</h2>
+<h1 class="page-title"><i class="material-icons page-title-icon">assignment</i> Evaluation</h1>
 
 <div class="container">
     <div class="row">
         <div class="col s12 l10 offset-l1">
-            <div class="card center-align">
-                <img src="{% static 'img/illu-computer.svg' %}">
-                <h5 class="card-title">Skills evaluation</h5>
-                <p>Your skills will be evaluated on 8 different topics. You have 120 minutes to answer all 100 questions. You can’t stop the test after starting it.</p>
+            <div class="card launcher center-align">
+                <img class="launcher-image" src="{% static 'img/illu-computer.svg' %}">
+                <h5 class="launcher-title">Skills evaluation</h5>
+                <p class="launcher-description">Your skills will be evaluated on 8 different topics. You have 120 minutes to answer all 100 questions. You can’t stop the test after starting it.</p>
                 <a href="#modal1" class="btn blue modal-trigger">Start the test</a>
             </div>
         </div>

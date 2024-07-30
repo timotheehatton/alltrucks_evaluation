@@ -33,16 +33,26 @@ html {
     text-transform: uppercase;
     color: #8691A3;
     padding-left: 30px;
+    margin-bottom: 8px;
 }
 
 .sidebar ul li a {
     background-color: transparent;
     color: #fff;
     width: 100%;
-    display: block;
-    padding-top: 10px;
+    display: flex;
+    align-items: center;
+    padding-top: 15px;
+    padding-bottom: 15px;
     padding-left: 26px;
     border-left: 4px solid transparent;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.sidebar ul li a i {
+    margin-right: 13px;
 }
 
 .sidebar ul li a:hover {
@@ -57,13 +67,19 @@ html {
 }
 
 .logo {
-    margin-top: 70px;
+    width: 100%;
+    margin-top: 50px;
     text-align: center;
+    padding: 0 25px;
+}
+
+.logo img {
+    width: 100%;
 }
 
 .content {
     margin-left: 250px;
-    padding: 20px;
+    padding: 45px 40px;
     height: 100%;
     overflow-y: auto;
 }
@@ -73,7 +89,7 @@ html {
 }
 
 .card {
-    padding: 35px;
+    padding: 40px;
     border-radius: 10px;
     margin: 0;
     box-shadow: 0px 11px 14px rgba(0, 0, 0, 0.02);
@@ -113,4 +129,30 @@ html {
 input[type="checkbox"].filled-in:checked+span:not(.lever):after {
     border: 2px solid #01B5E2 !important;
     background-color: #01B5E2 !important;
+}
+
+.page-title {
+    margin-top: 0;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 30px;
+    color: #313232;
+    display: flex;
+    align-items: center;
+}
+
+.page-title-icon {
+    font-size: 28px;
+    color: #313232;
+    margin-right: 10px;
+}
+
+.btn {
+    border-radius: 30px;
+    text-transform: inherit;
+    padding: 0 25px;
+}
+
+.row .col {
+    padding: 0;
 }

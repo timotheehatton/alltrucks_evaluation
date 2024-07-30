@@ -1,0 +1,61 @@
+.account {
+
+}
+
+.account .s7 {
+    padding-right: 40px;
+}
+
+.account-info-title {
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    color: #4D4D4D;
+    display: flex;
+    align-items: center;
+}
+
+.account-info-title i {
+    font-style: normal;
+    font-weight: 900;
+    font-size: 18px;
+    line-height: 18px;
+    color: #4D4D4D;
+}
+
+.account-info-item {
+
+}
+
+.account-info-item-label {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 16px;
+    text-transform: uppercase;
+    color: #808080;
+    margin-top: 25px;
+    display: block;
+}
+
+.account-info-item-content {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 22px;
+    color: #313232;
+    margin-top: 10px;
+    margin-bottom: 0;
+}
+
+.account .separator {
+    margin-top: 40px;
+}
+
+.account .input-field {
+    margin-top: 25px;
+}
+
+.account .btn.red {
+    margin-top: 25px;
+}
