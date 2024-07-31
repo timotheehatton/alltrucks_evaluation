@@ -31,10 +31,7 @@ def index(request):
             for question_id, choices in user_answers.items():
                 if correct_answers.get(int(question_id)) in choices['choice']:
                     scores[choices['category']] += 1
-            
-            print(scores)
-            
-            # Store the scores in the database
+
             for category, category_score in scores.items():
                 Score.objects.create(
                     user=request.user,

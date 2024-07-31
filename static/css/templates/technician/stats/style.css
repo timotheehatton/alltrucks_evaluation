@@ -9,6 +9,10 @@
     height: 500px;
 }
 
+.diploma.disabled {
+    filter: blur(5px);
+}
+
 .diploma img {
     width: 100%;
     margin-top: 10px;
@@ -39,8 +43,20 @@
 
 .stats .s9 {
     padding-right: 40px;
+    position: relative;
+}
+
+.disabled-action {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .stats .page-title-secondary {
     margin-top: 40px;
+}
+
+.graph.disabled {
+    filter: blur(5px);
 }

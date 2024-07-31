@@ -17,8 +17,6 @@ def index(request):
         success_percentage=ExpressionWrapper((Sum('score') * 100.0) / 20.0, output_field=IntegerField())
     )
 
-    print(scores_by_category)
-
     return render(request, 'technician/stats/index.html', {
         'scores_by_category': scores_by_category
     })

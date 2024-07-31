@@ -1,0 +1,90 @@
+[
+  {
+    "model": "users.User",
+    "pk": 1,
+    "fields": {
+      "username": "technician1",
+      "first_name": "John",
+      "last_name": "technician",
+      "email": "tech.john@example.com",
+      "is_active": true,
+      "password": "pbkdf2_sha256$720000$qJf4jPT4wSzJrlvtkEMITH$TRb3Kzi1+GjlocIVFTVi4tQGR7p+TDb5gQfSa/yUjDc=",
+      "user_type": "technician",
+      "company": 4,
+      "language": "FR",
+      "ct_number": "FEDERR323R2"
+    }
+  },
+  {
+    "model": "users.User",
+    "pk": 2,
+    "fields": {
+      "username": "technician2",
+      "first_name": "nicolas",
+      "last_name": "technician",
+      "email": "tech.nicolas@example.com",
+      "is_active": true,
+      "password": "pbkdf2_sha256$720000$qJf4jPT4wSzJrlvtkEMITH$TRb3Kzi1+GjlocIVFTVi4tQGR7p+TDb5gQfSa/yUjDc=",
+      "user_type": "technician",
+      "company": 4,
+      "language": "FR",
+      "ct_number": "FEDERR323R2"
+    }
+  },
+  {
+    "model": "users.User",
+    "pk": 3,
+    "fields": {
+      "username": "workshop",
+      "first_name": "Jane",
+      "last_name": "workshop",
+      "email": "workshop.jane@example.com",
+      "is_active": true,
+      "password": "pbkdf2_sha256$720000$qJf4jPT4wSzJrlvtkEMITH$TRb3Kzi1+GjlocIVFTVi4tQGR7p+TDb5gQfSa/yUjDc=",
+      "user_type": "workshop",
+      "company": 4,
+      "language": "FR",
+      "ct_number": "FEDERR323R2"
+    }
+  },
+  {
+    "model": "users.User",
+    "pk": 4,
+    "fields": {
+      "username": "technician3",
+      "first_name": "Alice",
+      "last_name": "technician",
+      "email": "tech.alice@example.com",
+      "is_active": true,
+      "password": "pbkdf2_sha256$720000$qJf4jPT4wSzJrlvtkEMITH$TRb3Kzi1+GjlocIVFTVi4tQGR7p+TDb5gQfSa/yUjDc=",
+      "user_type": "technician",
+      "company": 4,
+      "language": "FR",
+      "ct_number": "FEDERR323R2"
+    }
+  },
+  {
+    "model": "users.Company",
+    "pk": 4,
+    "fields": {
+      "name": "truck service gmbh",
+      "city": "magny",
+      "country": "FR",
+      "cu_number": "FEDERR323R2"
+    }
+  },
+  {
+    "model": "users.User",
+    "pk": 29,
+    "fields": {
+      "username": "admin",
+      "first_name": "Admin",
+      "last_name": "User",
+      "email": "admin@example.com",
+      "password": "pbkdf2_sha256$720000$qJf4jPT4wSzJrlvtkEMITH$TRb3Kzi1+GjlocIVFTVi4tQGR7p+TDb5gQfSa/yUjDc=",
+      "is_superuser": true,
+      "is_staff": true,
+      "is_active": true
+    }
+  }
+]

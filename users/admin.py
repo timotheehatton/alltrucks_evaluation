@@ -103,7 +103,6 @@ class MyAdminSite(admin.AdminSite):
 
                 i = 1
                 while f'technician_first_name_{i}' in request.POST:
-                    print(request.POST[f'technician_email_{i}'])
                     technician_user = User.objects.create_user(
                         username=request.POST[f'technician_email_{i}'],
                         email=request.POST[f'technician_email_{i}'],
@@ -120,7 +119,6 @@ class MyAdminSite(admin.AdminSite):
             else:
                 for field, errors in form.errors.items():
                     for error in errors:
-                        print(f"{field}: {error}")
                         messages.error(request, f"{field}: {error}")
         else:
             form = CompanyUserForm()
