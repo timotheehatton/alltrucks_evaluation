@@ -50,6 +50,7 @@
     align-items: center;
     flex-direction: row;
     margin-top: 40px;
+    height: 310px;
 }
 
 .quiz-category {

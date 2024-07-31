@@ -14,7 +14,8 @@ from users.models import Score
 
 @technician_required
 def index(request):
-    questions = strapi_content.get_all_questions(parameters={'local': 'fr', 'populate': 'image', 'size': 'big'})
+    questions = strapi_content.get_content(page='questions', parameters={'local': 'fr', 'populate': 'image', 'size': 'big'})
+    page_content = strapi_content.get_content(page='test', parameters={'local': 'fr'})
 
     if request.method == 'POST':
         try:
@@ -71,5 +72,6 @@ def index(request):
     ]
 
     return render(request, 'technician/quiz/index.html', {
-        'questions': json.dumps(displayed_questions)
+        'questions': json.dumps(displayed_questions),
+        'page_content': page_content['data']['attributes']
     })

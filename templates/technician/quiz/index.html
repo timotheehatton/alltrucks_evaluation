@@ -6,16 +6,16 @@
 {% endblock %}
 
 {% block body %}
-<h1 class="page-title"><i class="material-icons page-title-icon">assignment</i> Evaluation</h1>
+<h1 class="page-title"><i class="material-icons page-title-icon">assignment</i> {{page_content.page_title}}</h1>
 
 <div class="container">
     <div class="row">
         <div class="col s12 l10 offset-l1">
             <div class="card launcher center-align">
                 <img class="launcher-image" src="{% static 'img/illu-computer.svg' %}">
-                <h5 class="launcher-title">Skills evaluation</h5>
-                <p class="launcher-description">Your skills will be evaluated on 8 different topics. You have 120 minutes to answer all 100 questions. You can’t stop the test after starting it.</p>
-                <a href="#modal1" class="btn blue modal-trigger">Start the test</a>
+                <h5 class="launcher-title">{{page_content.card_title}}</h5>
+                <p class="launcher-description">{{page_content.card_content}}</p>
+                <a href="#modal1" class="btn blue modal-trigger">{{page_content.card_btn}}</a>
             </div>
         </div>
     </div>
@@ -24,7 +24,7 @@
 <div id="modal1" class="modal">
     <div class="modal-content">
         <div class="modal-content-header">
-            <span class="quiz-progress">Question <span class="quiz-progress-number"></span></span>
+            <span class="quiz-progress">{{page_content.test_question}} <span class="quiz-progress-number"></span></span>
             <span class="quiz-timer">01:00:00</span>
         </div>
         <div class="modal-content-question">
@@ -55,7 +55,7 @@
                     </label>
                 </div>
             </div>
-            <a href="#" class="btn quiz-next disabled">Next question</a>
+            <a href="#" class="btn quiz-next disabled">{{page_content.test_next_button}}</a>
         </div>
     </div>
     <div class="success-message" style="display: none;">
