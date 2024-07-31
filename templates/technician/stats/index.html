@@ -47,17 +47,26 @@
 <script>
     const ctx = document.getElementById('radarChart').getContext('2d');
     const data = {
+
         labels: [
-            {% for score in scores_by_category %}
-                "{{ score.question_type }}",
-            {% endfor %}
+            {% if scores_by_category %}
+                {% for score in scores_by_category %}
+                    "{{ score.question_type }}",
+                {% endfor %}
+            {% else %}
+            "diagnostic", "electricity", "engine_exhaust", "engine injection", "powertrain", "trailer braking system", "truck air braking_ ystem"
+            {% endif %}
         ],
         datasets: [
             {
                 data: [
-                    {% for score in scores_by_category %}
-                        {{ score.total_score }},
-                    {% endfor %}
+                    {% if scores_by_category %}
+                        {% for score in scores_by_category %}
+                            {{ score.total_score }},
+                        {% endfor %}
+                    {% else %}
+                        18, 15, 16, 13, 10, 19, 19,
+                    {% endif %}
                 ],
                 fill: false,
                 pointRadius: 0,
