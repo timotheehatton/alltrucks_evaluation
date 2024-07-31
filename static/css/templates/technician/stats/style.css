@@ -1,22 +1,46 @@
+.graph {
+    height: 500px;
+}
+
 .diploma {
     padding: 0;
     background-color: #01B5E2;
     padding-bottom: 35px;
+    height: 500px;
 }
 
 .diploma img {
-    width: 100%
+    width: 100%;
+    margin-top: 10px;
 }
 
 .diploma h5 {
+    padding: 0 25px;
+    text-align: left;
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.4;
+    margin-top: 15px;
+    margin-bottom: 20px;
     color: #fff;
 }
 
-.btn .blue {
-    background-color: #fff;
+.diploma .btn.white {
+    width: calc(100% - 50px);
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.diploma .btn.white i {
     color: #01B5E2;
 }
 
 .stats .s9 {
     padding-right: 40px;
+}
+
+.stats .page-title-secondary {
+    margin-top: 40px;
 }
