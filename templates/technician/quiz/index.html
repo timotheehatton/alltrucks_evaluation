@@ -58,15 +58,15 @@
             <a href="#" class="btn quiz-next disabled">{{page_content.test_next_button}}</a>
         </div>
     </div>
-    <div class="success-message" style="display: none;">
-        <h5>Your evaluation is completed</h5>
-        <p>You can download your evaluation diploma.</p>
+    <div class="success-message popinInfo" style="display: none;">
+        <h5 class="popinInfo-title">Your evaluation is completed</h5>
+        <p class="popinInfo-content">You can download your evaluation diploma.</p>
         <a href="{% url 'technician:download_pdf' %}" class="btn white">Download</a>
         <a href="{% url 'technician:stats' %}" class="btn blue">See my result</a>
     </div>
-    <div class="timeout-message" style="display: none;">
-        <h5>The time to complete your evaluation is over</h5>
-        <p>You can download your evaluation diploma.</p>
+    <div class="timeout-message popinInfo" style="display: none;">
+        <h5 class="popinInfo-title">The time to complete your evaluation is over</h5>
+        <p class="popinInfo-content">You can download your evaluation diploma.</p>
         <a href="{% url 'technician:quiz' %}" class="btn white">Retry</a>
         <a href="{% url 'technician:stats' %}" class="btn blue">See my result</a>
     </div>
