@@ -59,16 +59,26 @@
         </div>
     </div>
     <div class="success-message popinInfo" style="display: none;">
-        <h5 class="popinInfo-title">Your evaluation is completed</h5>
-        <p class="popinInfo-content">You can download your evaluation diploma.</p>
-        <a href="{% url 'technician:download_pdf' %}" class="btn white">Download</a>
-        <a href="{% url 'technician:stats' %}" class="btn blue">See my result</a>
+        <div class="popinInfo-content">
+            <img src="{% static 'img/illu-success.svg' %}">
+            <h5 class="popinInfo-title">Your evaluation is completed</h5>
+            <p class="popinInfo-message">You can see your training recommendation and download your evaluation diploma.</p>
+            <div>
+                <a href="{% url 'technician:stats' %}" class="btn blue">See my training recommendation</a>
+                <a href="{% url 'technician:download_pdf' %}" class="btn white">Download diploma</a>
+            </div>
+        </div>
     </div>
     <div class="timeout-message popinInfo" style="display: none;">
-        <h5 class="popinInfo-title">The time to complete your evaluation is over</h5>
-        <p class="popinInfo-content">You can download your evaluation diploma.</p>
-        <a href="{% url 'technician:quiz' %}" class="btn white">Retry</a>
-        <a href="{% url 'technician:stats' %}" class="btn blue">See my result</a>
+        <div class="popinInfo-content">
+            <img src="{% static 'img/illu-error.svg' %}">
+            <h5 class="popinInfo-title">The time to complete your evaluation is over</h5>
+            <p class="popinInfo-message">Question already filled have been comptabilisé. You can check your result and download your evaluation diploma.</p>
+            <div>
+                <a href="{% url 'technician:stats' %}" class="btn blue">See my training recommendation</a>
+                <a href="{% url 'technician:quiz' %}" class="btn white">Retry the test</a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

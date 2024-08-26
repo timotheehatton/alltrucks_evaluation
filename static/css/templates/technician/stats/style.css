@@ -46,6 +46,10 @@
     position: relative;
 }
 
+.stats .s9 .card {
+    padding: 40px 0 40px 0;
+}
+
 .disabled-action {
     position: absolute;
     top: 50%;

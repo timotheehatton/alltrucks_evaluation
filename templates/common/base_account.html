@@ -15,29 +15,29 @@
                 <div class="account-info-title"><i class="material-icons left">person</i>{{page_content.section_title_user}}</div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.user_label_name}}</span>
-                    <p class="account-info-item-content">{{ request.user.first_name }} {{ request.user.last_name }}</p>
+                    <p class="account-info-item-content">{{request.user.first_name}} {{request.user.last_name}}</p>
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.user_label_address}}</span>
-                    <p class="account-info-item-content">{{ request.user.email }}</p>
+                    <p class="account-info-item-content">{{request.user.email}}</p>
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.user_label_ctnumber}}</span>
-                    <p class="account-info-item-content">{{ request.user.ct_number }}</p>
+                    <p class="account-info-item-content">{{request.user.ct_number}}</p>
                 </div>
                 <div class="separator"></div>
                 <div class="account-info-title"><i class="material-icons left">business</i>{{page_content.section_title_workshop}}</div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.company_label_name}}</span>
-                    <p class="account-info-item-content">{{ request.user.company.name }}</p>
+                    <p class="account-info-item-content">{{request.user.company.name}}</p>
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.company_label_location}}</span>
-                    <p class="account-info-item-content">{{ request.user.company.city }}, {{ request.user.company.country }}</p>
+                    <p class="account-info-item-content">{{request.user.company.city}}, {{request.user.company.country}}</p>
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.company_label_cunumber}}</span>
-                    <p class="account-info-item-content">{{ request.user.company.cu_number }}</p>
+                    <p class="account-info-item-content">{{request.user.company.cu_number}}</p>
                 </div>
 
                 {% if request.user.user_type == 'technician' %}
@@ -45,11 +45,11 @@
                 <div class="account-info-title"><i class="material-icons left">person</i>{{page_content.section_title_manager}}</div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.manager_label_name}}</span>
-                    <p class="account-info-item-content">{{ request.user.first_name }} {{ request.user.last_name }}</p>
+                    <p class="account-info-item-content">{{manager.first_name}} {{manager.last_name}}</p>
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.manager_label_email}}</span>
-                    <p class="account-info-item-content">{{ request.user.email }}</p>
+                    <p class="account-info-item-content">{{manager.email}}</p>
                 </div>
                 {% endif %}
             </div>
@@ -58,26 +58,34 @@
             <div class="card">
                 <div class="account-info-title"><i class="material-icons left">lock</i>{{page_content.section_title_password}}</div>
                 <form method="post" action="{% url 'common:change-password' %}">
-                    {% csrf_token %}
-                    {% for field in password_form %}
-                        <div class="input-field">
-                            {{ field.label_tag }}
-                            {{ field }}
-                            {{ field.errors }}
-                        </div>
-                    {% endfor %}
-                    <button type="submit" class="btn blue">{{page_content.password_btn}}</button>
-                </form>
+                {% csrf_token %}
+                <div class="input-field">
+                    <label for="{{password_form.old_password.id_for_label}}">{{page_content.password_label_oldpassword}}</label>
+                    {{password_form.old_password}}
+                    {{password_form.old_password.errors}}
+                </div>
+                <div class="input-field">
+                    <label for="{{password_form.new_password1.id_for_label}}">{{page_content.password_label_newpassword}}</label>
+                    {{password_form.new_password1}}
+                    {{password_form.new_password1.errors}}
+                </div>
+                <div class="input-field">
+                    <label for="{{password_form.new_password2.id_for_label}}">{{page_content.password_label_passwordconfirmation}}</label>
+                    {{password_form.new_password2}}
+                    {{password_form.new_password2.errors}}
+                </div>
+                <button type="submit" class="btn blue">{{page_content.password_btn}}</button>
+            </form>
                 <ul>
                     {% for message in messages %}
                         {% if "password" in message.message %}
-                            <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                            <li class="{% if message.tags %} {{message.tags}} {% endif %}">
                                 {% if "success" in message.tags %}
-                                    <div class="green lighten-4 green-text">{{ message }}</div>
+                                    <div class="green lighten-4 green-text">{{message}}</div>
                                 {% elif "error" in message.tags %}
-                                    <div class="red lighten-4 red-text">{{ message }}</div>
+                                    <div class="red lighten-4 red-text">{{message}}</div>
                                 {% else %}
-                                    <div class="grey lighten-4 grey-text">{{ message }}</div>
+                                    <div class="grey lighten-4 grey-text">{{message}}</div>
                                 {% endif %}
                             </li>
                         {% endif %}
@@ -91,10 +99,10 @@
                     {% csrf_token %}
                     {% for field in language_form %}
                         <div class="input-field">
-                            <label for="{{ field.id_for_label }}" class="active">{{ field.label }}</label>
-                            {{ field }}
+                            <label for="{{field.id_for_label}}" class="active">{{field.label}}</label>
+                            {{field}}
                             {% if field.errors %}
-                                <span class="helper-text" data-error="wrong" data-success="right">{{ field.errors }}</span>
+                                <span class="helper-text" data-error="wrong" data-success="right">{{field.errors}}</span>
                             {% endif %}
                         </div>
                     {% endfor %}
@@ -104,13 +112,13 @@
                 <ul>
                     {% for message in messages %}
                         {% if "language" in message.message %}
-                            <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                            <li class="{% if message.tags %} {{message.tags}} {% endif %}">
                                 {% if "success" in message.tags %}
-                                    <div class="green lighten-4 green-text">{{ message }}</div>
+                                    <div class="green lighten-4 green-text">{{message}}</div>
                                 {% elif "error" in message.tags %}
-                                    <div class="red lighten-4 red-text">{{ message }}</div>
+                                    <div class="red lighten-4 red-text">{{message}}</div>
                                 {% else %}
-                                    <div class="grey lighten-4 grey-text">{{ message }}</div>
+                                    <div class="grey lighten-4 grey-text">{{message}}</div>
                                 {% endif %}
                             </li>
                         {% endif %}
