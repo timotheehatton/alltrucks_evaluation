@@ -27,9 +27,7 @@ def download_pdf(request):
 
 @technician_required
 def index(request):
-    page_content_categories = strapi_content.get_content(page='category', parameters={'local': 'fr'})
-    page_content = strapi_content.get_content(page='user-statistic', parameters={'local': 'fr'})
-    print(page_content)
+    page_content = strapi_content.get_content(pages=['user-statistic', 'category', 'menu'], parameters={'locale': request.user.language.lower()})
     last_datetime = Score.objects.filter(user=request.user).aggregate(date=Max('date'))['date']
     scores_by_category = Score.objects.filter(user=request.user, date=last_datetime).values('question_type').annotate(
         total_score=Sum('score'),
@@ -37,7 +35,7 @@ def index(request):
     )
     scores_by_category = [
         {
-            'question_type': page_content_categories['data']['attributes'][score['question_type']],
+            'question_type': page_content[score['question_type']],
             'total_score': score['total_score'],
             'success_percentage': score['success_percentage']
         }
@@ -46,5 +44,5 @@ def index(request):
 
     return render(request, 'technician/stats/index.html', {
         'scores_by_category': scores_by_category,
-        'page_content': page_content['data']['attributes'],
+        'page_content': page_content,
     })

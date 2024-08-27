@@ -61,22 +61,22 @@
     <div class="success-message popinInfo" style="display: none;">
         <div class="popinInfo-content">
             <img src="{% static 'img/illu-success.svg' %}">
-            <h5 class="popinInfo-title">Your evaluation is completed</h5>
-            <p class="popinInfo-message">You can see your training recommendation and download your evaluation diploma.</p>
+            <h5 class="popinInfo-title">{{page_content.popin_success_title}}</h5>
+            <p class="popinInfo-message">{{page_content.popin_success_content}}</p>
             <div>
-                <a href="{% url 'technician:stats' %}" class="btn blue">See my training recommendation</a>
-                <a href="{% url 'technician:download_pdf' %}" class="btn white">Download diploma</a>
+                <a href="{% url 'technician:stats' %}" class="btn blue">{{page_content.popin_success_button_1}}</a>
+                <a href="{% url 'technician:download_pdf' %}" class="btn white">{{page_content.popin_success_button_2}}</a>
             </div>
         </div>
     </div>
     <div class="timeout-message popinInfo" style="display: none;">
         <div class="popinInfo-content">
             <img src="{% static 'img/illu-error.svg' %}">
-            <h5 class="popinInfo-title">The time to complete your evaluation is over</h5>
-            <p class="popinInfo-message">Question already filled have been comptabilisé. You can check your result and download your evaluation diploma.</p>
+            <h5 class="popinInfo-title">{{page_content.popin_timeout_title}}</h5>
+            <p class="popinInfo-message">{{page_content.popin_timeout_content}}</p>
             <div>
-                <a href="{% url 'technician:stats' %}" class="btn blue">See my training recommendation</a>
-                <a href="{% url 'technician:quiz' %}" class="btn white">Retry the test</a>
+                <a href="{% url 'technician:stats' %}" class="btn blue">{{page_content.popin_timeout_button_1}}</a>
+                <a href="{% url 'technician:quiz' %}" class="btn white">{{page_content.popin_timeout_button_2}}</a>
             </div>
         </div>
     </div>
@@ -127,7 +127,7 @@
 
         const question = questions[index];
         quizProgress.innerText = `${index + 1}/${questions.length}`;
-        quizCategory.innerText = question.category;
+        quizCategory.innerText = question.category_displayed;
         quizQuestion.innerText = question.question;
         if (question.image) {
             quizImage.src = question.image;

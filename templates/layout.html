@@ -21,17 +21,17 @@
                 <img src="{% static 'img/logo.png' %}">
             </div>
             <ul class="menu">
-                <li class="header">Menu</li>
+                <li class="header">{{ page_content.label_menu }}</li>
                 {% if request.user.user_type == 'technician' %}
-                <li><a class="{% if request.resolver_match.url_name == "stats" %}active{% endif %}" href="{% url 'technician:stats' %}"><i class="material-icons">bar_chart</i> My stats</a></li>
-                <li><a class="{% if request.resolver_match.url_name == "quiz" %}active{% endif %}" href="{% url 'technician:quiz' %}"><i class="material-icons">assignment</i> Quiz</a></li>
-                <li class="header spaced-row-top-big">Settings</li>
-                <li><a class="{% if request.resolver_match.url_name == "account" %}active{% endif %}" href="{% url 'technician:account' %}"><i class="material-icons">manage_accounts</i> Account</a></li>
+                <li><a class="{% if request.resolver_match.url_name == "stats" %}active{% endif %}" href="{% url 'technician:stats' %}"><i class="material-icons">bar_chart</i> {{ page_content.technician_stats }}</a></li>
+                <li><a class="{% if request.resolver_match.url_name == "quiz" %}active{% endif %}" href="{% url 'technician:quiz' %}"><i class="material-icons">assignment</i> {{ page_content.technician_evaluation }}</a></li>
+                <li class="header spaced-row-top-big">{{ page_content.label_settings }}</li>
+                <li><a class="{% if request.resolver_match.url_name == "account" %}active{% endif %}" href="{% url 'technician:account' %}"><i class="material-icons">manage_accounts</i> {{ page_content.technician_account }}</a></li>
                 {% elif request.user.user_type == 'workshop' %}
-                <li><a class="{% if request.resolver_match.url_name == "stats" %}active{% endif %}" href="{% url 'workshop:stats' %}"><i class="material-icons">bar_chart</i> Workshop stats</a></li>
-                <li><a class="{% if request.resolver_match.url_name == "technicians" or request.resolver_match.url_name == "details" %}active{% endif %}" href="{% url 'workshop:technicians' %}"><i class="material-icons">group</i> Technicians</a></li>
-                <li class="header spaced-row-top-big">Settings</li>
-                <li><a class="{% if request.resolver_match.url_name == "account" %}active{% endif %}" href="{% url 'workshop:account' %}"><i class="material-icons">manage_accounts</i> My Account</a></li>
+                <li><a class="{% if request.resolver_match.url_name == "stats" %}active{% endif %}" href="{% url 'workshop:stats' %}"><i class="material-icons">bar_chart</i> {{ page_content.workshop_stats }}</a></li>
+                <li><a class="{% if request.resolver_match.url_name == "technicians" or request.resolver_match.url_name == "details" %}active{% endif %}" href="{% url 'workshop:technicians' %}"><i class="material-icons">group</i> {{ page_content.workshop_technicians }}</a></li>
+                <li class="header spaced-row-top-big">{{ page_content.label_settings }}</li>
+                <li><a class="{% if request.resolver_match.url_name == "account" %}active{% endif %}" href="{% url 'workshop:account' %}"><i class="material-icons">manage_accounts</i> {{ page_content.workshop_account }}</a></li>
                 {% endif %}
             </ul>
         </div>

@@ -99,7 +99,7 @@
                     {% csrf_token %}
                     {% for field in language_form %}
                         <div class="input-field">
-                            <label for="{{field.id_for_label}}" class="active">{{field.label}}</label>
+                            <label for="{{field.id_for_label}}" class="active">{{page_content.settings_label_language}}</label>
                             {{field}}
                             {% if field.errors %}
                                 <span class="helper-text" data-error="wrong" data-success="right">{{field.errors}}</span>
