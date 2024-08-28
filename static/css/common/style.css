@@ -150,6 +150,8 @@ input[type="checkbox"].filled-in:checked+span:not(.lever):after {
 }
 
 .page-title-icon {
+    position: relative;
+    top: 1px;
     font-size: 28px;
     color: #313232;
     margin-right: 10px;

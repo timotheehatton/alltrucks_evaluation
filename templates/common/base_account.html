@@ -7,48 +7,48 @@
 
 {% block body %}
 <div class="account">
-    <h1 class="page-title"><i class="material-icons page-title-icon">manage_accounts</i> {{page_content.page_title}}</h1>
+    <h1 class="page-title"><i class="material-icons page-title-icon">manage_accounts</i> {{page_content.account.page_title}}</h1>
 
     <div class="row">
         <div class="col s7">
             <div class="card">
-                <div class="account-info-title"><i class="material-icons left">person</i>{{page_content.section_title_user}}</div>
+                <div class="account-info-title"><i class="material-icons left">person</i>{{page_content.account.section_title_user}}</div>
                 <div class="account-info-item">
-                    <span class="account-info-item-label">{{page_content.user_label_name}}</span>
+                    <span class="account-info-item-label">{{page_content.account.user_label_name}}</span>
                     <p class="account-info-item-content">{{request.user.first_name}} {{request.user.last_name}}</p>
                 </div>
                 <div class="account-info-item">
-                    <span class="account-info-item-label">{{page_content.user_label_address}}</span>
+                    <span class="account-info-item-label">{{page_content.account.user_label_address}}</span>
                     <p class="account-info-item-content">{{request.user.email}}</p>
                 </div>
                 <div class="account-info-item">
-                    <span class="account-info-item-label">{{page_content.user_label_ctnumber}}</span>
+                    <span class="account-info-item-label">{{page_content.account.user_label_ctnumber}}</span>
                     <p class="account-info-item-content">{{request.user.ct_number}}</p>
                 </div>
                 <div class="separator"></div>
-                <div class="account-info-title"><i class="material-icons left">business</i>{{page_content.section_title_workshop}}</div>
+                <div class="account-info-title"><i class="material-icons left">business</i>{{page_content.account.section_title_workshop}}</div>
                 <div class="account-info-item">
-                    <span class="account-info-item-label">{{page_content.company_label_name}}</span>
+                    <span class="account-info-item-label">{{page_content.account.company_label_name}}</span>
                     <p class="account-info-item-content">{{request.user.company.name}}</p>
                 </div>
                 <div class="account-info-item">
-                    <span class="account-info-item-label">{{page_content.company_label_location}}</span>
+                    <span class="account-info-item-label">{{page_content.account.company_label_location}}</span>
                     <p class="account-info-item-content">{{request.user.company.city}}, {{request.user.company.country}}</p>
                 </div>
                 <div class="account-info-item">
-                    <span class="account-info-item-label">{{page_content.company_label_cunumber}}</span>
+                    <span class="account-info-item-label">{{page_content.account.company_label_cunumber}}</span>
                     <p class="account-info-item-content">{{request.user.company.cu_number}}</p>
                 </div>
 
                 {% if request.user.user_type == 'technician' %}
                 <div class="separator"></div>
-                <div class="account-info-title"><i class="material-icons left">person</i>{{page_content.section_title_manager}}</div>
+                <div class="account-info-title"><i class="material-icons left">person</i>{{page_content.account.section_title_manager}}</div>
                 <div class="account-info-item">
-                    <span class="account-info-item-label">{{page_content.manager_label_name}}</span>
+                    <span class="account-info-item-label">{{page_content.account.manager_label_name}}</span>
                     <p class="account-info-item-content">{{manager.first_name}} {{manager.last_name}}</p>
                 </div>
                 <div class="account-info-item">
-                    <span class="account-info-item-label">{{page_content.manager_label_email}}</span>
+                    <span class="account-info-item-label">{{page_content.account.manager_label_email}}</span>
                     <p class="account-info-item-content">{{manager.email}}</p>
                 </div>
                 {% endif %}
@@ -56,25 +56,25 @@
         </div>
         <div class="col s5">
             <div class="card">
-                <div class="account-info-title"><i class="material-icons left">lock</i>{{page_content.section_title_password}}</div>
+                <div class="account-info-title"><i class="material-icons left">lock</i>{{page_content.account.section_title_password}}</div>
                 <form method="post" action="{% url 'common:change-password' %}">
                 {% csrf_token %}
                 <div class="input-field">
-                    <label for="{{password_form.old_password.id_for_label}}">{{page_content.password_label_oldpassword}}</label>
+                    <label for="{{password_form.old_password.id_for_label}}">{{page_content.account.password_label_oldpassword}}</label>
                     {{password_form.old_password}}
                     {{password_form.old_password.errors}}
                 </div>
                 <div class="input-field">
-                    <label for="{{password_form.new_password1.id_for_label}}">{{page_content.password_label_newpassword}}</label>
+                    <label for="{{password_form.new_password1.id_for_label}}">{{page_content.account.password_label_newpassword}}</label>
                     {{password_form.new_password1}}
                     {{password_form.new_password1.errors}}
                 </div>
                 <div class="input-field">
-                    <label for="{{password_form.new_password2.id_for_label}}">{{page_content.password_label_passwordconfirmation}}</label>
+                    <label for="{{password_form.new_password2.id_for_label}}">{{page_content.account.password_label_passwordconfirmation}}</label>
                     {{password_form.new_password2}}
                     {{password_form.new_password2.errors}}
                 </div>
-                <button type="submit" class="btn blue">{{page_content.password_btn}}</button>
+                <button type="submit" class="btn blue">{{page_content.account.password_btn}}</button>
             </form>
                 <ul>
                     {% for message in messages %}
@@ -94,19 +94,19 @@
             </div>
             <div class="separator"></div>
             <div class="card">
-                <div class="account-info-title"><i class="material-icons left">settings</i>{{page_content.section_title_settings}}</div>
+                <div class="account-info-title"><i class="material-icons left">settings</i>{{page_content.account.section_title_settings}}</div>
                 <form method="post" action="{% url 'common:change-language' %}">
                     {% csrf_token %}
                     {% for field in language_form %}
                         <div class="input-field">
-                            <label for="{{field.id_for_label}}" class="active">{{page_content.settings_label_language}}</label>
+                            <label for="{{field.id_for_label}}" class="active">{{page_content.account.settings_label_language}}</label>
                             {{field}}
                             {% if field.errors %}
                                 <span class="helper-text" data-error="wrong" data-success="right">{{field.errors}}</span>
                             {% endif %}
                         </div>
                     {% endfor %}
-                    <button type="submit" class="btn blue">{{page_content.settings_btn}}</button>
+                    <button type="submit" class="btn blue">{{page_content.account.settings_btn}}</button>
                 </form>
                 {% if messages %}
                 <ul>
@@ -126,10 +126,10 @@
                 </ul>
                 {% endif %}
                 <div class="separator"></div>
-                <div class="account-info-title"><i class="material-icons left">power_settings_new</i>{{page_content.section_title_logout}}</div>
+                <div class="account-info-title"><i class="material-icons left">power_settings_new</i>{{page_content.account.section_title_logout}}</div>
                 <form action="{% url 'logout' %}" method="post">
                     {% csrf_token %}
-                    <button type="submit" class="btn red">{{page_content.logout_btn}}</button>
+                    <button type="submit" class="btn red">{{page_content.account.logout_btn}}</button>
                 </form>
             </div>
         </div>
