@@ -6,43 +6,44 @@
 {% endblock %}
 
 {% block body %}
-<h2><i class="material-icons">group</i> Technicians</h2>
-
-<div class="row">
-    <div class="col s12">
-        <div class="card">
-            <div class="card-table">
-                <div class="table-responsive">
-                    <table class="highlight">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Evaluation</th>
-                                <th>Overall Score</th>
-                                <th>Evaluation Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for technician in technicians %}
-                            <tr class="clickable-row" data-href="{% url 'workshop:details' technician.id %}">
-                                <td>{{ technician.first_name|title }} {{ technician.last_name|upper }}</td>
-                                <td>
-                                    {% if technician.evaluation_completed %}
-                                        <span class="status-completed"><i class="material-icons">check_circle</i> Completed</span>
-                                    {% else %}
-                                        <span class="status-not-completed"><i class="material-icons">schedule</i> Not completed</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ technician.total_score }}%</td>
-                                <td>{{ technician.latest_evaluation_date|date:"d/m/Y" }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4">No technicians found.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+<div class="technicians">
+    <h1 class="page-title"><i class="material-icons page-title-icon">group</i> Technicians</h1>
+    <div class="row">
+        <div class="col s12">
+            <div class="card">
+                <div class="card-table">
+                    <div class="table-responsive">
+                        <table class="highlight">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Evaluation</th>
+                                    <th>Overall Score</th>
+                                    <th>Evaluation Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for technician in technicians %}
+                                <tr class="clickable-row" data-href="{% url 'workshop:details' technician.id %}">
+                                    <td>{{ technician.first_name|title }} {{ technician.last_name|upper }}</td>
+                                    <td>
+                                        {% if technician.date %}
+                                            <span class="status-completed"><i class="material-icons">check_circle</i> Completed</span>
+                                        {% else %}
+                                            <span class="status-not-completed"><i class="material-icons">schedule</i> Not completed</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ technician.score }}{% if technician.score %}%{% endif %}</td>
+                                    <td>{{ technician.date|date:"d/m/Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4">No technicians found.</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

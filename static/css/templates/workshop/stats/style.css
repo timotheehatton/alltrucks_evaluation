@@ -1,3 +1,12 @@
+.stats .s8 {
+    padding-right: 40px;
+    position: relative;
+}
+
+.stats .s8 .card {
+    padding: 40px 0 40px 0;
+}
+
 .category-scores {
     list-style-type: none;
     padding: 0;

@@ -38,7 +38,7 @@ def index(request):
     last_datetime = Score.objects.filter(user=request.user).aggregate(date=Max('date'))['date']
     scores_by_category = Score.objects.filter(user=request.user, date=last_datetime).values('question_type').annotate(
         total_score=Sum('score'),
-        success_percentage=ExpressionWrapper((Sum('score') * 100.0) / 20.0, output_field=IntegerField())
+        success_percentage=ExpressionWrapper((Sum('score') * 100) / 20, output_field=IntegerField())
     )
     scores_by_category = [
         {

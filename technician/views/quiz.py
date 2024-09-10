@@ -15,7 +15,11 @@ from users.models import Score
 def get_content(request):
     return strapi_content.get_content(
         pages=['test', 'menu', 'category', 'questions'],
-        parameters={'locale': request.user.language.lower(), 'populate': 'image', 'size': 'large'}
+        parameters={
+            'locale': request.user.language.lower(),
+            'populate': 'image',
+            'size': 'large'
+        }
     )
 
 

@@ -6,15 +6,16 @@
 {% endblock %}
 
 {% block body %}
-<h2><i class="material-icons">bar_chart</i> Workshop stats</h2>
+<div class="stats">
+    <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {{page_content.user_statistic.page_title}}</h1>
 
-<div class="row">
-    <div class="col s12 m8">
-        <div class="card">
+    <div class="row">
+        <div class="col s8">
+        <div class="card graph">
             <canvas id="radarChart" height="540"></canvas>
         </div>
     </div>
-    <div class="col s12 m4">
+   <div class="col s4">
         <div class="card">
             <div class="category-scores">
                 {% for category, score in global_scores.items %}
@@ -43,7 +44,7 @@
         datasets: [
             {% for technician, categories in technician_scores.items %}
             {
-                label: "{{ technician.first_name }} {{ technician.last_name }}",
+                label: "{{ technician }}",
                 data: [
                     {% for category, score in categories.items %}
                         {{ score }},
@@ -56,6 +57,8 @@
             {% endfor %}
         ]
     };
+
+    console.log(data);
 
     new Chart(ctx, {
         type: 'radar',
@@ -73,6 +76,8 @@
             },
             scales: {
                 r: {
+                    min: 0,
+                    max: 100,
                     pointLabels: {
                         display: false
                     },
@@ -83,7 +88,8 @@
                         display: true
                     },
                     grid: {
-                        display: true
+                        drawBorder: true,
+                        drawOnChartArea: false,
                     },
                     pointLabels: {
                         font: {
