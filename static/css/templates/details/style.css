@@ -64,3 +64,37 @@
 .graph.disabled {
     filter: blur(5px);
 }
+
+.name-card {
+    font-weight: 400;
+    font-size: 18px;
+    color: #4D4D4D;
+    height: 75px;
+    line-height: 75px;
+    width: auto;
+    display: inline-block;
+    margin-bottom: 30px;
+    padding: 0 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.name-card i {
+    color: #01B5E2;
+}
+
+.button-back {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    color: #01B5E2;
+    margin-top: -20px;
+    font-size: 16px;
+}
+
+.button-back i {
+    margin-right: 5px;
+    font-size: 16px;
+}

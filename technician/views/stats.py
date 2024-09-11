@@ -37,13 +37,11 @@ def index(request):
     page_content = get_content(request)
     last_datetime = Score.objects.filter(user=request.user).aggregate(date=Max('date'))['date']
     scores_by_category = Score.objects.filter(user=request.user, date=last_datetime).values('question_type').annotate(
-        total_score=Sum('score'),
         success_percentage=ExpressionWrapper((Sum('score') * 100) / 20, output_field=IntegerField())
     )
     scores_by_category = [
         {
             'question_type': page_content['category'][score['question_type']],
-            'total_score': score['total_score'],
             'success_percentage': score['success_percentage'],
             'trainings': [item for item in page_content['trainings'] if item['training_category'] == score['question_type']]
         }
