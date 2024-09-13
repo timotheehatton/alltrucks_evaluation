@@ -10,7 +10,7 @@
         <div class="input-field col s2">
             <select name="user_type">
                 <option value="ALL" {% if request.GET.user_type == 'ALL' %}selected{% endif %}>ALL</option>
-                <option value="workshop" {% if request.GET.user_type == 'workshop' %}selected{% endif %}>Workshop</option>
+                <option value="manager" {% if request.GET.user_type == 'manager' %}selected{% endif %}>Manager</option>
                 <option value="technician" {% if request.GET.user_type == 'technician' %}selected{% endif %}>Technician</option>
             </select>
             <label>User Type</label>

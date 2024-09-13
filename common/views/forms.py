@@ -8,11 +8,17 @@ class LanguageForm(forms.ModelForm):
         fields = ['language']
 
 
+class AdminUserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('email', 'is_staff', 'is_superuser', 'password')
+
+
 class CompanyUserForm(forms.ModelForm):
-    workshop_first_name = forms.CharField(max_length=150, required=True, label="First name")
-    workshop_last_name = forms.CharField(max_length=150, required=True, label="Last name")
-    workshop_email = forms.EmailField(required=True, label="Email")
-    workshop_ct_number = forms.CharField(max_length=20, required=True, label="CT number")
+    manager_first_name = forms.CharField(max_length=150, required=True, label="First name")
+    manager_last_name = forms.CharField(max_length=150, required=True, label="Last name")
+    manager_email = forms.EmailField(required=True, label="Email")
+    manager_ct_number = forms.CharField(max_length=20, required=True, label="CT number")
     
     technician_first_name_1 = forms.CharField(max_length=150, required=True, label="First name")
     technician_last_name_1 = forms.CharField(max_length=150, required=True, label="Last name")

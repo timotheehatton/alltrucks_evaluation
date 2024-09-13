@@ -1,0 +1,73 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<h2>Create an admin user</h2>
+
+<div class="card">
+    <div class="card-content">
+        <form method="post" action="{% url 'admin:create_admin' %}">
+            {% csrf_token %}
+            <div class="input-field">
+                <label for="{{ admin_form.email.id_for_label }}">Email address</label>
+                {{ admin_form.email }}
+            </div>
+            <div class="input-field">
+                <label for="{{ admin_form.password.id_for_label }}">Create a password</label>
+                {{ admin_form.password }}
+            </div>
+            <div class="center-align">
+                <button type="submit" class="btn blue">Add admin</button>
+            </div>
+        </form>
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                        {% if "success" in message.tags %}
+                            <div class="green lighten-4 green-text">{{ message }}</div>
+                        {% elif "error" in message.tags %}
+                            <div class="red lighten-4 red-text">{{ message }}</div>
+                        {% else %}
+                            <div class="grey lighten-4 grey-text">{{ message }}</div>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    let technicianCount = 1;
+
+    function addTechnician() {
+        technicianCount++;
+        const container = document.getElementById('technicians-container');
+        const template = document.querySelector('.technician-group').cloneNode(true);
+
+        template.querySelectorAll('input').forEach((input) => {
+            const oldId = input.id;
+            const oldName = input.name;
+            const newId = oldId.replace(/_\d+$/, `_${technicianCount}`);
+            const newName = oldName.replace(/_\d+$/, `_${technicianCount}`);
+            input.id = newId;
+            input.name = newName;
+            input.value = '';
+        });
+
+        template.querySelectorAll('label').forEach((label) => {
+            const oldFor = label.htmlFor;
+            const newFor = oldFor.replace(/_\d+$/, `_${technicianCount}`);
+            label.htmlFor = newFor;
+        });
+
+        container.appendChild(template);
+    }
+
+    function removeTechnician(element) {
+        element.parentElement.remove();
+    }
+</script>
+{% endblock %}

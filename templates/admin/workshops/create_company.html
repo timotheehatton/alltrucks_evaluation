@@ -37,20 +37,20 @@
                     <div class="form-section">
                         <h5>Workshop Manager</h5>
                         <div class="input-field">
-                            <label for="{{ form.workshop_first_name.id_for_label }}">{{ form.workshop_first_name.label }}</label>
-                            {{ form.workshop_first_name }}
+                            <label for="{{ form.manager_first_name.id_for_label }}">{{ form.manager_first_name.label }}</label>
+                            {{ form.manager_first_name }}
                         </div>
                         <div class="input-field">
-                            <label for="{{ form.workshop_last_name.id_for_label }}">{{ form.workshop_last_name.label }}</label>
-                            {{ form.workshop_last_name }}
+                            <label for="{{ form.manager_last_name.id_for_label }}">{{ form.manager_last_name.label }}</label>
+                            {{ form.manager_last_name }}
                         </div>
                         <div class="input-field">
-                            <label for="{{ form.workshop_email.id_for_label }}">{{ form.workshop_email.label }}</label>
-                            {{ form.workshop_email }}
+                            <label for="{{ form.manager_email.id_for_label }}">{{ form.manager_email.label }}</label>
+                            {{ form.manager_email }}
                         </div>
                         <div class="input-field">
-                            <label for="{{ form.workshop_ct_number.id_for_label }}">{{ form.workshop_ct_number.label }}</label>
-                            {{ form.workshop_ct_number }}
+                            <label for="{{ form.manager_ct_number.id_for_label }}">{{ form.manager_ct_number.label }}</label>
+                            {{ form.manager_ct_number }}
                         </div>
                     </div>
                 </div>
@@ -87,7 +87,6 @@
             </div>
         </form>
         {% if messages %}
-        test
             <ul>
                 {% for message in messages %}
                     <li class="{% if message.tags %} {{ message.tags }} {% endif %}">

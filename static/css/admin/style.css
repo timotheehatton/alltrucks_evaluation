@@ -39,3 +39,18 @@
 .responsive-table tr {
     cursor: pointer;
 }
+
+.logout-button {
+    display: block;
+    position: absolute;
+    bottom: 40px;
+    left: 40px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logout-button i {
+    margin-right: 10px;
+}

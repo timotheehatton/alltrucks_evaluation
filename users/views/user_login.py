@@ -11,7 +11,7 @@ def user_login(request):
             login(request, user)
             if user.user_type == 'technician':
                 return redirect('technician:stats')
-            elif user.user_type == 'workshop':
+            elif user.user_type == 'manager':
                 return redirect('workshop:stats')
         else:
             return render(request, 'users/login/index.html', {'error': 'Invalid username or password'})

@@ -18,7 +18,7 @@ def get_content(request):
 
 @technician_required
 def index(request):
-    manager = User.objects.filter(company=request.user.company, user_type='workshop').first()
+    manager = User.objects.filter(company=request.user.company, user_type='manager').first()
     password_form = PasswordChangeForm(request.user)
     language_form = LanguageForm(instance=request.user)
     return render(request, 'workshop/account/index.html', {

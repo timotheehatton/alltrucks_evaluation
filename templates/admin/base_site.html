@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{{ site_title }}{% endblock %}</title>
+    <title>Admin</title>
     {% load static %}
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/external/materialize.min.css' %}" type="text/css">
@@ -13,6 +13,13 @@
     {% block extrahead %}{% endblock %}
 </head>
 <body class="materialize-css">
+    {% if user.is_authenticated %}
+    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+        {% csrf_token %}
+        <button type="submit" class="logout-button btn red">
+            <i class="material-icons">exit_to_app</i>Logout
+        </button>
+    </form>
     <header>
         <ul id="slide-out" class="sidenav sidenav-fixed">
             <li>
@@ -22,9 +29,11 @@
             </li>
             <li><a class="{% if request.resolver_match.url_name == "workshops" %}active{% endif %}" href="{% url 'admin:workshops' %}"><i class="material-icons">business</i>Workshops</a></li>
             <li><a class="{% if request.resolver_match.url_name == "users" %}active{% endif %}" href="{% url 'admin:users' %}"><i class="material-icons">person</i>Users</a></li>
-            <li><a class="{% if request.resolver_match.url_name == "admins" %}active{% endif %}" href="{% url 'admin:index' %}"><i class="material-icons">manage_accounts</i>Admins</a></li>
+            <li><a class="{% if request.resolver_match.url_name == "admins" %}active{% endif %}" href="{% url 'admin:admins' %}"><i class="material-icons">manage_accounts</i>Admins</a></li>
         </ul>
+        {% comment %} <a href="{% url 'admin:logout' %}" class="logout-button btn red"><i class="material-icons">exit_to_app</i>Logout</a> {% endcomment %}
     </header>
+    {% endif%}
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>

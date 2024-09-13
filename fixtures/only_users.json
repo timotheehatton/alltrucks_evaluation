@@ -41,7 +41,7 @@
       "email": "workshop.jane@example.com",
       "is_active": true,
       "password": "pbkdf2_sha256$720000$qJf4jPT4wSzJrlvtkEMITH$TRb3Kzi1+GjlocIVFTVi4tQGR7p+TDb5gQfSa/yUjDc=",
-      "user_type": "workshop",
+      "user_type": "manager",
       "company": 4,
       "language": "FR",
       "ct_number": "FEDERR323R2"
