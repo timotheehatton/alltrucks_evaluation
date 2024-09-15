@@ -1,8 +1,13 @@
-{% extends "admin/base_site.html" %}
+{% extends "layout.html" %}
+{% load static %}
 
-{% block content %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+{% endblock %}
+
+{% block body %}
 <div class="header">
-    <h2>Workshops</h2>
+    <h1 class="page-title">Platform admins</h1>
     <a href="{% url 'admin:create_admin' %}" class="btn blue">Add Admin</a>
 </div>
 

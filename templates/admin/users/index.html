@@ -1,12 +1,15 @@
-{% extends "admin/base_site.html" %}
+{% extends "layout.html" %}
+{% load static %}
 
-{% block content %}
-<div class="header">
-    <h2>Users</h2>
-</div>
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+{% endblock %}
 
-<form method="GET" action="{% url 'admin:users' %}" class="col s12">
-    <div class="row">
+{% block body %}
+<h1 class="page-title">All registered users</h1>
+
+<div class="row">
+    <form method="GET" action="{% url 'admin:users' %}" class="col s12">
         <div class="input-field col s2">
             <select name="user_type">
                 <option value="ALL" {% if request.GET.user_type == 'ALL' %}selected{% endif %}>ALL</option>
@@ -15,7 +18,7 @@
             </select>
             <label>User Type</label>
         </div>
-        <div class="input-field col s2">
+        <div class="input-field col s2 offset-s1">
             <select name="country">
                 <option value="ALL" {% if request.GET.country == 'ALL' %}selected{% endif %}>ALL</option>
                 <option value="FR" {% if request.GET.country == 'FR' %}selected{% endif %}>FR</option>
@@ -23,17 +26,17 @@
             </select>
             <label>Country</label>
         </div>
-        <div class="input-field col s3">
+        <div class="input-field col s3 offset-s1">
             <input id="search" type="text" name="search" value="{{ request.GET.search }}">
             <label for="search">Search</label>
         </div>
-        <div class="input-field col s2">
+        <div class="input-field col s2 offset-s1">
             <button class="btn blue" type="submit">Filter
                 <i class="material-icons right">search</i>
             </button>
         </div>
-    </div>
-</form>
+    </form>
+</div>
 <div class="model-list-table">
     <table class="highlight responsive-table">
         <thead>
@@ -72,7 +75,7 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         var elems = document.querySelectorAll('select');

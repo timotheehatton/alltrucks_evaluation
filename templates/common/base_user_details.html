@@ -7,9 +7,11 @@
 
 {% block body %}
 <div class="stats {% if user.is_superuser == True %}stats-admin{% endif %}">
-    {% if current_user and user.is_superuser == False %}
+    {% if current_user %}
         <a href="{% if user.is_superuser == False %}{% url 'workshop:technicians' %}{% else %}{% url 'admin:users' %}{% endif %}" class="button-back"><i class="material-icons">arrow_back</i>Technicians</a>
-        <div class="card name-card"><i class="material-icons page-title-icon">person</i> {{ current_user.first_name }} {{ current_user.last_name }}</div>
+        {% if user.is_superuser == False %}
+            <div class="card name-card"><i class="material-icons page-title-icon">person</i> {{ current_user.first_name }} {{ current_user.last_name }}</div>
+        {% endif %}
     {% else %}
         <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {% firstof page_content.user_statistic.page_title "User details" %}</h1>
     {% endif %}
