@@ -19,16 +19,20 @@
         {% if user.is_superuser == True %}
         <div class="card stats-admin-details">
             <div class="row">
-                <div class="col s6">
-                    <div class="stats-info-title"><i class="material-icons left">business</i>Workshop information</div>
+                <div class="stats-info-title"><i class="material-icons left">business</i>Workshop information</div>
+                <div class="col s4">
                     <div class="stats-info-item">
                         <span class="stats-info-item-label">Company name</span>
                         <p class="stats-info-item-content">{{current_user.name|upper}}</p>
                     </div>
+                </div>
+                <div class="col s4">
                     <div class="stats-info-item">
                         <span class="stats-info-item-label">Location</span>
                         <p class="stats-info-item-content">{{current_user.city|title}}, {{current_user.country|upper}}</p>
                     </div>
+                </div>
+                <div class="col s4">
                     <div class="stats-info-item">
                         <span class="stats-info-item-label">CU Number</span>
                         <p class="stats-info-item-content">{{current_user.cu_number}}</p>
@@ -73,7 +77,8 @@
         datasets: [
             {% for technician, categories in technician_scores.items %}
             {
-                label: "{{ technician }}",
+                label: "{{ technician.0 }}",
+                technicianId: "{{ technician.1 }}",
                 data: [
                     {% for category, score in categories.items %}
                         {{ score }},
@@ -87,9 +92,7 @@
         ]
     };
 
-    console.log(data);
-
-    new Chart(ctx, {
+    const radarChart = new Chart(ctx, {
         type: 'radar',
         data: data,
         options: {
@@ -99,9 +102,26 @@
                 legend: {
                     position: 'bottom',
                     labels: {
-                        usePointStyle: true
+                        usePointStyle: true,
+                        generateLabels(chart) {
+                            const original = Chart.defaults.plugins.legend.labels.generateLabels;
+                            return original(chart).map((label, index) => {
+                                const dataset = chart.data.datasets[index];
+                                return {
+                                    ...label,
+                                    text: `${label.text}`,
+                                    url: `/admin/user/${dataset.technicianId}/`
+                                };
+                            });
+                        }
+                    },
+                    onClick(e, legendItem, legend) {
+                        const url = legendItem.url;
+                        if (url) {
+                            window.open(url, '_self');
+                        }
                     }
-                }
+                },
             },
             scales: {
                 r: {
