@@ -6,44 +6,82 @@
 {% endblock %}
 
 {% block body %}
-<div class="stats">
-    {% if user_name %}
-    <a href="{% url 'workshop:technicians' %}" class="button-back"><i class="material-icons">arrow_back</i>Technicians</a>
-    <div class="card name-card"><i class="material-icons page-title-icon">person</i> {{ user_name.first_name }} {{ user_name.last_name }}</div>
+<div class="stats {% if user.is_superuser == True %}stats-admin{% endif %}">
+    {% if current_user and user.is_superuser == False %}
+        <a href="{% if user.is_superuser == False %}{% url 'workshop:technicians' %}{% else %}{% url 'admin:users' %}{% endif %}" class="button-back"><i class="material-icons">arrow_back</i>Technicians</a>
+        <div class="card name-card"><i class="material-icons page-title-icon">person</i> {{ current_user.first_name }} {{ current_user.last_name }}</div>
     {% else %}
-    <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {{page_content.user_statistic.page_title}}</h1>
+        <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {% firstof page_content.user_statistic.page_title "User details" %}</h1>
     {% endif %}
-
-    <div class="row">
-        <div class="col s9">
-            <div class="card graph {% if not scores_by_category %}disabled{% endif %}">
-                <canvas id="radarChart" height="450"></canvas>
+    {% if user.is_superuser == True %}
+        <div class="card stats-admin-details">
+            <div class="row">
+                <div class="col s6">
+                    <div class="stats-info-title"><i class="material-icons left">person</i>User information</div>
+                    <div class="stats-info-item">
+                        <span class="stats-info-item-label">User</span>
+                        <p class="stats-info-item-content">{{ current_user.first_name|title }} {{ current_user.last_name|upper }}</p>
+                    </div>
+                    <div class="stats-info-item">
+                        <span class="stats-info-item-label">Email</span>
+                        <p class="stats-info-item-content">{{current_user.email}}</p>
+                    </div>
+                    <div class="stats-info-item">
+                        <span class="stats-info-item-label">CT Number</span>
+                        <p class="stats-info-item-content">{{current_user.ct_number}}</p>
+                    </div>
+                </div>
+                <div class="col s6">
+                    <div class="stats-info-title"><i class="material-icons left">business</i>Workshop information</div>
+                    <div class="stats-info-item">
+                        <span class="stats-info-item-label">Company name</span>
+                        <p class="stats-info-item-content">{{current_user.company.name|upper}}</p>
+                    </div>
+                    <div class="stats-info-item">
+                        <span class="stats-info-item-label">Location</span>
+                        <p class="stats-info-item-content">{{current_user.company.city|title}}, {{current_user.company.country|upper}}</p>
+                    </div>
+                    <div class="stats-info-item">
+                        <span class="stats-info-item-label">CU Number</span>
+                        <p class="stats-info-item-content">{{current_user.company.cu_number}}</p>
+                    </div>
+                </div>
             </div>
-            {% if not scores_by_category %}
-                <a href="{% url 'technician:quiz' %}" class="btn blue disabled-action">{{page_content.user_statistic.placeholder_button}}</a>
-            {% endif %}
         </div>
-        <div class="col s3">
-            <div class="card center-align diploma {% if not scores_by_category %}disabled{% endif %}">
-                <img src="{% static 'img/illu-diploma.svg' %}">
-                <h5>{{page_content.user_statistic.diploma_title}}</h5>
-                <a href="{% url 'technician:download_pdf' %}" class="btn white {% if not scores_by_category %}disabled{% endif %}"><i class="material-icons page-title-icon">download</i> {{page_content.user_statistic.diploma_button}}</a>
+    {% endif %}
+    {% if current_user.user_type != 'manager' %}
+        <div class="row">
+            <div class="col s9">
+                <div class="card graph {% if not scores_by_category %}disabled{% endif %}">
+                    <canvas id="radarChart" height="450"></canvas>
+                </div>
+                {% if not scores_by_category and user.is_superuser == False %}
+                    <a href="{% url 'technician:quiz' %}" class="btn blue disabled-action">{{page_content.user_statistic.placeholder_button}}</a>
+                {% endif %}
+            </div>
+            <div class="col s3">
+                <div class="card center-align diploma {% if not scores_by_category %}disabled{% endif %}">
+                    <img src="{% static 'img/illu-diploma.svg' %}">
+                    <h5>{% firstof page_content.user_statistic.diploma_title "Diploma available" %}</h5>
+                    <a href="{% url 'technician:download_pdf' %}" class="btn white {% if not scores_by_category %}disabled{% endif %}"><i class="material-icons page-title-icon">download</i> {% firstof page_content.user_statistic.diploma_button "Download" %}</a>
+                </div>
             </div>
         </div>
-    </div>
-    {% if scores_by_category %}
-    <div class="row">
-        <div class="col s12 m12">
-            <h2 class="page-title-secondary">{{page_content.user_statistic.training_title}}</h2>
-            <div class="card">
-                {% for score in scores_by_category %}
-                    {% with progress=score.success_percentage title=score.question_type recommandation_label=page_content.user_statistic.training_recommendation trainings=score.trainings %}
-                        {% include 'components/training_progress.html' %}
-                    {% endwith %}
-                {% endfor %}
+        {% if scores_by_category %}
+        <div class="row">
+            <div class="col s12 m12">
+                <h2 class="page-title-secondary">{% firstof page_content.user_statistic.training_title "Trainings recommandation" %}</h2>
+                <div class="card">
+                    {% for score in scores_by_category %}
+                        {% firstof page_content.user_statistic.training_recommendation 'Training recommandation' as recommandation_label %}
+                        {% with progress=score.success_percentage title=score.question_type recommandation_label=recommandation_label trainings=score.trainings %}
+                            {% include 'components/training_progress.html' %}
+                        {% endwith %}
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </div>
+        {% endif %}
     {% endif %}
 </div>
 {% endblock %}

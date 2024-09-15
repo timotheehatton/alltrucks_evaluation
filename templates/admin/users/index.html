@@ -44,6 +44,7 @@
                 <th>EMAIL</th>
                 <th>WORKSHOP</th>
                 <th>COUNTRY</th>
+                <th>TEST</th>
             </tr>
         </thead>
         <tbody>
@@ -55,6 +56,15 @@
                 <td>{{ user.email }}</td>
                 <td>{{ user.company_name }}</td>
                 <td>{{ user.company_country }}</td>
+                <td>
+                    {% if user.user_type == 'technician' %}
+                        {% if user.has_completed_test %}
+                            <span class="status-completed"><i class="material-icons">check_circle</i> Completed</span>
+                        {% else %}
+                            <span class="status-not-completed"><i class="material-icons">schedule</i> Not completed</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

@@ -4,9 +4,11 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Company, User, Score
 from common.views.forms import CompanyUserForm
 from common.views.forms import AdminUserForm
+from django.db.models import Max, Sum, ExpressionWrapper, IntegerField
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.views import LogoutView
+from common.content.strapi import strapi_content
 
 
 class MyAdminSite(admin.AdminSite):
@@ -17,7 +19,7 @@ class MyAdminSite(admin.AdminSite):
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('workshops/', self.admin_view(self.companies_view), name='workshops'),
+            path('', self.admin_view(self.companies_view), name='workshops'),
             path('users/', self.admin_view(self.users_view), name='users'),
             path('create-company/', self.admin_view(self.create_company_view), name='create_company'),
             path('admins/', self.admin_view(self.admins_view), name='admins'),
@@ -58,9 +60,28 @@ class MyAdminSite(admin.AdminSite):
     
 
     def single_user_view(self, request, user_id):
-        user = get_object_or_404(User, pk=user_id)
+        technician = get_object_or_404(User, id=user_id)
+        page_content = strapi_content.get_content(
+            pages=['trainings'],
+            parameters={'locale': technician.language.lower()}
+        )
+        last_datetime = Score.objects.filter(user=technician).aggregate(date=Max('date'))['date']
+        scores_by_category = Score.objects.filter(user=technician, date=last_datetime).values('question_type').annotate(
+            success_percentage=ExpressionWrapper((Sum('score') * 100) / 20, output_field=IntegerField())
+        )
+        scores_by_category = [
+            {
+                'question_type': score['question_type'],
+                'success_percentage': score['success_percentage'],
+                'trainings': [item for item in page_content['trainings'] if item['training_category'] == score['question_type']]
+            }
+            for score in scores_by_category
+        ]
+            
         context = {
-            'user': user,
+            'scores_by_category': scores_by_category,
+            'page_content': page_content,
+            'current_user': technician
         }
         return render(request, 'admin/users/single_user.html', context)
 
@@ -69,8 +90,8 @@ class MyAdminSite(admin.AdminSite):
         search_query = request.GET.get('search', '')
         user_type_filter = request.GET.get('user_type', '')
         company_country_filter = request.GET.get('country', '')
+        users = User.objects.select_related('company').prefetch_related('score_set').all()
 
-        users = User.objects.select_related('company').all()
         if search_query != '':
             users = users.filter(
                 Q(first_name__icontains=search_query) |
@@ -82,15 +103,21 @@ class MyAdminSite(admin.AdminSite):
             users = users.filter(user_type=user_type_filter)
         if company_country_filter and company_country_filter != 'ALL':
             users = users.filter(company__country=company_country_filter)
-        data = [{
-            'id': user.id,
-            'user_type': user.user_type,
-            'first_name': user.first_name,
-            'last_name': user.last_name,
-            'email': user.email,
-            'company_name': user.company.name if user.company else 'N/A',
-            'company_country': user.company.country if user.company else 'N/A',
-        } for user in users if user.is_superuser != True]
+        data = []
+        for user in users:
+            if not user.is_superuser:
+                has_completed_test = user.score_set.exists()
+                data.append({
+                    'id': user.id,
+                    'user_type': user.user_type,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                    'email': user.email,
+                    'company_name': user.company.name,
+                    'company_country': user.company.country,
+                    'has_completed_test': has_completed_test,
+                })
+
         return render(request, 'admin/users/index.html', {'users': data})
 
 

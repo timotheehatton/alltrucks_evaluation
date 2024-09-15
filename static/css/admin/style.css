@@ -54,3 +54,33 @@
 .logout-button i {
     margin-right: 10px;
 }
+
+.status-completed {
+    display: inline-flex;
+    align-items: center;
+    background-color: #e8f5e9;
+    color: #43a047;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.status-completed i.material-icons {
+    margin-right: 5px;
+    color: #43a047;
+}
+
+.status-not-completed {
+    display: inline-flex;
+    align-items: center;
+    background-color: #fff3e0;
+    color: #fb8c00;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-weight: bold;
+}
+
+.status-not-completed i.material-icons {
+    margin-right: 5px;
+    color: #fb8c00;
+}

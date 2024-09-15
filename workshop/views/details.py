@@ -18,7 +18,7 @@ def get_content(request):
 def index(request, id):
     page_content = get_content(request)
 
-    technician = get_object_or_404(User, id=id, company=request.user.company, user_type='technician')
+    technician = get_object_or_404(User, id=id)
     last_datetime = Score.objects.filter(user=technician).aggregate(date=Max('date'))['date']
     scores_by_category = Score.objects.filter(user=technician, date=last_datetime).values('question_type').annotate(
         success_percentage=ExpressionWrapper((Sum('score') * 100) / 20, output_field=IntegerField())
@@ -34,6 +34,6 @@ def index(request, id):
 
     return render(request, 'workshop/details/index.html', {
         'scores_by_category': scores_by_category,
-        'user_name': technician,
+        'current_user': technician,
         'page_content': page_content
     })
