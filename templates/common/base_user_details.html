@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block stylesheets %}
+{% if user.is_superuser == True %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+{% endif %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/templates/details/style.css' %}">
 {% endblock %}
 

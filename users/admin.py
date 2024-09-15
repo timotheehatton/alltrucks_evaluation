@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.views import LogoutView
 from common.content.strapi import strapi_content
+import collections
 
 
 class MyAdminSite(admin.AdminSite):
@@ -20,11 +21,12 @@ class MyAdminSite(admin.AdminSite):
         urls = super().get_urls()
         custom_urls = [
             path('', self.admin_view(self.companies_view), name='workshops'),
+            path('workshop/<int:company_id>/', self.admin_view(self.single_company_view), name='single_workshop'),
+            path('create-workshop/', self.admin_view(self.create_company_view), name='create_company'),
             path('users/', self.admin_view(self.users_view), name='users'),
-            path('create-company/', self.admin_view(self.create_company_view), name='create_company'),
+            path('user/<int:user_id>/', self.admin_view(self.single_user_view), name='single_user'),
             path('admins/', self.admin_view(self.admins_view), name='admins'),
             path('create-admin/', self.admin_view(self.create_admin_view), name='create_admin'),
-            path('user/<int:user_id>/', self.admin_view(self.single_user_view), name='single_user'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -48,6 +50,34 @@ class MyAdminSite(admin.AdminSite):
             companies=companies_with_emails,
         )
         return render(request, 'admin/workshops/index.html', context)
+    
+
+    def single_company_view(self, request, company_id):
+        company = get_object_or_404(Company, id=company_id)
+        company_users = User.objects.filter(company=company)
+        last_dates = Score.objects.filter(user__in=company_users).values('user').annotate(last_date=Max('date'))
+
+        scores_by_category = Score.objects.filter(
+            user__in=company_users,
+            date__in=(score['last_date'] for score in last_dates)
+        ).values('user__first_name', 'user__last_name', 'question_type').annotate(
+            total_score=Sum('score'),
+            success_percentage=ExpressionWrapper((Sum('score') * 100) / 20, output_field=IntegerField())
+        )
+
+        technician_scores = collections.defaultdict(dict)
+        for item in scores_by_category:
+            technician_scores[f"{item['user__first_name']} {item['user__last_name']}"][item['question_type']] = item['success_percentage']
+
+        global_scores = {}
+        for score in scores_by_category:
+            global_scores[score['question_type']] = score['success_percentage']
+
+        return render(request, 'admin/workshops/single_workshop.html', {
+            'technician_scores': dict(technician_scores),
+            'global_scores': global_scores,
+            'current_user': company,
+        })
 
 
     def admins_view(self, request):

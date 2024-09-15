@@ -84,3 +84,18 @@
     margin-right: 5px;
     color: #fb8c00;
 }
+
+.button-back {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 20px;
+    color: #01B5E2;
+    margin-top: -20px;
+    font-size: 16px;
+}
+
+.button-back i {
+    margin-right: 5px;
+    font-size: 16px;
+}

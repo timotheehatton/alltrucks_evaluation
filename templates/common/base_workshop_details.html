@@ -1,0 +1,135 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+{% if user.is_superuser == True %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+{% endif %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/templates/workshop/stats/style.css' %}">
+{% endblock %}
+
+{% block body %}
+<div class="stats stats-admin">
+    {% if user.is_superuser == True %}
+    <a href="{% url 'admin:workshops' %}" class="button-back"><i class="material-icons">arrow_back</i>All Workshops</a>
+    {% else %}
+    <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {{page_content.user_statistic.page_title}}</h1>
+    {% endif %}
+    
+        {% if user.is_superuser == True %}
+        <div class="card stats-admin-details">
+            <div class="row">
+                <div class="col s6">
+                    <div class="stats-info-title"><i class="material-icons left">business</i>Workshop information</div>
+                    <div class="stats-info-item">
+                        <span class="stats-info-item-label">Company name</span>
+                        <p class="stats-info-item-content">{{current_user.name|upper}}</p>
+                    </div>
+                    <div class="stats-info-item">
+                        <span class="stats-info-item-label">Location</span>
+                        <p class="stats-info-item-content">{{current_user.city|title}}, {{current_user.country|upper}}</p>
+                    </div>
+                    <div class="stats-info-item">
+                        <span class="stats-info-item-label">CU Number</span>
+                        <p class="stats-info-item-content">{{current_user.cu_number}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col s8">
+        <div class="card graph">
+            <canvas id="radarChart" height="540"></canvas>
+        </div>
+    </div>
+   <div class="col s4">
+        <div class="card">
+            <div class="category-scores">
+                {% for category, score in global_scores.items %}
+                    <div class="category-score">
+                        <div class="category-title">{{ category }} <span class="score-percentage">{{ score }}%</span></div>
+                        <div class="progress">
+                            <div class="determinate {% if score >= 30 %}green{% else %}orange{% endif %}" style="width: {{ score }}%"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    const data = {
+        labels: [
+            {% for category in global_scores.keys %}
+                "{{ category }}",
+            {% endfor %}
+        ],
+        datasets: [
+            {% for technician, categories in technician_scores.items %}
+            {
+                label: "{{ technician }}",
+                data: [
+                    {% for category, score in categories.items %}
+                        {{ score }},
+                    {% endfor %}
+                ],
+                fill: false,
+                pointRadius: 0,
+                borderWidth: 4
+            },
+            {% endfor %}
+        ]
+    };
+
+    console.log(data);
+
+    new Chart(ctx, {
+        type: 'radar',
+        data: data,
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true
+                    }
+                }
+            },
+            scales: {
+                r: {
+                    min: 0,
+                    max: 100,
+                    pointLabels: {
+                        display: false
+                    },
+                    ticks: {
+                        display: false
+                    },
+                    angleLines: {
+                        display: true
+                    },
+                    grid: {
+                        drawBorder: true,
+                        drawOnChartArea: false,
+                    },
+                    pointLabels: {
+                        font: {
+                            size: 14,
+                            weight: 'bold'
+                        }
+                    },
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}
