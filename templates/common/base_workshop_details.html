@@ -44,8 +44,11 @@
 
     <div class="row">
         <div class="col s8">
-        <div class="card graph">
-            <canvas id="radarChart" height="540"></canvas>
+        <div class="card">
+            <div class="graph">
+                <canvas id="radarChart" height="515"></canvas>
+            </div>
+            <div id="legend-container"></div>
         </div>
     </div>
    <div class="col s4">
@@ -67,6 +70,61 @@
 
 {% block scripts %}
 <script>
+    let update = false;
+    const htmlLegendPlugin = {
+        id: 'htmlLegend',
+        afterUpdate(chart, args, options) {
+            const ul = document.getElementById(options.containerID);
+            while (ul.firstChild) {
+                ul.firstChild.remove();
+            }
+            const items = chart.options.plugins.legend.labels.generateLabels(chart);
+            items.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                svgIcon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+                svgIcon.setAttribute('height', '24px');
+                svgIcon.setAttribute('viewBox', '0 -960 960 960');
+                svgIcon.setAttribute('width', '24px');
+                svgIcon.setAttribute('fill', item.strokeStyle);
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', 'M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z');
+                svgIcon.appendChild(path);
+                const anchor = document.createElement('a');
+                anchor.style.color = item.fontColor;
+                anchor.style.textDecoration = item.hidden ? 'line-through' : 'none';
+                anchor.href = `{% if user.is_superuser == True %}/admin/user/{% else %}/workshop/technician/{% endif %}${chart.data.datasets[index].technicianId}/`;
+                anchor.textContent = item.text;
+
+                li.appendChild(svgIcon);
+                li.appendChild(anchor);
+                ul.appendChild(li);
+                li.addEventListener('mouseenter', () => {
+                    if (update == false) {
+                        update = true;
+                        chart.getDatasetMeta(index).hidden = false;
+                        chart.data.datasets.forEach((dataset, i) => {
+                            if (i !== index) {
+                                chart.getDatasetMeta(i).hidden = true;
+                            }
+                        });
+                        chart.update();
+                    }
+                });
+                li.addEventListener('mouseleave', () => {
+                    update = false;
+                    chart.data.datasets.forEach((_, i) => {
+                        chart.getDatasetMeta(i).hidden = false;
+                    });
+                    chart.update();
+                });
+            });
+        }
+    };
+    Chart.register(htmlLegendPlugin);
+
     const ctx = document.getElementById('radarChart').getContext('2d');
     const data = {
         labels: [
@@ -99,37 +157,17 @@
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
+                htmlLegend: {
+                    containerID: 'legend-container'
+                },
                 legend: {
-                    position: 'bottom',
-                    labels: {
-                        usePointStyle: true,
-                        generateLabels(chart) {
-                            const original = Chart.defaults.plugins.legend.labels.generateLabels;
-                            return original(chart).map((label, index) => {
-                                const dataset = chart.data.datasets[index];
-                                return {
-                                    ...label,
-                                    text: `${label.text}`,
-                                    url: `/admin/user/${dataset.technicianId}/`
-                                };
-                            });
-                        }
-                    },
-                    onClick(e, legendItem, legend) {
-                        const url = legendItem.url;
-                        if (url) {
-                            window.open(url, '_self');
-                        }
-                    }
+                    display: false
                 },
             },
             scales: {
                 r: {
                     min: 0,
                     max: 100,
-                    pointLabels: {
-                        display: false
-                    },
                     ticks: {
                         display: false
                     },
@@ -138,13 +176,13 @@
                     },
                     grid: {
                         drawBorder: true,
-                        drawOnChartArea: false,
+                        drawOnChartArea: false
                     },
                     pointLabels: {
                         font: {
-                            size: 14,
-                            weight: 'bold'
-                        }
+                            size: 13,
+                            weight: 'bold',
+                        },
                     },
                     beginAtZero: true
                 }

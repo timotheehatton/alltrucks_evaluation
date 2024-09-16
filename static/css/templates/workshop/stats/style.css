@@ -105,3 +105,21 @@
 .stats-admin-details {
     margin-bottom: 40px;
 }
+
+#legend-container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+#legend-container li {
+    transition: ease .3s;
+}
+
+#legend-container li a {
+    margin-left: 10px;
+}
+
+#legend-container li:hover {
+    transform: scale(1.05);
+}

@@ -67,7 +67,7 @@ class MyAdminSite(admin.AdminSite):
 
         technician_scores = collections.defaultdict(dict)
         for item in scores_by_category:
-            technician_scores[(f"{item['user__first_name']} {item['user__last_name']}", item['user__id'])][item['question_type']] = item['success_percentage']
+            technician_scores[(f"{item['user__first_name'].capitalize()} {item['user__last_name'].upper()}", item['user__id'])][item['question_type']] = item['success_percentage']
 
         global_scores = {}
         for score in scores_by_category:
@@ -195,6 +195,7 @@ class MyAdminSite(admin.AdminSite):
             admin_form = AdminUserForm(request.POST)
             if admin_form.is_valid():
                 user = admin_form.save(commit=False)
+                user.username = user.email
                 user.is_staff = True
                 user.is_superuser = True
                 user.save()

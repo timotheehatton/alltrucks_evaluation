@@ -48,14 +48,17 @@ def index(request):
     scores_by_category = Score.objects.filter(
         user__in=company_users,
         date__in=(score['last_date'] for score in last_dates)
-    ).values('user__first_name', 'user__last_name', 'question_type').annotate(
+    ).values('user__first_name', 'user__last_name', 'user__id', 'question_type').annotate(
         total_score=Sum('score'),
         success_percentage=ExpressionWrapper((Sum('score') * 100) / 20, output_field=IntegerField())
     )
 
     technician_scores = collections.defaultdict(dict)
     for item in scores_by_category:
-        technician_scores[f"{item['user__first_name']} {item['user__last_name']}"][item['question_type']] = item['success_percentage']
+        technician_scores[
+            (f"{item['user__first_name'].capitalize()} {item['user__last_name'].upper()}",
+             item['user__id'])
+        ][item['question_type']] = item['success_percentage']
 
     global_scores = {}
     for score in scores_by_category:
