@@ -17,7 +17,6 @@ def get_content(request):
 @workshop_required
 def index(request, id):
     page_content = get_content(request)
-
     technician = get_object_or_404(User, id=id)
     last_datetime = Score.objects.filter(user=technician).aggregate(date=Max('date'))['date']
     scores_by_category = Score.objects.filter(user=technician, date=last_datetime).values('question_type').annotate(

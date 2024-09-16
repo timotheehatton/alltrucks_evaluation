@@ -86,7 +86,7 @@
 {% block scripts %}
 {% autoescape off %}
 <script>
-    const questions = {{questions|safe}};
+    const allQuestions = {{questions|safe}};
     const userAnswers = JSON.parse(localStorage.getItem('userAnswers')) || {};
     const quizTimer = document.querySelector('.quiz-timer');
     const quizProgress = document.querySelector('.quiz-progress-number');
@@ -107,6 +107,28 @@
         document.querySelector('.answer-4'),
         document.querySelector('.answer-5')
     ];
+
+    function getRandomQuestionsByCategory(questions, limit = 10) {
+        const categorizedQuestions = {};
+
+        questions.forEach(question => {
+            if (!categorizedQuestions[question.category]) {
+                categorizedQuestions[question.category] = [];
+            }
+            categorizedQuestions[question.category].push(question);
+        });
+
+        const selectedQuestions = [];
+
+        for (const category in categorizedQuestions) {
+            const shuffled = categorizedQuestions[category].sort(() => 0.5 - Math.random());
+            selectedQuestions.push(...shuffled.slice(0, limit));
+        }
+
+        return selectedQuestions;
+    }
+
+    const questions = getRandomQuestionsByCategory(allQuestions);
 
     function findFirstUnansweredQuestion() {
         for (let i = 0; i < questions.length; i++) {
@@ -165,7 +187,7 @@
 
     function startTimer(duration, display) {
         let timer = duration, hours, minutes, seconds;
-        timerInterval = setInterval(() => {
+        const timerInterval = setInterval(() => {
             hours = parseInt(timer / 3600, 10);
             minutes = parseInt((timer % 3600) / 60, 10);
             seconds = parseInt(timer % 60, 10);
@@ -225,7 +247,6 @@
         const now = new Date().getTime();
         return Math.max((endTime - now) / 1000, 0);
     }
-
 
     let currentQuestionIndex = findFirstUnansweredQuestion();
 
