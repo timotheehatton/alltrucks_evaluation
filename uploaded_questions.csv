@@ -1,6 +1,2 @@
-question, category': row['category'],
-            'choice_1': row['choice_1'],
-            'choice_2': row['choice_2'],
-            'choice_3': row['choice_3'],
-            'choice_4': row['choice_4'],
-            'choice_5': row['choice_5'
+question,category,choice_1,choice_2,choice_3,choice_4,choice_5,anwser
+qu'elle est la couleur du vehicule bleu,engine_exhaust,bleu,blanc,rouge,vert,jaune,choice_1

@@ -10,26 +10,28 @@ headers = {
     'Content-Type': 'application/json'
 }
 
-# Function to upload a question
 def upload_question(question_data):
     response = requests.post(API_URL, headers=headers, json=question_data)
     if response.status_code == 200 or response.status_code == 201:
-        print(f"Uploaded: {question_data['question']}")
+        print(f"success")
     else:
-        print(f"Failed to upload: {question_data['question']}, Status Code: {response.status_code}, Error: {response.text}")
+        print(f"Status Code: {response.status_code}, Error: {response.text}")
 
 # Read the CSV file and upload each question
-with open('questions.csv', newline='', encoding='utf-8') as csvfile:
+with open('uploaded_questions.csv', newline='', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         question_data = {
-            'question': row['question'],
-            'category': row['category'],
-            'choice_1': row['choice_1'],
-            'choice_2': row['choice_2'],
-            'choice_3': row['choice_3'],
-            'choice_4': row['choice_4'],
-            'choice_5': row['choice_5'],
-            'answer': row['answer']
+            'data': {
+                'question': row['question'],
+                'category': row['category'],
+                'choice_1': row['choice_1'],
+                'choice_2': row['choice_2'],
+                'choice_3': row['choice_3'],
+                'choice_4': row['choice_4'],
+                'choice_5': row['choice_5'],
+                'anwser': row['anwser']
+            }
         }
         upload_question(question_data)
+        break
