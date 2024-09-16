@@ -88,18 +88,6 @@
 <script>
     const questions = {{questions|safe}};
     const userAnswers = JSON.parse(localStorage.getItem('userAnswers')) || {};
-
-    function findFirstUnansweredQuestion() {
-        for (let i = 0; i < questions.length; i++) {
-            if (!userAnswers[questions[i].id]) {
-                return i;
-            }
-        }
-        return questions.length;
-    }
-
-    let currentQuestionIndex = findFirstUnansweredQuestion();
-
     const quizTimer = document.querySelector('.quiz-timer');
     const quizProgress = document.querySelector('.quiz-progress-number');
     const quizCategory = document.querySelector('.quiz-category');
@@ -120,11 +108,19 @@
         document.querySelector('.answer-5')
     ];
 
+    function findFirstUnansweredQuestion() {
+        for (let i = 0; i < questions.length; i++) {
+            if (!userAnswers[questions[i].id]) {
+                return i;
+            }
+        }
+        return questions.length;
+    }
+
     function displayQuestion(index) {
         if (index < 0 || index >= questions.length) {
             return;
         }
-
         const question = questions[index];
         quizProgress.innerText = `${index + 1}/${questions.length}`;
         quizCategory.innerText = question.category_displayed;
@@ -134,7 +130,6 @@
         } else {
             quizImage.style.display = 'none';
         }
-
         const answers = [
             question.choice_1,
             question.choice_2,
@@ -142,7 +137,6 @@
             question.choice_4,
             question.choice_5
         ];
-
         answers.forEach((answer, i) => {
             if (answer) {
                 answerLabels[i].style.display = 'block';
@@ -151,17 +145,9 @@
                 answerLabels[i].style.display = 'none';
             }
         });
-
         quizChoices.forEach(input => {
             input.checked = false;
         });
-
-        if (userAnswers[question.id]) {
-            userAnswers[question.id].choice.forEach(choice => {
-                document.querySelector(`input[value="${choice}"]`).checked = true;
-            });
-        }
-
         quizNextBtn.classList.add('disabled');
         quizNextBtn.classList.remove('blue');
     }
@@ -183,11 +169,9 @@
             hours = parseInt(timer / 3600, 10);
             minutes = parseInt((timer % 3600) / 60, 10);
             seconds = parseInt(timer % 60, 10);
-
             hours = hours < 10 ? "0" + hours : hours;
             minutes = minutes < 10 ? "0" + minutes : minutes;
             seconds = seconds < 10 ? "0" + seconds : seconds;
-
             display.textContent = `${hours}:${minutes}:${seconds}`;
 
             if (--timer < 0) {
@@ -241,6 +225,9 @@
         const now = new Date().getTime();
         return Math.max((endTime - now) / 1000, 0);
     }
+
+
+    let currentQuestionIndex = findFirstUnansweredQuestion();
 
     document.querySelector('.modal-trigger').addEventListener('click', () => {
         let endTime = localStorage.getItem('quizEndTime');

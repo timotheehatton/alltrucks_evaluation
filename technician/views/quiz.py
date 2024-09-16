@@ -18,7 +18,8 @@ def get_content(request):
         parameters={
             'locale': request.user.language.lower(),
             'populate': 'image',
-            'size': 'large'
+            'size': 'large',
+            'pagination[pageSize]': 500,
         }
     )
 
@@ -56,17 +57,6 @@ def index(request):
     if request.method == 'POST':
         return handle_quiz(request, page_content)
 
-    categorized_questions = collections.defaultdict(list)
-    for item in page_content['questions']:
-        categorized_questions[item['category']].append(item)
-
-    selected_questions = []
-    for _, items in categorized_questions.items():
-        if len(items) >= 10:
-            selected_questions.extend(random.sample(items, 10))
-        else:
-            selected_questions.extend(items)
-
     displayed_questions = [
         {
             'id': item['id'],
@@ -79,7 +69,7 @@ def index(request):
             'choice_4': item['choice_4'],
             'choice_5': item['choice_5'],
             'image': None if not item['image']['data'] else f"http://localhost:1337{item['image']['data']['attributes']['url']}",
-        } for item in selected_questions
+        } for item in page_content['questions']
     ]
 
     return render(request, 'technician/quiz/index.html', {
