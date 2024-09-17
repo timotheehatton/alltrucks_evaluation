@@ -2,7 +2,7 @@ import requests
 
 class Content:
     def __init__(self):
-        self.api_url = "http://localhost:1337/api"
+        self.api_url = "https://great-life-10c877bc60.strapiapp.com/api"
 
     def get_content(self, pages, parameters):
         content = {}

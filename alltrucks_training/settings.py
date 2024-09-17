@@ -5,6 +5,7 @@ import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+ON_HEROKU = 'DYNO' in os.environ
 
 
 # Quick-start development settings - unsuitable for production
@@ -14,7 +15,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-65^60^mrngvrm0i0&o)3@v992%!@8#^&!d9h0h2pprk*pn1tq4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if ON_HEROKU:
+    DEBUG = False
+else:
+    DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -75,9 +79,12 @@ WSGI_APPLICATION = 'alltrucks_training.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    'default': dj_database_url.config(default='postgres://localhost')
-}
+if ON_HEROKU:
+    DATABASE_URL = 'postgres://localhost'
+else:
+    DATABASE_URL = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
+
+DATABASES = {'default': dj_database_url.config(default=DATABASE_URL)}
 
 
 # Password validation
