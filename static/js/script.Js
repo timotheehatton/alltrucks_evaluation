@@ -1,6 +1,5 @@
 var sidenav = document.querySelectorAll('.sidenav');
 var sidenav = M.Sidenav.init(sidenav);
-
 var select = document.querySelectorAll('select');
 var select = M.FormSelect.init(select);
 
