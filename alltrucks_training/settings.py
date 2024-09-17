@@ -53,6 +53,8 @@ MIDDLEWARE = [
     'alltrucks_training.middleware.LoginRequiredMiddleware',
 ]
 
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 ROOT_URLCONF = 'alltrucks_training.urls'
 
 TEMPLATES = [
