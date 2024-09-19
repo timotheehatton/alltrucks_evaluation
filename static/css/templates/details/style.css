@@ -46,6 +46,10 @@
     padding: 40px 0 40px 0;
 }
 
+.stats .s9 .card canvas {
+    height: 425px;
+}
+
 .disabled-action {
     position: absolute;
     top: 50%;

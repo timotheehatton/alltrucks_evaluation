@@ -58,7 +58,7 @@
         <div class="row">
             <div class="col s9">
                 <div class="card graph {% if not scores_by_category %}disabled{% endif %}">
-                    <canvas id="radarChart" height="450"></canvas>
+                    <canvas id="radarChart"></canvas>
                 </div>
                 {% if not scores_by_category and user.is_superuser == False %}
                     <a href="{% url 'technician:quiz' %}" class="btn blue disabled-action">{{page_content.user_statistic.placeholder_button}}</a>
@@ -95,14 +95,13 @@
 <script>
     const ctx = document.getElementById('radarChart').getContext('2d');
     const data = {
-
         labels: [
             {% if scores_by_category %}
                 {% for score in scores_by_category %}
                     "{{ score.question_type }}",
                 {% endfor %}
             {% else %}
-            "diagnostic", "electricity", "engine_exhaust", "engine injection", "powertrain", "trailer braking system", "truck air braking_ ystem"
+            "diagnostic", "electricity", "engine_exhaust", "engine injection", "powertrain", "trailer braking system", "truck air braking system"
             {% endif %}
         ],
         datasets: [
@@ -155,9 +154,58 @@
                         font: {
                             size: 14,
                             weight: 'bold'
+                        },
+                        padding: 10,
+                        callback: function(label) {
+                            const words = label.split(' ');
+                            const maxWidth = 27;
+                            let lines = [];
+                            let currentLine = words[0];
+
+                            for (let i = 1; i < words.length; i++) {
+                                if (currentLine.length + words[i].length + 1 <= maxWidth) {
+                                    currentLine += ' ' + words[i];
+                                } else {
+                                    lines.push(currentLine);
+                                    currentLine = words[i];
+                                }
+                            }
+                            lines.push(currentLine);
+                            return lines;
                         }
                     },
                     beginAtZero: true
+                }
+            },
+            plugins: {
+                tooltip: {
+                    enabled: false
+                },
+                legend: {
+                    display: false
+                }
+            },
+            animation: {
+                onComplete: function() {
+                    const chartInstance = this;
+                    const ctx = chartInstance.ctx;
+                    const chartArea = chartInstance.chartArea;
+                    ctx.font = Chart.helpers.fontString(11, "bold", Chart.defaults.font.family);
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+
+                    chartInstance.data.datasets.forEach((dataset, i) => {
+                        const meta = chartInstance.getDatasetMeta(i);
+                        ctx.fillStyle = dataset.borderColor || 'blue';
+                        meta.data.forEach((point, index) => {
+                            const data = `${dataset.data[index]}%`;
+                            const angle = point.angle;
+                            const offset = 15;
+                            const posX = point.x + Math.cos(angle) * offset;
+                            const posY = point.y + Math.sin(angle) * offset;
+                            ctx.fillText(data, posX, posY);
+                        });
+                    });
                 }
             }
         }
