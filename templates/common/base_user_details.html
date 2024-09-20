@@ -68,7 +68,7 @@
                 <div class="card center-align diploma {% if not scores_by_category %}disabled{% endif %}">
                     <img src="{% static 'img/illu-diploma.svg' %}">
                     <h5>{% firstof page_content.user_statistic.diploma_title "Diploma available" %}</h5>
-                    <a href="{% url 'technician:download_pdf' %}" class="btn white {% if not scores_by_category %}disabled{% endif %}"><i class="material-icons page-title-icon">download</i> {% firstof page_content.user_statistic.diploma_button "Download" %}</a>
+                    <a href="#" class="download-pdf btn white {% if not scores_by_category %}disabled{% endif %}"><i class="material-icons page-title-icon">download</i> {% firstof page_content.user_statistic.diploma_button "Download" %}</a>
                 </div>
             </div>
         </div>
@@ -93,6 +93,9 @@
 
 {% block scripts %}
 <script>
+let radarChart;
+
+function initializeChart() {
     const ctx = document.getElementById('radarChart').getContext('2d');
     const data = {
         labels: [
@@ -122,7 +125,7 @@
         ]
     };
 
-    new Chart(ctx, {
+    radarChart = new Chart(ctx, {
         type: 'radar',
         data: data,
         options: {
@@ -210,5 +213,32 @@
             }
         }
     });
+}
+
+initializeChart();
+
+document.querySelector('.download-pdf').addEventListener('click', function() {
+    const image = radarChart.toBase64Image();
+
+    fetch('{% url 'technician:download_pdf' %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ chart_image_base64: image })
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'diploma.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    })
+    .catch(error => console.error('Error:', error));
+});
 </script>
 {% endblock %}

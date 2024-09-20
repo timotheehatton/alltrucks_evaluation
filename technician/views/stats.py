@@ -1,3 +1,6 @@
+import base64
+import os
+
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from django.shortcuts import render
@@ -5,20 +8,23 @@ from users.decorators import technician_required
 from users.models import Score
 from django.db.models import Max, Sum, ExpressionWrapper, IntegerField
 from common.content.strapi import strapi_content
-import os
 from io import BytesIO
 from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import fitz  # PyMuPDF
 from django.conf import settings
+from django.http import HttpResponse
+import json
+from PIL import Image
+from django.http import JsonResponse, HttpResponse
 
 
 @technician_required
 def download_pdf(request):
     user = request.user
     last_datetime = Score.objects.filter(user=user).aggregate(date=Max('date'))['date']
-    template_path = os.path.join(settings.BASE_DIR, 'static/pdf/diploma.pdf')
+    template_path = os.path.join(settings.STATIC_ROOT, 'pdf/diploma.pdf')
     output = BytesIO()
     document = fitz.open(template_path)
 
@@ -62,11 +68,31 @@ def download_pdf(request):
                 color=(0, 0, 0)
             )
             text_y += fontsize * 1.2
+
+    data = json.loads(request.body)
+    image_data = data.get('chart_image_base64')
+    if image_data:
+        image_data = image_data.replace('data:image/png;base64,', '')
+        image_bytes = base64.b64decode(image_data)
+        image = Image.open(BytesIO(image_bytes))
+        img_byte_arr = BytesIO()
+        image.save(img_byte_arr, format='PNG')
+        img_byte_arr = img_byte_arr.getvalue()
+        page = document[0]
+        rect = page.rect
+        image_width = rect.width / 1.5
+        image_height = rect.height  / 1.5
+
+        center_x = (rect.width - image_width) / 2
+        center_y = ((rect.height - image_height) / 2) + 10
+
+        image_rect = fitz.Rect(center_x, center_y, center_x + image_width, center_y + image_height)
+        page.insert_image(image_rect, stream=img_byte_arr)
+
     document.save(output)
     document.close()
     response = HttpResponse(output.getvalue(), content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{user.username}_diploma.pdf"'
-    
     return response
 
 
