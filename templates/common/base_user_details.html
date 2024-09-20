@@ -220,7 +220,7 @@ initializeChart();
 document.querySelector('.download-pdf').addEventListener('click', function() {
     const image = radarChart.toBase64Image();
 
-    fetch('{% url 'technician:download_pdf' %}', {
+    fetch('{% if user.is_superuser == True %}{% url 'common:download-pdf' current_user.id %}{% elif user.user_type == 'manager' %}{% url 'common:download-pdf' current_user.id %}{% else %}{% url 'common:download-pdf' user.id %}{% endif %}', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

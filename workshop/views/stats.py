@@ -8,29 +8,6 @@ from common.content.strapi import strapi_content
 import collections
 
 
-@workshop_required
-def download_pdf(request):
-    user = request.user
-    company_users = User.objects.filter(company=user.company)
-    last_dates = Score.objects.filter(user__in=company_users).values('user').annotate(last_date=Max('date'))
-
-    scores_sum = Score.objects.filter(
-        user__in=company_users,
-        date__in=[score['last_date'] for score in last_dates]
-    ).aggregate(total_score=Sum('score'))['total_score']
-
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{user.username}_scores.pdf"'
-    p = canvas.Canvas(response)
-    p.drawString(100, 800, "Company Scores")
-    p.drawString(100, 780, f"Company: {user.company.name}")
-    p.drawString(100, 760, f"Total Score: {scores_sum or 0}")
-    p.showPage()
-    p.save()
-
-    return response
-
-
 def get_content(request):
     return strapi_content.get_content(
         pages=['user-statistic', 'category', 'menu'],

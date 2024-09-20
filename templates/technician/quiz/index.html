@@ -65,7 +65,7 @@
             <p class="popinInfo-message">{{page_content.test.popin_success_content}}</p>
             <div>
                 <a href="{% url 'technician:stats' %}" class="btn blue">{{page_content.test.popin_success_button_1}}</a>
-                <a href="{% url 'technician:download_pdf' %}" class="btn white">{{page_content.test.popin_success_button_2}}</a>
+                <a href="{% url 'common:download-pdf' user.id %}" class="btn white">{{page_content.test.popin_success_button_2}}</a>
             </div>
         </div>
     </div>
