@@ -163,4 +163,4 @@ cython_debug/
 staticfiles/
 db.sqlite3
 .DS_Store
-DS_Store
+**/.DS_Store
