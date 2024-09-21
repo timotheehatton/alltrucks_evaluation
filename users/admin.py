@@ -8,7 +8,7 @@ from django.db.models import Max, Sum, ExpressionWrapper, IntegerField
 from django.contrib import messages
 from django.db.models import Q
 from django.contrib.auth.views import LogoutView
-from common.content.strapi import strapi_content
+from common.useful.strapi import strapi_content
 import collections
 
 
@@ -164,7 +164,8 @@ class MyAdminSite(admin.AdminSite):
                     user_type='manager',
                     language=company.country,
                     company=company,
-                    ct_number=form.cleaned_data['manager_ct_number']
+                    ct_number=form.cleaned_data['manager_ct_number'],
+                    is_active=False
                 )
                 manager_user.save()
                 i = 1
@@ -176,7 +177,8 @@ class MyAdminSite(admin.AdminSite):
                         last_name=request.POST[f'technician_last_name_{i}'],
                         user_type='technician',
                         company=company,
-                        ct_number=request.POST[f'technician_ct_number_{i}']
+                        ct_number=request.POST[f'technician_ct_number_{i}'],
+                        is_active=False
                     )
                     technician_user.save()
                     i += 1
@@ -198,6 +200,7 @@ class MyAdminSite(admin.AdminSite):
                 user.username = user.email
                 user.is_staff = True
                 user.is_superuser = True
+                user.set_password(admin_form.cleaned_data['password'])
                 user.save()
                 return redirect('admin:admins')
             else:

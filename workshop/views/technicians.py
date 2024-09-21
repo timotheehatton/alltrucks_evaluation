@@ -3,7 +3,7 @@ from django.db.models import Max, Sum, F, ExpressionWrapper, IntegerField
 from users.decorators import workshop_required
 from users.models import User
 from users.models import Score
-from common.content.strapi import strapi_content
+from common.useful.strapi import strapi_content
 
 
 def get_content(request):

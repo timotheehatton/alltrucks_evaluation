@@ -4,7 +4,7 @@ from django.shortcuts import render
 from users.decorators import workshop_required
 from users.models import Score, User
 from django.db.models import Max, Sum, ExpressionWrapper, IntegerField
-from common.content.strapi import strapi_content
+from common.useful.strapi import strapi_content
 import collections
 
 

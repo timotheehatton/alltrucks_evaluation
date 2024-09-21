@@ -2,7 +2,7 @@ from django.shortcuts import render
 from users.decorators import technician_required
 from users.models import Score
 from django.db.models import Max, Sum, ExpressionWrapper, IntegerField
-from common.content.strapi import strapi_content
+from common.useful.strapi import strapi_content
 
 
 def get_content(request):

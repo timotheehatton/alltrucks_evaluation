@@ -4,7 +4,7 @@ from users.decorators import workshop_required
 from users.models import User
 from users.models import Score
 from django.db.models import Sum, Max, ExpressionWrapper, IntegerField
-from common.content.strapi import strapi_content
+from common.useful.strapi import strapi_content
 
 
 def get_content(request):

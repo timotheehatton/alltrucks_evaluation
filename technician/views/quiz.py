@@ -8,7 +8,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from users.decorators import technician_required
 
-from common.content.strapi import strapi_content
+from common.useful.strapi import strapi_content
 from users.models import Score
 
 

@@ -15,8 +15,13 @@ class Company(models.Model):
 class User(AbstractUser):
     user_type = models.CharField(max_length=55, blank=True, null=True)
     language = models.CharField(max_length=2, choices=(('FR', 'FR'), ('ES', 'ES')), default='FR')
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True)
+    company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True)
     ct_number = models.CharField(max_length=20, null=True)
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['username']
+
+    email = models.EmailField(unique=True)
 
 
 class Score(models.Model):

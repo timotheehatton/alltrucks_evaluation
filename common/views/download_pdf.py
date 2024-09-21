@@ -10,7 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from PIL import Image
 
-from common.content.strapi import strapi_content
+from common.useful.strapi import strapi_content
 from users.models import Score, User
 
 

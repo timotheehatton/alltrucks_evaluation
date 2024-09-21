@@ -5,7 +5,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from users.decorators import workshop_required
 from common.views.forms import LanguageForm
-from common.content.strapi import strapi_content
+from common.useful.strapi import strapi_content
 
 
 def get_content(request):
