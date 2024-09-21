@@ -1,15 +1,20 @@
-from django.contrib import admin
-from django.urls import path
-from django.shortcuts import render, redirect, get_object_or_404
-from .models import Company, User, Score
-from common.views.forms import CompanyUserForm
-from common.views.forms import AdminUserForm
-from django.db.models import Max, Sum, ExpressionWrapper, IntegerField
-from django.contrib import messages
-from django.db.models import Q
-from django.contrib.auth.views import LogoutView
-from common.useful.strapi import strapi_content
 import collections
+
+from django.contrib import admin, messages
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import LogoutView
+from django.db.models import ExpressionWrapper, IntegerField, Max, Q, Sum
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import path, reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+
+from common.useful.strapi import strapi_content
+from common.useful.email import email
+from common.views.forms import AdminUserForm, CompanyUserForm
+
+
+from .models import Company, Score, User
 
 
 class MyAdminSite(admin.AdminSite):
@@ -149,6 +154,17 @@ class MyAdminSite(admin.AdminSite):
                 })
 
         return render(request, 'admin/users/index.html', {'users': data})
+    
+
+    def send_activation_email(self, request, user):
+        token = default_token_generator.make_token(user)
+        uid = urlsafe_base64_encode(force_bytes(user.pk))
+        activation_link = request.build_absolute_uri(
+            reverse('common:activate-account', kwargs={'uidb64': uid, 'token': token})
+        )
+        subject = 'Activate Your Account'
+        message = f'Click the link to activate your account and set a password: {activation_link}'
+        email.send_email(user.email, subject, message)
 
 
     def create_company_view(self, request):
@@ -156,9 +172,10 @@ class MyAdminSite(admin.AdminSite):
             form = CompanyUserForm(request.POST)
             if form.is_valid():
                 company = form.save()
+                manager_email = form.cleaned_data['manager_email']
                 manager_user = User.objects.create_user(
-                    username=form.cleaned_data['manager_email'],
-                    email=form.cleaned_data['manager_email'],
+                    username=manager_email,
+                    email=manager_email,
                     first_name=form.cleaned_data['manager_first_name'],
                     last_name=form.cleaned_data['manager_last_name'],
                     user_type='manager',
@@ -168,11 +185,14 @@ class MyAdminSite(admin.AdminSite):
                     is_active=False
                 )
                 manager_user.save()
+                self.send_activation_email(request, manager_user)
+
                 i = 1
                 while f'technician_first_name_{i}' in request.POST:
+                    technician_email = request.POST[f'technician_email_{i}']
                     technician_user = User.objects.create_user(
-                        username=request.POST[f'technician_email_{i}'],
-                        email=request.POST[f'technician_email_{i}'],
+                        username=technician_email,
+                        email=technician_email,
                         first_name=request.POST[f'technician_first_name_{i}'],
                         last_name=request.POST[f'technician_last_name_{i}'],
                         user_type='technician',
@@ -181,7 +201,10 @@ class MyAdminSite(admin.AdminSite):
                         is_active=False
                     )
                     technician_user.save()
+                    self.send_activation_email(request, technician_user)
                     i += 1
+
+                messages.success(request, 'Company and users accounts successfully created')
                 return redirect('admin:workshops')
             else:
                 for field, errors in form.errors.items():

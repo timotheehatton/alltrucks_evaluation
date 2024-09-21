@@ -6,10 +6,22 @@
 {% endblock %}
 
 {% block body %}
+
 <div class="header">
     <h1 class="page-title">Workshops</h1>
     <a href="{% url 'admin:create_company' %}" class="btn blue">Add Company</a>
 </div>
+
+{% if messages %}
+<div class="messages green lighten-4">
+    {% for message in messages %}
+    <div class="green-text center {% if message.tags %}{{ message.tags }}{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+<div class="separator"></div>
+{% endif %}
 
 
 <div class="model-list-table">
