@@ -23,7 +23,7 @@ class Content:
                     page_content = [{**item['attributes'], 'id': item['id']} for item in data]
                 else:
                     page_content = data['attributes']
-                cache.set(cache_key, page_content, 60 * settings.CONTENT_CACHE_DURATION)
+                cache.set(cache_key, page_content, 60 * int(settings.CONTENT_CACHE_DURATION))
             content[page.replace('-', '_')] = page_content
         return content
 
