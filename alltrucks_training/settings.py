@@ -154,3 +154,4 @@ CACHES = {
         'LOCATION': 'unique-snowflake',
     }
 }
+CONTENT_CACHE_DURATION = os.getenv('CONTENT_CACHE_DURATION')
