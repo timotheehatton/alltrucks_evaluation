@@ -204,7 +204,7 @@ class MyAdminSite(admin.AdminSite):
                     self.send_activation_email(request, technician_user)
                     i += 1
 
-                messages.success(request, 'Company and users accounts successfully created')
+                messages.success(request, 'Company and users accounts successfully created, users will received an email to define their password')
                 return redirect('admin:workshops')
             else:
                 for field, errors in form.errors.items():
