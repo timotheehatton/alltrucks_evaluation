@@ -22,7 +22,7 @@ def downloadPdf(request, user_id):
     document = fitz.open(template_path)
 
     pdf = {
-        'name': (f"{user.first_name} {user.last_name}", 22, 'center', 'helvetica'),
+        'name': (f"{user.first_name.capitalize()} {user.last_name.upper()}", 22, 'center', 'helvetica'),
         'date': (f"{last_datetime.strftime('%Y/%m/%d')}", 12, 'right', 'helvetica'),
         'location': (f"{user.company.name.capitalize()}, {user.company.city.capitalize()}, {user.company.country.upper()}", 14, 'center', 'helvetica'),
         'content': ("You have performed your expertise evaluation and the Alltrucks team would like to thanks you for that. Please find here ender information regarding your expertise.", 12, 'center', 'helvetica-oblique')

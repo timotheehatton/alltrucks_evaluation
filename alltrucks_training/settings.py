@@ -145,3 +145,12 @@ AUTH_USER_MODEL = 'users.User'
 
 LOGIN_URL = '/login/'
 LOGOUT_REDIRECT_URL = '/'
+
+
+# settings.py
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
