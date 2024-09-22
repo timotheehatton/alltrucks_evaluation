@@ -1,9 +1,9 @@
 from django.contrib import admin
-from django.urls import include, path
 from django.contrib.auth import views as auth_views
-from users.views import user_login
-from users.admin import admin_site
+from django.urls import include, path
 
+from users.admin import admin_site
+from users.views import user_login
 
 urlpatterns = [
     path('admin/', admin_site.urls),

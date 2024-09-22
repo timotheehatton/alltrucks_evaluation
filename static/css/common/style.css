@@ -78,8 +78,12 @@ html {
 }
 
 .content {
+    display: block;
+    min-height: 100vh;
+    height: 100%;
     margin-left: 250px;
     padding: 45px 40px;
+    position: relative;
 }
 
 .logo {
@@ -212,4 +216,11 @@ input[type="checkbox"].filled-in:checked+span:not(.lever):after {
 
 .messages .success {
     font-weight: bold;
+}
+
+.account-activation {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }

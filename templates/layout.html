@@ -48,9 +48,9 @@
     </div>
 
     <div class="content">
-        {% include 'components/loader.html' %}
         {% block body %}{% endblock %}
     </div>
+    {% include 'components/loader.html' %}
 
     <script src="{% static 'js/external/materialize.js' %}"></script>
     <script src="{% static 'js/external/chart.js' %}"></script>

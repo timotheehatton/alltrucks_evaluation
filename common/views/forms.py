@@ -1,5 +1,6 @@
 from django import forms
-from users.models import User, Company
+
+from users.models import Company, User
 
 
 class LanguageForm(forms.ModelForm):

@@ -1,8 +1,9 @@
+from django.db.models import ExpressionWrapper, IntegerField, Max, Sum
 from django.shortcuts import render
+
+from common.useful.strapi import strapi_content
 from users.decorators import technician_required
 from users.models import Score
-from django.db.models import Max, Sum, ExpressionWrapper, IntegerField
-from common.useful.strapi import strapi_content
 
 
 def get_content(request):

@@ -1,11 +1,13 @@
+import collections
+
+from django.db.models import ExpressionWrapper, IntegerField, Max, Sum
 from django.http import HttpResponse
-from reportlab.pdfgen import canvas
 from django.shortcuts import render
+from reportlab.pdfgen import canvas
+
+from common.useful.strapi import strapi_content
 from users.decorators import workshop_required
 from users.models import Score, User
-from django.db.models import Max, Sum, ExpressionWrapper, IntegerField
-from common.useful.strapi import strapi_content
-import collections
 
 
 def get_content(request):

@@ -1,11 +1,12 @@
-from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-from django.contrib import messages
-from users.decorators import technician_required
-from common.views.forms import LanguageForm
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
 from common.useful.strapi import strapi_content
+from common.views.forms import LanguageForm
+from users.decorators import technician_required
 from users.models import User
 
 

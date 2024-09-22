@@ -1,14 +1,11 @@
 import requests
-
 from django.conf import settings
 
 
 class Content:
     def __init__(self):
-        if settings.DEBUG:
-            self.api_url = "http://localhost:1337/api"  # Use localhost when in debug mode
-        else:
-            self.api_url = "https://great-life-10c877bc60.strapiapp.com/api"
+        self.api_url = f'{settings.STRAPI_URL}/api'
+
 
     def get_content(self, pages, parameters):
         content = {}

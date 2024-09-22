@@ -1,11 +1,14 @@
-from pathlib import Path
+import os
 import os.path
-import dj_database_url
+from pathlib import Path
 
+import dj_database_url
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-ON_HEROKU = 'DYNO' in os.environ
 
 
 # Quick-start development settings - unsuitable for production
@@ -15,10 +18,9 @@ ON_HEROKU = 'DYNO' in os.environ
 SECRET_KEY = 'django-insecure-65^60^mrngvrm0i0&o)3@v992%!@8#^&!d9h0h2pprk*pn1tq4'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if ON_HEROKU:
-    DEBUG = False
-else:
-    DEBUG = True
+STRAPI_URL = os.getenv('STRAPI_URL')
+DEBUG = os.getenv('DEBUG')
+ENV = os.getenv('ENV')
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -85,7 +87,7 @@ WSGI_APPLICATION = 'alltrucks_training.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-if ON_HEROKU:
+if ENV == 'prod':
     DATABASE_URL = 'postgres://localhost'
 else:
     DATABASE_URL = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')

@@ -1,9 +1,6 @@
 from django.urls import path
 
-from .views import stats
-from .views import account
-from .views import technicians
-from .views import details
+from .views import account, details, stats, technicians
 
 app_name = 'workshop'
 

@@ -1,14 +1,15 @@
-import random
-import requests
 import collections
 import json
+import random
 
-from django.utils import timezone
+import requests
+from django.conf import settings
 from django.http import JsonResponse
 from django.shortcuts import render
-from users.decorators import technician_required
+from django.utils import timezone
 
 from common.useful.strapi import strapi_content
+from users.decorators import technician_required
 from users.models import Score
 
 
@@ -68,7 +69,7 @@ def index(request):
             'choice_3': item['choice_3'],
             'choice_4': item['choice_4'],
             'choice_5': item['choice_5'],
-            'image': None if not item['image']['data'] else f"http://localhost:1337{item['image']['data']['attributes']['url']}",
+            'image': None if not item['image']['data'] else f"{settings.STRAPI_URL}{item['image']['data']['attributes']['url']}",
         } for item in page_content['questions']
     ]
 

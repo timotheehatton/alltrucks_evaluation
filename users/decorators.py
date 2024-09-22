@@ -1,5 +1,7 @@
-from django.http import HttpResponseForbidden
 from functools import wraps
+
+from django.http import HttpResponseForbidden
+
 
 def technician_required(view_func):
     @wraps(view_func)

@@ -1,10 +1,9 @@
-from django.shortcuts import render, get_object_or_404
-from django.db.models import Sum
-from users.decorators import workshop_required
-from users.models import User
-from users.models import Score
-from django.db.models import Sum, Max, ExpressionWrapper, IntegerField
+from django.db.models import ExpressionWrapper, IntegerField, Max, Sum
+from django.shortcuts import get_object_or_404, render
+
 from common.useful.strapi import strapi_content
+from users.decorators import workshop_required
+from users.models import Score, User
 
 
 def get_content(request):

@@ -9,10 +9,9 @@ from django.urls import path, reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
-from common.useful.strapi import strapi_content
 from common.useful.email import email
+from common.useful.strapi import strapi_content
 from common.views.forms import AdminUserForm, CompanyUserForm
-
 
 from .models import Company, Score, User
 

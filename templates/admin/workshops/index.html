@@ -13,14 +13,19 @@
 </div>
 
 {% if messages %}
-<div class="messages green lighten-4">
-    {% for message in messages %}
-    <div class="green-text center {% if message.tags %}{{ message.tags }}{% endif %}">
-        {{ message }}
-    </div>
-    {% endfor %}
-</div>
-<div class="separator"></div>
+    <ul>
+        {% for message in messages %}
+            <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                {% if "success" in message.tags %}
+                    <div class="green lighten-4 green-text">{{ message }}</div>
+                {% elif "error" in message.tags %}
+                    <div class="red lighten-4 red-text">{{ message }}</div>
+                {% else %}
+                    <div class="grey lighten-4 grey-text">{{ message }}</div>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
 {% endif %}
 
 

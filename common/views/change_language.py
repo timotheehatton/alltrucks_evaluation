@@ -1,6 +1,7 @@
-from django.shortcuts import render, redirect
-from django.urls import reverse
 from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.urls import reverse
+
 from .forms import LanguageForm
 
 

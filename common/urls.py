@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import changePassword, changeLanguage, downloadPdf, activateAccount
 
+from .views import activateAccount, changeLanguage, changePassword, downloadPdf
 
 app_name = 'common'
 

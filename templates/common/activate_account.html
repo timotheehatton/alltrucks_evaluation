@@ -1,28 +1,49 @@
+{% extends "layout.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Activate Account</title>
-    <link rel="stylesheet" href="{% static 'css/external/materialize.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/common/style.css' %}">
-</head>
-<body>
-    <div class="container">
-        <h2 class="center-align">Activate Your Account</h2>
-        <div class="row">
-            <form method="post" class="col s12">
+{% block body %}
+    <div class="account-activation">
+        <div class="card">
+            <h3 class="center-align">Activate your account</h3>
+            <form method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                <div class="input-field">
+                    <label for="id_new_password1">Password</label>
+                    <input type="password" name="new_password1" id="id_new_password1" required>
+                    {% if form.new_password1.errors %}
+                        <span class="helper-text red-text">
+                            {{ form.new_password1.errors.0 }}
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="input-field">
+                    <label for="id_new_password2">Password confirmation</label>
+                    <input type="password" name="new_password2" id="id_new_password2" required>
+                    {% if form.new_password2.errors %}
+                        <span class="helper-text red-text">
+                            {{ form.new_password2.errors.0 }}
+                        </span>
+                    {% endif %}
+                </div>
                 <div class="center-align">
-                    <button type="submit" class="btn blue">Set Password</button>
+                    <button type="submit" class="btn blue waves-effect waves-light">Set Password</button>
                 </div>
             </form>
+            {% if messages %}
+                <ul>
+                    {% for message in messages %}
+                        <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                            {% if "success" in message.tags %}
+                                <div class="green lighten-4 green-text">{{ message }}</div>
+                            {% elif "error" in message.tags %}
+                                <div class="red lighten-4 red-text">{{ message }}</div>
+                            {% else %}
+                                <div class="grey lighten-4 grey-text">{{ message }}</div>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
         </div>
     </div>
-    <script src="{% static 'js/external/materialize.js' %}"></script>
-    <script src="{% static 'js/common/script.js' %}"></script>
-</body>
-</html>
+{% endblock %}

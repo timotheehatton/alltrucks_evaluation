@@ -13,7 +13,9 @@ rows.forEach(row => {
 });
 
 function showLoader() {
-    loader.style.display = 'flex';
+    setTimeout(() => {
+        loader.style.display = 'flex';
+    }, 60);
 }
 
 document.querySelectorAll('form').forEach(form => {
