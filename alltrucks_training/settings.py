@@ -19,6 +19,7 @@ SECRET_KEY = 'django-insecure-65^60^mrngvrm0i0&o)3@v992%!@8#^&!d9h0h2pprk*pn1tq4
 
 # SECURITY WARNING: don't run with debug turned on in production!
 STRAPI_URL = os.getenv('STRAPI_URL')
+STRAPI_EMAIL_TOKEN = os.getenv('STRAPI_EMAIL_TOKEN')
 DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't')
 ENV = os.getenv('ENV')
 

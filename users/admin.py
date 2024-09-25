@@ -45,7 +45,8 @@ class MyAdminSite(admin.AdminSite):
             companies_with_emails.append({
                 'id': company.id,
                 'name': company.name,
-                'manager': f'{manager_user.first_name} {manager_user.last_name}' if manager_user else 'N/A',
+                'first_name': manager_user.first_name if manager_user else 'N/A',
+                'last_name': manager_user.last_name if manager_user else 'N/A',
                 'email': email,
                 'country': company.country
             })
@@ -161,9 +162,13 @@ class MyAdminSite(admin.AdminSite):
         activation_link = request.build_absolute_uri(
             reverse('common:activate-account', kwargs={'uidb64': uid, 'token': token})
         )
-        subject = 'Activate Your Account'
-        message = f'Click the link to activate your account and set a password: {activation_link}'
-        email.send_email(user.email, subject, message)
+        email.send_email(
+            to_email=user.email,
+            subject='Activate your AMCA account',
+            content='You have been invited to the new Alltrucks skills evaluation platform, AMCA. Please click the link below to activate your account and start using the platform:',
+            title='Activate your AMCA account',
+            link=activation_link
+        )
 
 
     def create_company_view(self, request):
@@ -183,7 +188,7 @@ class MyAdminSite(admin.AdminSite):
                     ct_number=form.cleaned_data['manager_ct_number'],
                     is_active=False
                 )
-                manager_user.save()
+                # manager_user.save()
                 self.send_activation_email(request, manager_user)
 
                 i = 1
@@ -199,8 +204,8 @@ class MyAdminSite(admin.AdminSite):
                         ct_number=request.POST[f'technician_ct_number_{i}'],
                         is_active=False
                     )
-                    technician_user.save()
-                    self.send_activation_email(request, technician_user)
+                    # technician_user.save()
+                    # self.send_activation_email(request, technician_user)
                     i += 1
 
                 messages.success(request, 'Company and users accounts successfully created, users will received an email to define their password')

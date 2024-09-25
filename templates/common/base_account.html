@@ -15,7 +15,7 @@
                 <div class="account-info-title"><i class="material-icons left">person</i>{{page_content.account.section_title_user}}</div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.account.user_label_name}}</span>
-                    <p class="account-info-item-content">{{request.user.first_name}} {{request.user.last_name}}</p>
+                    <p class="account-info-item-content">{{request.user.first_name|title}} {{request.user.last_name|upper}}</p>
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.account.user_label_address}}</span>
@@ -23,7 +23,7 @@
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.account.user_label_ctnumber}}</span>
-                    <p class="account-info-item-content">{{request.user.ct_number}}</p>
+                    <p class="account-info-item-content">{{request.user.ct_number|upper}}</p>
                 </div>
                 <div class="separator"></div>
                 <div class="account-info-title"><i class="material-icons left">business</i>{{page_content.account.section_title_workshop}}</div>
@@ -33,11 +33,11 @@
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.account.company_label_location}}</span>
-                    <p class="account-info-item-content">{{request.user.company.city}}, {{request.user.company.country}}</p>
+                    <p class="account-info-item-content">{{request.user.company.city|title}}, {{request.user.company.country|upper}}</p>
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.account.company_label_cunumber}}</span>
-                    <p class="account-info-item-content">{{request.user.company.cu_number}}</p>
+                    <p class="account-info-item-content">{{request.user.company.cu_number|upper}}</p>
                 </div>
 
                 {% if request.user.user_type == 'technician' %}
@@ -45,7 +45,7 @@
                 <div class="account-info-title"><i class="material-icons left">person</i>{{page_content.account.section_title_manager}}</div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.account.manager_label_name}}</span>
-                    <p class="account-info-item-content">{{manager.first_name}} {{manager.last_name}}</p>
+                    <p class="account-info-item-content">{{manager.first_name|title}} {{manager.last_name|upper}}</p>
                 </div>
                 <div class="account-info-item">
                     <span class="account-info-item-label">{{page_content.account.manager_label_email}}</span>

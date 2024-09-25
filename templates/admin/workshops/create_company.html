@@ -93,9 +93,9 @@
             </div>
         </form>
         {% if messages %}
-            <ul>
+            <ul class="messages">
                 {% for message in messages %}
-                    <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                    <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
                         {% if "success" in message.tags %}
                             <div class="green lighten-4 green-text">{{ message }}</div>
                         {% elif "error" in message.tags %}
