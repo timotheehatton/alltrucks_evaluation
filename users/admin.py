@@ -188,7 +188,7 @@ class MyAdminSite(admin.AdminSite):
                     ct_number=form.cleaned_data['manager_ct_number'],
                     is_active=False
                 )
-                # manager_user.save()
+                manager_user.save()
                 self.send_activation_email(request, manager_user)
 
                 i = 1
@@ -204,8 +204,8 @@ class MyAdminSite(admin.AdminSite):
                         ct_number=request.POST[f'technician_ct_number_{i}'],
                         is_active=False
                     )
-                    # technician_user.save()
-                    # self.send_activation_email(request, technician_user)
+                    technician_user.save()
+                    self.send_activation_email(request, technician_user)
                     i += 1
 
                 messages.success(request, 'Company and users accounts successfully created, users will received an email to define their password')
