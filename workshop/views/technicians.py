@@ -17,7 +17,7 @@ def get_content(request):
 def index(request):
     page_content = get_content(request)
     user = request.user
-    company_users = User.objects.filter(company=user.company)
+    company_users = User.objects.filter(company=user.company, user_type='technician')
 
     last_dates = Score.objects.filter(user__in=company_users).values('user').annotate(last_date=Max('date'))
     if last_dates:
