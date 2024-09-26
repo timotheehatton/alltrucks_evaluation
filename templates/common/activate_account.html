@@ -4,20 +4,20 @@
 {% block body %}
     <div class="account-activation">
         <div class="card">
-            <h3 class="center-align">Activate your account</h3>
-            <p>Welcome on the AMCA. Please enter a password to activate your account and strat using the platform.</p>
+            <h3 class="center-align">{{ page_content.activate_account.page_title }}</h3>
+            <p>{{ page_content.activate_account.intro }}</p>
             <form method="post">
                 {% csrf_token %}
                 <div class="input-field">
-                    <label for="id_new_password1">Password</label>
+                    <label for="id_new_password1">{{ page_content.activate_account.input_password }}</label>
                     <input type="password" name="new_password1" id="id_new_password1" required>
                 </div>
                 <div class="input-field">
-                    <label for="id_new_password2">Password confirmation</label>
+                    <label for="id_new_password2">{{ page_content.activate_account.input_password_confirmation }}</label>
                     <input type="password" name="new_password2" id="id_new_password2" required>
                 </div>
                 <div class="center-align">
-                    <button type="submit" class="btn blue waves-effect waves-light">Create my account</button>
+                    <button type="submit" class="btn blue waves-effect waves-light">{{ page_content.activate_account.button }}</button>
                 </div>
             </form>
             {% if messages %}
