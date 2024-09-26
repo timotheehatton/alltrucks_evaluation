@@ -10,7 +10,7 @@ class Content:
         params_key = "_".join(f"{key}={value}" for key, value in parameters.items())
         return f"content_{page}_{params_key}"
 
-    def get_content(self, pages, parameters):
+    def get_content(self, pages, parameters={}):
         content = {}
         for page in pages:
             cache_key = self._generate_cache_key(page, parameters)

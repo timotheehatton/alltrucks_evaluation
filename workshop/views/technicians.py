@@ -8,7 +8,7 @@ from users.models import Score, User
 
 def get_content(request):
     return strapi_content.get_content(
-        pages=['menu'],
+        pages=['menu', 'workshop-technician'],
         parameters={'locale': request.user.language.lower()}
     )
 

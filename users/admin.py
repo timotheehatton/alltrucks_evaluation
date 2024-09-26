@@ -156,7 +156,7 @@ class MyAdminSite(admin.AdminSite):
         return render(request, 'admin/users/index.html', {'users': data})
     
 
-    def send_activation_email(self, request, user):
+    def send_activation_email(self, request, user, content):
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
         activation_link = request.build_absolute_uri(
@@ -164,9 +164,9 @@ class MyAdminSite(admin.AdminSite):
         )
         email.send_email(
             to_email=user.email,
-            subject='Activate your AMCA account',
-            title='Activate your AMCA account',
-            content='You have been invited to the new Alltrucks skills evaluation platform, AMCA. Please click the link below to activate your account and start using the platform:',
+            subject=content.email.title,
+            title=content.email.title,
+            content=content.email.content,
             link=activation_link
         )
 
@@ -188,8 +188,12 @@ class MyAdminSite(admin.AdminSite):
                     ct_number=form.cleaned_data['manager_ct_number'],
                     is_active=False
                 )
+                content = strapi_content.get_content(
+                    pages=['email'],
+                    parameters={'locale': company.country}
+                )
                 manager_user.save()
-                self.send_activation_email(request, manager_user)
+                self.send_activation_email(request, manager_user, content)
 
                 i = 1
                 while f'technician_first_name_{i}' in request.POST:
@@ -205,7 +209,7 @@ class MyAdminSite(admin.AdminSite):
                         is_active=False
                     )
                     technician_user.save()
-                    self.send_activation_email(request, technician_user)
+                    self.send_activation_email(request, technician_user, content)
                     i += 1
 
                 messages.success(request, 'Company and users accounts successfully created, users will received an email to define their password')
