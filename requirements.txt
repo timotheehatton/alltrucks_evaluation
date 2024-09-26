@@ -9,7 +9,6 @@ idna==3.7
 packaging==24.1
 pillow==10.3.0
 psycopg==3.2.2
-fitz==0.0.1.dev2
 reportlab==4.2.0
 PyMuPDF==1.24.10
 PyMuPDFb==1.24.10
@@ -19,3 +18,4 @@ sqlparse==0.4.4
 typing_extensions==4.9.0
 urllib3==2.2.2
 whitenoise==6.7.0
+frontend==0.0.3

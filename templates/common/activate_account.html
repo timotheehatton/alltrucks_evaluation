@@ -11,23 +11,13 @@
                 <div class="input-field">
                     <label for="id_new_password1">Password</label>
                     <input type="password" name="new_password1" id="id_new_password1" required>
-                    {% if form.new_password1.errors %}
-                        <span class="helper-text red-text">
-                            {{ form.new_password1.errors.0 }}
-                        </span>
-                    {% endif %}
                 </div>
                 <div class="input-field">
                     <label for="id_new_password2">Password confirmation</label>
                     <input type="password" name="new_password2" id="id_new_password2" required>
-                    {% if form.new_password2.errors %}
-                        <span class="helper-text red-text">
-                            {{ form.new_password2.errors.0 }}
-                        </span>
-                    {% endif %}
                 </div>
                 <div class="center-align">
-                    <button type="submit" class="btn blue waves-effect waves-light">Set Password</button>
+                    <button type="submit" class="btn blue waves-effect waves-light">Create my account</button>
                 </div>
             </form>
             {% if messages %}

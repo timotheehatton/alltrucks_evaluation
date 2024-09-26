@@ -165,8 +165,8 @@ class MyAdminSite(admin.AdminSite):
         email.send_email(
             to_email=user.email,
             subject='Activate your AMCA account',
-            content='You have been invited to the new Alltrucks skills evaluation platform, AMCA. Please click the link below to activate your account and start using the platform:',
             title='Activate your AMCA account',
+            content='You have been invited to the new Alltrucks skills evaluation platform, AMCA. Please click the link below to activate your account and start using the platform:',
             link=activation_link
         )
 

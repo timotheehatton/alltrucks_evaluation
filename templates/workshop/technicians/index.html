@@ -34,10 +34,6 @@
                             <td>{{ technician.score }}{% if technician.score %}%{% endif %}</td>
                             <td>{{ technician.date|date:"d/m/Y" }}</td>
                         </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="4">No technicians found.</td>
-                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
