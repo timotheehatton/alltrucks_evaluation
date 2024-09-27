@@ -5,108 +5,111 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
 {% endblock %}
 
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
 {% block body %}
-<h1 class="page-title">Create a company</h1>
+<div class="content">
+    <h1 class="page-title">Create a company</h1>
 
-
-<div class="card">
-    <div class="card-content">
-        <form method="post" action="{% url 'admin:create_company' %}">
-            {% csrf_token %}
-            <div class="row">
-                <div class="col s12 m5">
-                    <div class="form-section">
-                        <h5>Workshop Information</h5>
-                        <div class="input-field">
-                            <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-                            {{ form.name }}
+    <div class="card">
+        <div class="card-content">
+            <form method="post" action="{% url 'admin:create_company' %}">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col s12 m5">
+                        <div class="form-section">
+                            <h5>Workshop Information</h5>
+                            <div class="input-field">
+                                <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+                                {{ form.name }}
+                            </div>
+                            <div class="input-field">
+                                <label for="{{ form.cu_number.id_for_label }}">{{ form.cu_number.label }}</label>
+                                {{ form.cu_number }}
+                            </div>
+                            <div class="input-field">
+                                <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+                                {{ form.city }}
+                            </div>
+                            <div class="input-field">
+                                <select id="{{ form.country.id_for_label }}" name="{{ form.country.html_name }}">
+                                    {% for value, label in form.country.field.choices %}
+                                        <option value="{{ value }}" {% if form.country.value == value %}selected{% endif %}>{{ label }}</option>
+                                    {% endfor %}
+                                </select>
+                                <label for="{{ form.country.id_for_label }}">{{ form.country.label }}</label>
+                            </div>
                         </div>
-                        <div class="input-field">
-                            <label for="{{ form.cu_number.id_for_label }}">{{ form.cu_number.label }}</label>
-                            {{ form.cu_number }}
-                        </div>
-                        <div class="input-field">
-                            <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
-                            {{ form.city }}
-                        </div>
-                        <div class="input-field">
-                            <select id="{{ form.country.id_for_label }}" name="{{ form.country.html_name }}">
-                                {% for value, label in form.country.field.choices %}
-                                    <option value="{{ value }}" {% if form.country.value == value %}selected{% endif %}>{{ label }}</option>
-                                {% endfor %}
-                            </select>
-                            <label for="{{ form.country.id_for_label }}">{{ form.country.label }}</label>
+                    </div>
+                    <div class="col s12 m5 offset-m1">
+                        <div class="form-section">
+                            <h5>Workshop Manager</h5>
+                            <div class="input-field">
+                                <label for="{{ form.manager_first_name.id_for_label }}">{{ form.manager_first_name.label }}</label>
+                                {{ form.manager_first_name }}
+                            </div>
+                            <div class="input-field">
+                                <label for="{{ form.manager_last_name.id_for_label }}">{{ form.manager_last_name.label }}</label>
+                                {{ form.manager_last_name }}
+                            </div>
+                            <div class="input-field">
+                                <label for="{{ form.manager_email.id_for_label }}">{{ form.manager_email.label }}</label>
+                                {{ form.manager_email }}
+                            </div>
+                            <div class="input-field">
+                                <label for="{{ form.manager_ct_number.id_for_label }}">{{ form.manager_ct_number.label }}</label>
+                                {{ form.manager_ct_number }}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col s12 m5 offset-m1">
-                    <div class="form-section">
-                        <h5>Workshop Manager</h5>
-                        <div class="input-field">
-                            <label for="{{ form.manager_first_name.id_for_label }}">{{ form.manager_first_name.label }}</label>
-                            {{ form.manager_first_name }}
+                <div class="row">
+                    <div class="form-section col s12 m12">
+                        <h5>Technicians</h5>
+                        <div id="technicians-container">
+                            <div class="technician-group">
+                                <div class="input-field">
+                                    <label for="technician_first_name_1">First name</label>
+                                    <input type="text" name="technician_first_name_1" id="technician_first_name_1" required>
+                                </div>
+                                <div class="input-field">
+                                    <label for="technician_last_name_1">Last name</label>
+                                    <input type="text" name="technician_last_name_1" id="technician_last_name_1" required>
+                                </div>
+                                <div class="input-field">
+                                    <label for="technician_email_1">Email address</label>
+                                    <input type="email" name="technician_email_1" id="technician_email_1" required>
+                                </div>
+                                <div class="input-field">
+                                    <label for="technician_ct_number_1">CT Number</label>
+                                    <input type="text" name="technician_ct_number_1" id="technician_ct_number_1" required>
+                                </div>
+                                <span class="btn red remove-button" onclick="removeTechnician(this)">Remove</span>
+                            </div>
                         </div>
-                        <div class="input-field">
-                            <label for="{{ form.manager_last_name.id_for_label }}">{{ form.manager_last_name.label }}</label>
-                            {{ form.manager_last_name }}
-                        </div>
-                        <div class="input-field">
-                            <label for="{{ form.manager_email.id_for_label }}">{{ form.manager_email.label }}</label>
-                            {{ form.manager_email }}
-                        </div>
-                        <div class="input-field">
-                            <label for="{{ form.manager_ct_number.id_for_label }}">{{ form.manager_ct_number.label }}</label>
-                            {{ form.manager_ct_number }}
-                        </div>
+                        <button class="btn-floating blue right" onclick="addTechnician()"><i class="material-icons">add</i></button>
                     </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="form-section col s12 m12">
-                    <h5>Technicians</h5>
-                    <div id="technicians-container">
-                        <div class="technician-group">
-                            <div class="input-field">
-                                <label for="technician_first_name_1">First name</label>
-                                <input type="text" name="technician_first_name_1" id="technician_first_name_1" required>
-                            </div>
-                            <div class="input-field">
-                                <label for="technician_last_name_1">Last name</label>
-                                <input type="text" name="technician_last_name_1" id="technician_last_name_1" required>
-                            </div>
-                            <div class="input-field">
-                                <label for="technician_email_1">Email address</label>
-                                <input type="email" name="technician_email_1" id="technician_email_1" required>
-                            </div>
-                            <div class="input-field">
-                                <label for="technician_ct_number_1">CT Number</label>
-                                <input type="text" name="technician_ct_number_1" id="technician_ct_number_1" required>
-                            </div>
-                            <span class="btn red remove-button" onclick="removeTechnician(this)">Remove</span>
-                        </div>
-                    </div>
-                    <button class="btn-floating blue right" onclick="addTechnician()"><i class="material-icons">add</i></button>
+                <div class="center-align">
+                    <button type="submit" class="btn blue">Create a workshop</button>
                 </div>
-            </div>
-            <div class="center-align">
-                <button type="submit" class="btn blue">Create a workshop</button>
-            </div>
-        </form>
-        {% if messages %}
-            <ul class="messages">
-                {% for message in messages %}
-                    <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
-                        {% if "success" in message.tags %}
-                            <div class="green lighten-4 green-text">{{ message }}</div>
-                        {% elif "error" in message.tags %}
-                            <div class="red lighten-4 red-text">{{ message }}</div>
-                        {% else %}
-                            <div class="grey lighten-4 grey-text">{{ message }}</div>
-                        {% endif %}
-                    </li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+            </form>
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+                            {% if "success" in message.tags %}
+                                <div class="green lighten-4 green-text">{{ message }}</div>
+                            {% elif "error" in message.tags %}
+                                <div class="red lighten-4 red-text">{{ message }}</div>
+                            {% else %}
+                                <div class="grey lighten-4 grey-text">{{ message }}</div>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}

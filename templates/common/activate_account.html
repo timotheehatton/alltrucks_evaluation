@@ -2,39 +2,43 @@
 {% load static %}
 
 {% block body %}
-    <div class="account-activation">
-        <div class="card">
-            <h3 class="center-align">{{ page_content.activate_account.page_title }}</h3>
-            <p>{{ page_content.activate_account.intro }}</p>
-            <form method="post">
-                {% csrf_token %}
-                <div class="input-field">
-                    <label for="id_new_password1">{{ page_content.activate_account.input_password }}</label>
-                    <input type="password" name="new_password1" id="id_new_password1" required>
-                </div>
-                <div class="input-field">
-                    <label for="id_new_password2">{{ page_content.activate_account.input_password_confirmation }}</label>
-                    <input type="password" name="new_password2" id="id_new_password2" required>
-                </div>
-                <div class="center-align">
-                    <button type="submit" class="btn blue waves-effect waves-light">{{ page_content.activate_account.button }}</button>
-                </div>
-            </form>
-            {% if messages %}
-                <ul>
-                    {% for message in messages %}
-                        <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
-                            {% if "success" in message.tags %}
-                                <div class="green lighten-4 green-text">{{ message }}</div>
-                            {% elif "error" in message.tags %}
-                                <div class="red lighten-4 red-text">{{ message }}</div>
-                            {% else %}
-                                <div class="grey lighten-4 grey-text">{{ message }}</div>
-                            {% endif %}
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+    <div class="content no-sidebar">
+        <div class="account-activation">
+            <div class="card">
+                <img class="account-activation-img1" src="{% static 'img/logo-dark.svg' %}">
+                <h3 class="center-align">{{ page_content.activate_account.page_title }}</h3>
+                <p>{{ page_content.activate_account.intro }}</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="input-field">
+                        <label for="id_new_password1">{{ page_content.activate_account.input_password }}</label>
+                        <input type="password" name="new_password1" id="id_new_password1" required>
+                    </div>
+                    <div class="input-field">
+                        <label for="id_new_password2">{{ page_content.activate_account.input_password_confirmation }}</label>
+                        <input type="password" name="new_password2" id="id_new_password2" required>
+                    </div>
+                    <div class="center-align">
+                        <button type="submit" class="btn blue waves-effect waves-light">{{ page_content.activate_account.button }}</button>
+                    </div>
+                </form>
+                {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                            <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                                {% if "success" in message.tags %}
+                                    <div class="green lighten-4 green-text">{{ message }}</div>
+                                {% elif "error" in message.tags %}
+                                    <div class="red lighten-4 red-text">{{ message }}</div>
+                                {% else %}
+                                    <div class="grey lighten-4 grey-text">{{ message }}</div>
+                                {% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+            <img class="account-activation-img2" src="{% static 'img/logo-blue.svg' %}">
         </div>
     </div>
 {% endblock %}

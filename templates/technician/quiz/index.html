@@ -5,78 +5,82 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/templates/technician/quiz/style.css' %}">
 {% endblock %}
 
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
 {% block body %}
-<h1 class="page-title"><i class="material-icons page-title-icon">assignment</i> {{page_content.test.page_title}}</h1>
+<div class="content">
+    <h1 class="page-title"><i class="material-icons page-title-icon">assignment</i> {{page_content.test.page_title}}</h1>
 
-<div class="container">
-    <div class="row">
-        <div class="col s12 l10 offset-l1">
-            <div class="card launcher center-align">
-                <img class="launcher-image" src="{% static 'img/illu-computer.svg' %}">
-                <h5 class="launcher-title">{{page_content.test.card_title}}</h5>
-                <p class="launcher-description">{{page_content.test.card_content}}</p>
-                <a href="#modal1" class="btn blue modal-trigger">{{page_content.test.card_btn}}</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="modal1" class="modal">
-    <div class="modal-content">
-        <div class="modal-content-header">
-            <span class="quiz-progress">{{page_content.test.test_question}} <span class="quiz-progress-number"></span></span>
-            <span class="quiz-timer">01:00:00</span>
-        </div>
-        <div class="modal-content-question">
-            <span class="quiz-category"></span>
-            <span class="quiz-question"></span>
-            <div class="quiz-image-anwsers-container">
-                <img class="quiz-image" src="#">
-                <div class="quiz-answers">
-                    <label class="answer-1" style="display:none;">
-                        <input type="checkbox" name="choice" class="filled-in" value="choice_1" />
-                        <span class="quiz-answer-1"></span>
-                    </label>
-                    <label class="answer-2" style="display:none;">
-                        <input type="checkbox" name="choice" class="filled-in" value="choice_2" />
-                        <span class="quiz-answer-2"></span>
-                    </label>
-                    <label class="answer-3" style="display:none;">
-                        <input type="checkbox" name="choice" class="filled-in" value="choice_3" />
-                        <span class="quiz-answer-3"></span>
-                    </label>
-                    <label class="answer-4" style="display:none;">
-                        <input type="checkbox" name="choice" class="filled-in" value="choice_4" />
-                        <span class="quiz-answer-4"></span>
-                    </label>
-                    <label class="answer-5" style="display:none;">
-                        <input type="checkbox" name="choice" class="filled-in" value="choice_5" />
-                        <span class="quiz-answer-5"></span>
-                    </label>
+    <div class="container">
+        <div class="row">
+            <div class="col s12 l10 offset-l1">
+                <div class="card launcher center-align">
+                    <img class="launcher-image" src="{% static 'img/illu-computer.svg' %}">
+                    <h5 class="launcher-title">{{page_content.test.card_title}}</h5>
+                    <p class="launcher-description">{{page_content.test.card_content}}</p>
+                    <a href="#modal1" class="btn blue modal-trigger">{{page_content.test.card_btn}}</a>
                 </div>
             </div>
-            <a href="#" class="btn quiz-next disabled">{{page_content.test.test_next_button}}</a>
         </div>
     </div>
-    <div class="success-message popinInfo" style="display: none;">
-        <div class="popinInfo-content">
-            <img src="{% static 'img/illu-success.svg' %}">
-            <h5 class="popinInfo-title">{{page_content.test.popin_success_title}}</h5>
-            <p class="popinInfo-message">{{page_content.test.popin_success_content}}</p>
-            <div>
-                <a href="{% url 'technician:stats' %}" class="btn blue">{{page_content.test.popin_success_button_1}}</a>
-                <a href="{% url 'common:download-pdf' user.id %}" class="btn white">{{page_content.test.popin_success_button_2}}</a>
+
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <div class="modal-content-header">
+                <span class="quiz-progress">{{page_content.test.test_question}} <span class="quiz-progress-number"></span></span>
+                <span class="quiz-timer">01:00:00</span>
+            </div>
+            <div class="modal-content-question">
+                <span class="quiz-category"></span>
+                <span class="quiz-question"></span>
+                <div class="quiz-image-anwsers-container">
+                    <img class="quiz-image" src="#">
+                    <div class="quiz-answers">
+                        <label class="answer-1" style="display:none;">
+                            <input type="checkbox" name="choice" class="filled-in" value="choice_1" />
+                            <span class="quiz-answer-1"></span>
+                        </label>
+                        <label class="answer-2" style="display:none;">
+                            <input type="checkbox" name="choice" class="filled-in" value="choice_2" />
+                            <span class="quiz-answer-2"></span>
+                        </label>
+                        <label class="answer-3" style="display:none;">
+                            <input type="checkbox" name="choice" class="filled-in" value="choice_3" />
+                            <span class="quiz-answer-3"></span>
+                        </label>
+                        <label class="answer-4" style="display:none;">
+                            <input type="checkbox" name="choice" class="filled-in" value="choice_4" />
+                            <span class="quiz-answer-4"></span>
+                        </label>
+                        <label class="answer-5" style="display:none;">
+                            <input type="checkbox" name="choice" class="filled-in" value="choice_5" />
+                            <span class="quiz-answer-5"></span>
+                        </label>
+                    </div>
+                </div>
+                <a href="#" class="btn quiz-next disabled">{{page_content.test.test_next_button}}</a>
             </div>
         </div>
-    </div>
-    <div class="timeout-message popinInfo" style="display: none;">
-        <div class="popinInfo-content">
-            <img src="{% static 'img/illu-error.svg' %}">
-            <h5 class="popinInfo-title">{{page_content.test.popin_timeout_title}}</h5>
-            <p class="popinInfo-message">{{page_content.test.popin_timeout_content}}</p>
-            <div>
-                <a href="{% url 'technician:stats' %}" class="btn blue">{{page_content.test.popin_timeout_button_1}}</a>
-                <a href="{% url 'technician:quiz' %}" class="btn white">{{page_content.test.popin_timeout_button_2}}</a>
+        <div class="success-message popinInfo" style="display: none;">
+            <div class="popinInfo-content">
+                <img src="{% static 'img/illu-success.svg' %}">
+                <h5 class="popinInfo-title">{{page_content.test.popin_success_title}}</h5>
+                <p class="popinInfo-message">{{page_content.test.popin_success_content}}</p>
+                <div>
+                    <a href="{% url 'technician:stats' %}" class="btn blue">{{page_content.test.popin_success_button_1}}</a>
+                    <a href="{% url 'common:download-pdf' user.id %}" class="btn white">{{page_content.test.popin_success_button_2}}</a>
+                </div>
+            </div>
+        </div>
+        <div class="timeout-message popinInfo" style="display: none;">
+            <div class="popinInfo-content">
+                <img src="{% static 'img/illu-error.svg' %}">
+                <h5 class="popinInfo-title">{{page_content.test.popin_timeout_title}}</h5>
+                <p class="popinInfo-message">{{page_content.test.popin_timeout_content}}</p>
+                <div>
+                    <a href="{% url 'technician:stats' %}" class="btn blue">{{page_content.test.popin_timeout_button_1}}</a>
+                    <a href="{% url 'technician:quiz' %}" class="btn white">{{page_content.test.popin_timeout_button_2}}</a>
+                </div>
             </div>
         </div>
     </div>

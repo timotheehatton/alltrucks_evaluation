@@ -1,42 +1,35 @@
+{% extends "layout.html" %}
 {% load static %}
 
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <link rel="stylesheet" href="{% static 'css/external/materialize.min.css' %}" type="text/css">
-    <link rel="stylesheet" href="{% static 'css/common/style.css' %}" type="text/css">
-</head>
-<body>
-    <div class="login-container">
-        <div class="login-content">
-            <img class="login-img" src="{% static 'img/logo-blue.svg' %}">
-            <h1 class="center-align">{{ page_content.login.page_title }}</h1>
-            <div class="card">
-                <span class="card-title center-align">{{ page_content.login.card_title }}</span>
-                {% if error %}
-                    <p class="red-text">{{ error }}</p>
-                {% endif %}
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="input-field">
-                        <input type="email" id="email" name="email" required>
-                        <label for="email">{{ page_content.login.input_mail }}</label>
-                    </div>
-                    <div class="input-field">
-                        <input type="password" id="password" name="password" required>
-                        <label for="password">{{ page_content.login.input_password }}</label>
-                    </div>
-                    <div class="center-align">
-                        <button type="submit" class="btn blue">{{ page_content.login.validate_btn }}</button>
-                    </div>
-                </form>
+{% block sidebar %}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content no-sidebar">
+        <img class="login-img2" src="{% static 'img/logo-blue.svg' %}">
+        <div class="login-container">
+            <div class="login-content">
+                <img class="login-img1" src="{% static 'img/logo-dark.svg' %}">
+                <div class="card">
+                    <h4 class="center-align">{{ page_content.login.card_title }}</h4>
+                    {% if error %}
+                        <p class="red-text">{{ error }}</p>
+                    {% endif %}
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="input-field">
+                            <input type="email" id="email" name="email" required>
+                            <label for="email">{{ page_content.login.input_mail }}</label>
+                        </div>
+                        <div class="input-field">
+                            <input type="password" id="password" name="password" required>
+                            <label for="password">{{ page_content.login.input_password }}</label>
+                        </div>
+                        <div class="center-align">
+                            <button type="submit" class="btn blue">{{ page_content.login.validate_btn }}</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-    <script src="{% static 'js/external/materialize.js' %}"></script>
-    <script src="{% static 'js/common/script.js' %}"></script>
-</body>
-</html>
+{% endblock %}

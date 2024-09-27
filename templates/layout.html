@@ -16,10 +16,11 @@
 </head>
 
 <body>
+    {% block sidebar %}
     <div class="sidebar">
         <div>
             <div class="logo">
-                <img src="{% static 'img/logo.png' %}">
+                <img src="{% static 'img/logo-light.svg' %}">
             </div>
             <ul class="menu">
                 <li class="header">{{ page_content.menu.label_menu }}</li>
@@ -37,20 +38,20 @@
                 <li><a class="{% if request.resolver_match.url_name == "workshops" or request.resolver_match.url_name == "create_company" or request.resolver_match.url_name == "single_workshop" %}active{% endif %}" href="{% url 'admin:workshops' %}"><i class="material-icons">business</i>Workshops</a></li>
                 <li><a class="{% if request.resolver_match.url_name == "users" or request.resolver_match.url_name == "single_user" %}active{% endif %}" href="{% url 'admin:users' %}"><i class="material-icons">person</i>Users</a></li>
                 <li><a class="{% if request.resolver_match.url_name == "admins" or request.resolver_match.url_name == "create_admin" %}active{% endif %}" href="{% url 'admin:admins' %}"><i class="material-icons">manage_accounts</i>Admins</a></li>
-                 <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
                     {% csrf_token %}
                     <button type="submit" class="logout-button btn red">
                         <i class="material-icons">exit_to_app</i>Logout
                     </button>
                 </form>
                 {% endif %}
+                <img class="logo-bottom" src="{% static 'img/logo.png' %}"> 
             </ul>
         </div>
     </div>
+    {% endblock sidebar %}
 
-    <div class="content">
-        {% block body %}{% endblock %}
-    </div>
+    {% block body %}{% endblock %}
     {% include 'components/loader.html' %}
 
     <script src="{% static 'js/external/materialize.js' %}"></script>

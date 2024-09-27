@@ -5,28 +5,32 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
 {% endblock %}
 
-{% block body %}
-<div class="header">
-    <h1 class="page-title">Platform admins</h1>
-    <a href="{% url 'admin:create_admin' %}" class="btn blue">Add Admin</a>
-</div>
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
-<div class="model-list-table">
-    <table class="highlight responsive-table">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>EMAIL</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in admins %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.email }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+{% block body %}
+<div class="content">
+    <div class="header">
+        <h1 class="page-title">Platform admins</h1>
+        <a href="{% url 'admin:create_admin' %}" class="btn blue">Add Admin</a>
+    </div>
+
+    <div class="model-list-table">
+        <table class="highlight responsive-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>EMAIL</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in admins %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.email }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}
