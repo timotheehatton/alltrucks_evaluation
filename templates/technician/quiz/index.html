@@ -116,6 +116,7 @@
 
     function getRandomQuestionsByCategory(questions, limit = 10) {
         const categorizedQuestions = {};
+        const selectedQuestions = [];
 
         questions.forEach(question => {
             if (!categorizedQuestions[question.category]) {
@@ -123,14 +124,10 @@
             }
             categorizedQuestions[question.category].push(question);
         });
-
-        const selectedQuestions = [];
-
         for (const category in categorizedQuestions) {
             const shuffled = categorizedQuestions[category].sort(() => 0.5 - Math.random());
             selectedQuestions.push(...shuffled.slice(0, limit));
         }
-
         return selectedQuestions;
     }
 
