@@ -40,23 +40,23 @@
                     <img class="quiz-image" src="#">
                     <div class="quiz-answers">
                         <label class="answer-1" style="display:none;">
-                            <input type="checkbox" name="choice" class="filled-in" value="choice_1" />
+                            <input type="radio" name="choice" class="filled-in" value="choice_1" />
                             <span class="quiz-answer-1"></span>
                         </label>
                         <label class="answer-2" style="display:none;">
-                            <input type="checkbox" name="choice" class="filled-in" value="choice_2" />
+                            <input type="radio" name="choice" class="filled-in" value="choice_2" />
                             <span class="quiz-answer-2"></span>
                         </label>
                         <label class="answer-3" style="display:none;">
-                            <input type="checkbox" name="choice" class="filled-in" value="choice_3" />
+                            <input type="radio" name="choice" class="filled-in" value="choice_3" />
                             <span class="quiz-answer-3"></span>
                         </label>
                         <label class="answer-4" style="display:none;">
-                            <input type="checkbox" name="choice" class="filled-in" value="choice_4" />
+                            <input type="radio" name="choice" class="filled-in" value="choice_4" />
                             <span class="quiz-answer-4"></span>
                         </label>
                         <label class="answer-5" style="display:none;">
-                            <input type="checkbox" name="choice" class="filled-in" value="choice_5" />
+                            <input type="radio" name="choice" class="filled-in" value="choice_5" />
                             <span class="quiz-answer-5"></span>
                         </label>
                     </div>
@@ -94,16 +94,13 @@
 <script>
     const allQuestions = {{questions|safe}};
     const userAnswers = JSON.parse(localStorage.getItem('userAnswers')) || {};
+
+    // DOM Elements
     const quizTimer = document.querySelector('.quiz-timer');
     const quizProgress = document.querySelector('.quiz-progress-number');
     const quizCategory = document.querySelector('.quiz-category');
     const quizQuestion = document.querySelector('.quiz-question');
     const quizImage = document.querySelector('.quiz-image');
-    const quizAnswer1 = document.querySelector('.quiz-answer-1');
-    const quizAnswer2 = document.querySelector('.quiz-answer-2');
-    const quizAnswer3 = document.querySelector('.quiz-answer-3');
-    const quizAnswer4 = document.querySelector('.quiz-answer-4');
-    const quizAnswer5 = document.querySelector('.quiz-answer-5');
     const quizNextBtn = document.querySelector('.quiz-next');
     const quizChoices = document.querySelectorAll('input[name="choice"]');
     const answerLabels = [
@@ -114,25 +111,30 @@
         document.querySelector('.answer-5')
     ];
 
+    // Get random questions by category
     function getRandomQuestionsByCategory(questions, limit = 10) {
         const categorizedQuestions = {};
-        const selectedQuestions = [];
 
         questions.forEach(question => {
-            if (!categorizedQuestions[question.category]) {
-                categorizedQuestions[question.category] = [];
+            const category = question.category;
+            if (!categorizedQuestions[category]) {
+                categorizedQuestions[category] = [];
             }
-            categorizedQuestions[question.category].push(question);
+            categorizedQuestions[category].push(question);
         });
+
+        const selectedQuestions = [];
         for (const category in categorizedQuestions) {
-            const shuffled = categorizedQuestions[category].sort(() => 0.5 - Math.random());
+            const shuffled = categorizedQuestions[category].sort(() => Math.random() - 0.5);
             selectedQuestions.push(...shuffled.slice(0, limit));
         }
+
         return selectedQuestions;
     }
 
     const questions = getRandomQuestionsByCategory(allQuestions);
 
+    // Find first unanswered question
     function findFirstUnansweredQuestion() {
         for (let i = 0; i < questions.length; i++) {
             if (!userAnswers[questions[i].id]) {
@@ -142,19 +144,24 @@
         return questions.length;
     }
 
+    // Display question
     function displayQuestion(index) {
         if (index < 0 || index >= questions.length) {
             return;
         }
+
         const question = questions[index];
         quizProgress.innerText = `${index + 1}/${questions.length}`;
         quizCategory.innerText = question.category_displayed;
         quizQuestion.innerText = question.question;
+
         if (question.image) {
             quizImage.src = question.image;
+            quizImage.style.display = 'block';
         } else {
             quizImage.style.display = 'none';
         }
+
         const answers = [
             question.choice_1,
             question.choice_2,
@@ -162,42 +169,39 @@
             question.choice_4,
             question.choice_5
         ];
+
         answers.forEach((answer, i) => {
+            const label = answerLabels[i];
             if (answer) {
-                answerLabels[i].style.display = 'block';
-                answerLabels[i].querySelector('span').innerText = answer;
+                label.style.display = 'block';
+                label.querySelector('span').innerText = answer;
             } else {
-                answerLabels[i].style.display = 'none';
+                label.style.display = 'none';
             }
         });
-        quizChoices.forEach(input => {
-            input.checked = false;
-        });
+
+        quizChoices.forEach(input => (input.checked = false));
         quizNextBtn.classList.add('disabled');
         quizNextBtn.classList.remove('blue');
+
         updateProgressBar(index, questions.length);
     }
 
+    // Enable next button
     function enableNextButton() {
-        const checkedChoices = document.querySelectorAll('input[name="choice"]:checked');
-        if (checkedChoices.length > 0) {
-            quizNextBtn.classList.remove('disabled');
-            quizNextBtn.classList.add('blue');
-        } else {
-            quizNextBtn.classList.add('disabled');
-            quizNextBtn.classList.remove('blue');
-        }
+        const isAnyChecked = Array.from(quizChoices).some(input => input.checked);
+        quizNextBtn.classList.toggle('disabled', !isAnyChecked);
+        quizNextBtn.classList.toggle('blue', isAnyChecked);
     }
 
+    // Start timer
     function startTimer(duration, display) {
-        let timer = duration, hours, minutes, seconds;
+        let timer = duration;
         const timerInterval = setInterval(() => {
-            hours = parseInt(timer / 3600, 10);
-            minutes = parseInt((timer % 3600) / 60, 10);
-            seconds = parseInt(timer % 60, 10);
-            hours = hours < 10 ? "0" + hours : hours;
-            minutes = minutes < 10 ? "0" + minutes : minutes;
-            seconds = seconds < 10 ? "0" + seconds : seconds;
+            const hours = String(Math.floor(timer / 3600)).padStart(2, '0');
+            const minutes = String(Math.floor((timer % 3600) / 60)).padStart(2, '0');
+            const seconds = String(Math.floor(timer % 60)).padStart(2, '0');
+
             display.textContent = `${hours}:${minutes}:${seconds}`;
 
             if (--timer < 0) {
@@ -212,59 +216,69 @@
         }, 1000);
     }
 
+    // Show timeout modal
     function timeoutModal() {
         document.querySelector('.modal-content').remove();
         document.querySelector('.timeout-message').style.display = 'block';
     }
 
+    // Save score
     function saveScore() {
         fetch("{% url 'technician:quiz' %}", {
-            method: "POST",
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": "{{ csrf_token }}"
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({ answers: userAnswers })
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                document.querySelector('.modal-content').remove();
-                document.querySelector('.success-message').style.display = 'block';
-                clearQuizData();
-            }
-        })
-        .catch(error => console.error("Error:", error));
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.querySelector('.modal-content').remove();
+                    document.querySelector('.success-message').style.display = 'block';
+                    clearQuizData();
+                }
+            })
+            .catch(error => console.error('Error:', error));
     }
 
+    // Update progress bar
     function updateProgressBar(index, total) {
         const progressBar = document.querySelector('.quiz-progressbar');
-        const progressPercentage = ((index + 1) / total) * 100;
-        progressBar.style.width = `${progressPercentage}%`;
+        progressBar.style.width = `${((index + 1) / total) * 100}%`;
     }
 
+    // Reset timer
     function resetTimer() {
         localStorage.removeItem('quizEndTime');
         localStorage.removeItem('quizTimer');
     }
 
+    // Clear quiz data
     function clearQuizData() {
         localStorage.removeItem('userAnswers');
         localStorage.removeItem('currentQuestionIndex');
     }
 
+    // Calculate remaining time
     function calculateRemainingTime(endTime) {
-        const now = new Date().getTime();
+        const now = Date.now();
         return Math.max((endTime - now) / 1000, 0);
     }
 
-    let currentQuestionIndex = findFirstUnansweredQuestion();
+    // Initialize current question index
+    let currentQuestionIndex = parseInt(localStorage.getItem('currentQuestionIndex'), 10);
+    if (isNaN(currentQuestionIndex)) {
+        currentQuestionIndex = findFirstUnansweredQuestion();
+    }
 
+    // Event listener for modal trigger
     document.querySelector('.modal-trigger').addEventListener('click', () => {
-        let endTime = localStorage.getItem('quizEndTime');
+        let endTime = parseInt(localStorage.getItem('quizEndTime'), 10);
         if (!endTime) {
-            const duration = 60 * 60 * 1000;
-            endTime = new Date().getTime() + duration;
+            const duration = 60 * 60 * 1000; // 1 hour in milliseconds
+            endTime = Date.now() + duration;
             localStorage.setItem('quizEndTime', endTime);
         }
 
@@ -272,15 +286,16 @@
         startTimer(remainingTime, quizTimer);
     });
 
+    // Event listener for next button
     quizNextBtn.addEventListener('click', () => {
-        const checkedChoices = document.querySelectorAll('input[name="choice"]:checked');
-        if (checkedChoices.length > 0) {
-            const selectedChoices = [];
-            checkedChoices.forEach(choice => {
-                selectedChoices.push(choice.value);
-            });
+        const selectedChoices = Array.from(quizChoices)
+            .filter(input => input.checked)
+            .map(input => input.value);
+
+        if (selectedChoices.length) {
             userAnswers[questions[currentQuestionIndex].id] = {
-                category: questions[currentQuestionIndex].category, choice: selectedChoices
+                category: questions[currentQuestionIndex].category,
+                choice: selectedChoices
             };
 
             localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
@@ -297,23 +312,24 @@
         }
     });
 
+    // Display initial question
     displayQuestion(currentQuestionIndex);
 
+    // Add change event listener to choices
     quizChoices.forEach(input => {
         input.addEventListener('change', enableNextButton);
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
+    // Initialize modal and timer on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
         const elems = document.querySelectorAll('.modal');
-        const modalInstance = M.Modal.init(elems, {
-            dismissible: false
-        });
+        const modalInstances = M.Modal.init(elems, { dismissible: false });
 
-        const endTime = localStorage.getItem('quizEndTime');
+        const endTime = parseInt(localStorage.getItem('quizEndTime'), 10);
         if (endTime) {
             const remainingTime = calculateRemainingTime(endTime);
             if (remainingTime > 0) {
-                modalInstance[0].open();
+                modalInstances[0].open();
                 startTimer(remainingTime, quizTimer);
             }
         }
