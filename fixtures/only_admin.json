@@ -1,0 +1,14 @@
+[
+  {
+    "model": "users.User",
+    "pk": 1,
+    "fields": {
+      "last_name": "User",
+      "email": "timothee.hatton@gmail.com",
+      "password": "pbkdf2_sha256$720000$qJf4jPT4wSzJrlvtkEMITH$TRb3Kzi1+GjlocIVFTVi4tQGR7p+TDb5gQfSa/yUjDc=",
+      "is_superuser": true,
+      "is_staff": true,
+      "is_active": true
+    }
+  }
+]
