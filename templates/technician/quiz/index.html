@@ -218,8 +218,11 @@
 
     // Show timeout modal
     function timeoutModal() {
-        document.querySelector('.modal-content').remove();
-        document.querySelector('.timeout-message').style.display = 'block';
+        const modalContent = document.querySelector('.modal-content');
+        const timeoutMessage = document.querySelector('.timeout-message');
+
+        if (modalContent) modalContent.remove();
+        if (timeoutMessage) timeoutMessage.style.display = 'block';
     }
 
     // Save score
@@ -246,7 +249,7 @@
     // Update progress bar
     function updateProgressBar(index, total) {
         const progressBar = document.querySelector('.quiz-progressbar');
-        progressBar.style.width = `${((index + 1) / total) * 100}%`;
+        progressBar.style.width = `${((index) / total) * 100}%`;
     }
 
     // Reset timer
@@ -277,7 +280,7 @@
     document.querySelector('.modal-trigger').addEventListener('click', () => {
         let endTime = parseInt(localStorage.getItem('quizEndTime'), 10);
         if (!endTime) {
-            const duration = 60 * 60 * 1000;
+            const duration = 60 * 60 * 1000; // 1 hour in milliseconds
             endTime = Date.now() + duration;
             localStorage.setItem('quizEndTime', endTime);
         }
@@ -305,6 +308,7 @@
                 localStorage.setItem('currentQuestionIndex', currentQuestionIndex);
                 displayQuestion(currentQuestionIndex);
             } else {
+                // Finish quiz
                 saveScore();
                 resetTimer();
                 clearQuizData();
@@ -326,11 +330,22 @@
         const modalInstances = M.Modal.init(elems, { dismissible: false });
 
         const endTime = parseInt(localStorage.getItem('quizEndTime'), 10);
+
         if (endTime) {
             const remainingTime = calculateRemainingTime(endTime);
+
+            // Open the modal regardless of the remaining time
+            modalInstances[0].open();
+
             if (remainingTime > 0) {
-                modalInstances[0].open();
+                // If time is remaining, start the timer
                 startTimer(remainingTime, quizTimer);
+            } else {
+                // Timer has expired, display timeout message and handle timeout state
+                timeoutModal();
+                saveScore();
+                resetTimer();
+                clearQuizData();
             }
         }
     });
