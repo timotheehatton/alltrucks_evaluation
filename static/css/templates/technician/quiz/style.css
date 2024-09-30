@@ -21,6 +21,28 @@
     justify-content: space-between;
 }
 
+.quiz-progressbar-container {
+    width: 100%;
+    background-color: #ececec;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    overflow: hidden;
+}
+
+.quiz-progressbar {
+    position: absolute;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background-color: #01B5E2;
+    transition: width 0.3s ease;
+}
+
 .quiz-progress {
     text-align: left;
     font-style: normal;

@@ -30,6 +30,9 @@
                 <span class="quiz-progress">{{page_content.test.test_question}} <span class="quiz-progress-number"></span></span>
                 <span class="quiz-timer">01:00:00</span>
             </div>
+            <div class="quiz-progressbar-container">
+                <div class="quiz-progressbar" style="width: 0%;"></div>
+            </div>
             <div class="modal-content-question">
                 <span class="quiz-category"></span>
                 <span class="quiz-question"></span>
@@ -175,6 +178,7 @@
         });
         quizNextBtn.classList.add('disabled');
         quizNextBtn.classList.remove('blue');
+        updateProgressBar(index, questions.length);
     }
 
     function enableNextButton() {
@@ -234,6 +238,12 @@
             }
         })
         .catch(error => console.error("Error:", error));
+    }
+
+    function updateProgressBar(index, total) {
+        const progressBar = document.querySelector('.quiz-progressbar');
+        const progressPercentage = ((index + 1) / total) * 100;
+        progressBar.style.width = `${progressPercentage}%`;
     }
 
     function resetTimer() {
