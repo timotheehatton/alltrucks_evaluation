@@ -28,7 +28,7 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 10px;
+    height: 8px;
     overflow: hidden;
 }
 
@@ -85,7 +85,6 @@
 }
 
 .quiz-question {
-    margin-top: 20px;
     text-align: center;
     font-style: normal;
     font-weight: 400;
@@ -93,6 +92,9 @@
     line-height: 24px;
     color: #363636;
     display: block;
+    max-width: 90%;
+    margin: 20px auto 0 auto;
+    line-height: 1.5;
 }
 
 .quiz-image {

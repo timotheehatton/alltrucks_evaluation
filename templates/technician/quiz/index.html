@@ -277,7 +277,7 @@
     document.querySelector('.modal-trigger').addEventListener('click', () => {
         let endTime = parseInt(localStorage.getItem('quizEndTime'), 10);
         if (!endTime) {
-            const duration = 60 * 60 * 1000; // 1 hour in milliseconds
+            const duration = 60 * 60 * 1000;
             endTime = Date.now() + duration;
             localStorage.setItem('quizEndTime', endTime);
         }
@@ -299,10 +299,10 @@
             };
 
             localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-            localStorage.setItem('currentQuestionIndex', currentQuestionIndex);
 
             if (currentQuestionIndex < questions.length - 1) {
                 currentQuestionIndex++;
+                localStorage.setItem('currentQuestionIndex', currentQuestionIndex);
                 displayQuestion(currentQuestionIndex);
             } else {
                 saveScore();
