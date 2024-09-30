@@ -5,7 +5,7 @@
 {% if user.is_superuser == True %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
 {% endif %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/templates/workshop/stats/style.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/templates/manager/stats/style.css' %}">
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
@@ -104,7 +104,7 @@
                 const anchor = document.createElement('a');
                 anchor.style.color = item.fontColor;
                 anchor.style.textDecoration = item.hidden ? 'line-through' : 'none';
-                anchor.href = `{% if user.is_superuser == True %}/admin/user/{% else %}/workshop/technician/{% endif %}${chart.data.datasets[index].technicianId}/`;
+                anchor.href = `{% if user.is_superuser == True %}/admin/user/{% else %}/manager/technician/{% endif %}${chart.data.datasets[index].technicianId}/`;
                 anchor.textContent = item.text;
 
                 li.appendChild(svgIcon);

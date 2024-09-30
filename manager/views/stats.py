@@ -6,7 +6,7 @@ from django.shortcuts import render
 from reportlab.pdfgen import canvas
 
 from common.useful.strapi import strapi_content
-from users.decorators import workshop_required
+from users.decorators import manager_required
 from users.models import Score, User
 
 
@@ -17,7 +17,7 @@ def get_content(request):
     )
 
 
-@workshop_required
+@manager_required
 def index(request):
     page_content = get_content(request)
     user = request.user
@@ -43,7 +43,7 @@ def index(request):
     for score in scores_by_category:
         global_scores[page_content['category'][score['question_type']]] = score['success_percentage']
 
-    return render(request, 'workshop/stats/index.html', {
+    return render(request, 'manager/stats/index.html', {
         'technician_scores': dict(technician_scores),
         'global_scores': global_scores,
         'page_content': page_content,

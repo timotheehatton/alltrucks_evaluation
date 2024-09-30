@@ -24,7 +24,7 @@ def user_login(request):
                 if user.user_type == 'technician':
                     return redirect('technician:stats')
                 elif user.user_type == 'manager':
-                    return redirect('workshop:stats')
+                    return redirect('manager:stats')
         except:
             pass
         return render(request, 'users/login/index.html', {

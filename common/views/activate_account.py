@@ -36,7 +36,7 @@ def activateAccount(request, uidb64, token):
                 user.save()
                 login(request, user)
                 if user.user_type == 'manager':
-                    return redirect('workshop:technicians')
+                    return redirect('manager:technicians')
                 else:
                     return redirect('technician:stats')
             else:

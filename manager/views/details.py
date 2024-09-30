@@ -2,7 +2,7 @@ from django.db.models import ExpressionWrapper, IntegerField, Max, Sum
 from django.shortcuts import get_object_or_404, render
 
 from common.useful.strapi import strapi_content
-from users.decorators import workshop_required
+from users.decorators import manager_required
 from users.models import Score, User
 
 
@@ -13,7 +13,7 @@ def get_content(request):
     )
 
 
-@workshop_required
+@manager_required
 def index(request, id):
     page_content = get_content(request)
     technician = get_object_or_404(User, id=id)
@@ -30,7 +30,7 @@ def index(request, id):
         for score in scores_by_category
     ]
 
-    return render(request, 'workshop/details/index.html', {
+    return render(request, 'manager/details/index.html', {
         'scores_by_category': scores_by_category,
         'current_user': technician,
         'page_content': page_content

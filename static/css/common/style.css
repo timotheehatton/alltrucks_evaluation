@@ -103,6 +103,19 @@ html {
     text-align: center;
 }
 
+.login-lost-password {
+    color:#01B5E2;
+    display: block;
+    position: relative;
+    text-align: center;
+    margin-top: 20px;
+    transition: ease .3s;
+}
+
+.login-lost-password:hover {
+    color: #001F54;
+}
+
 .card {
     padding: 40px;
     border-radius: 10px;

@@ -33,7 +33,9 @@ def lostPassword(request):
                     content='Please click the link below to reset your password:',
                     link=reset_link
                 )
-            messages.success(request, 'A link to reset your password has been sent to your email.')
+                messages.success(request, 'A link to reset your password has been sent to your email.')
+            else:
+                messages.error(request, 'There is no user with that email address.')
         else:
             messages.error(request, 'Please enter a valid email address.')
     else:

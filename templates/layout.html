@@ -30,10 +30,10 @@
                 <li class="header spaced-row-top-big">{{ page_content.menu.label_settings }}</li>
                 <li><a class="{% if request.resolver_match.url_name == "account" %}active{% endif %}" href="{% url 'technician:account' %}"><i class="material-icons">manage_accounts</i> {{ page_content.menu.technician_account }}</a></li>
                 {% elif request.user.user_type == 'manager' %}
-                <li><a class="{% if request.resolver_match.url_name == "stats" %}active{% endif %}" href="{% url 'workshop:stats' %}"><i class="material-icons">bar_chart</i> {{ page_content.menu.workshop_stats }}</a></li>
-                <li><a class="{% if request.resolver_match.url_name == "technicians" or request.resolver_match.url_name == "details" %}active{% endif %}" href="{% url 'workshop:technicians' %}"><i class="material-icons">group</i> {{ page_content.menu.workshop_technicians }}</a></li>
+                <li><a class="{% if request.resolver_match.url_name == "stats" %}active{% endif %}" href="{% url 'manager:stats' %}"><i class="material-icons">bar_chart</i> {{ page_content.menu.workshop_stats }}</a></li>
+                <li><a class="{% if request.resolver_match.url_name == "technicians" or request.resolver_match.url_name == "details" %}active{% endif %}" href="{% url 'manager:technicians' %}"><i class="material-icons">group</i> {{ page_content.menu.workshop_technicians }}</a></li>
                 <li class="header spaced-row-top-big">{{ page_content.menu.label_settings }}</li>
-                <li><a class="{% if request.resolver_match.url_name == "account" %}active{% endif %}" href="{% url 'workshop:account' %}"><i class="material-icons">manage_accounts</i> {{ page_content.menu.workshop_account }}</a></li>
+                <li><a class="{% if request.resolver_match.url_name == "account" %}active{% endif %}" href="{% url 'manager:account' %}"><i class="material-icons">manage_accounts</i> {{ page_content.menu.workshop_account }}</a></li>
                 {% elif request.user.is_superuser == True %}
                 <li><a class="{% if request.resolver_match.url_name == "workshops" or request.resolver_match.url_name == "create_company" or request.resolver_match.url_name == "single_workshop" %}active{% endif %}" href="{% url 'admin:workshops' %}"><i class="material-icons">business</i>Workshops</a></li>
                 <li><a class="{% if request.resolver_match.url_name == "users" or request.resolver_match.url_name == "single_user" %}active{% endif %}" href="{% url 'admin:users' %}"><i class="material-icons">person</i>Users</a></li>

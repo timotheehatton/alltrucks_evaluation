@@ -35,10 +35,10 @@
     "model": "users.User",
     "pk": 3,
     "fields": {
-      "username": "workshop",
+      "username": "manager",
       "first_name": "Jane",
-      "last_name": "workshop",
-      "email": "workshop.jane@example.com",
+      "last_name": "manager",
+      "email": "manager.jane@example.com",
       "is_active": true,
       "password": "pbkdf2_sha256$720000$qJf4jPT4wSzJrlvtkEMITH$TRb3Kzi1+GjlocIVFTVi4tQGR7p+TDb5gQfSa/yUjDc=",
       "user_type": "manager",

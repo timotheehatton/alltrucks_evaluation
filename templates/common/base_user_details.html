@@ -14,7 +14,7 @@
 <div class="content">
     <div class="stats {% if user.is_superuser == True %}stats-admin{% endif %}">
         {% if current_user %}
-            <a href="{% if user.is_superuser == False %}{% url 'workshop:technicians' %}{% else %}{% url 'admin:users' %}{% endif %}" class="button-back"><i class="material-icons">arrow_back</i>Technicians</a>
+            <a href="{% if user.is_superuser == False %}{% url 'manager:technicians' %}{% else %}{% url 'admin:users' %}{% endif %}" class="button-back"><i class="material-icons">arrow_back</i>Technicians</a>
             {% if user.is_superuser == False %}
                 <div class="card name-card"><i class="material-icons page-title-icon">person</i> {{ current_user.first_name }} {{ current_user.last_name }}</div>
             {% endif %}
@@ -119,7 +119,7 @@ function initializeChart() {
                             {{ score.success_percentage }},
                         {% endfor %}
                     {% else %}
-                        18, 15, 16, 13, 10, 19, 19,
+                        38, 80, 90, 43, 100, 30, 54,
                     {% endif %}
                 ],
                 fill: false,

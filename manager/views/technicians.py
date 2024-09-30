@@ -2,7 +2,7 @@ from django.db.models import ExpressionWrapper, F, IntegerField, Max, Sum
 from django.shortcuts import render
 
 from common.useful.strapi import strapi_content
-from users.decorators import workshop_required
+from users.decorators import manager_required
 from users.models import Score, User
 
 
@@ -13,7 +13,7 @@ def get_content(request):
     )
 
 
-@workshop_required
+@manager_required
 def index(request):
     page_content = get_content(request)
     user = request.user
@@ -35,7 +35,7 @@ def index(request):
     else:
         technicians = company_users.values('first_name', 'last_name', 'id')
 
-    return render(request, 'workshop/technicians/index.html', {
+    return render(request, 'manager/technicians/index.html', {
         'technicians': technicians,
         'page_content': page_content
     })

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/templates/workshop/technicians/style.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'css/templates/manager/technicians/style.css' %}">
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
@@ -25,7 +25,7 @@
                         </thead>
                         <tbody>
                             {% for technician in technicians %}
-                            <tr class="clickable-row" data-href="{% url 'workshop:details' technician.id %}">
+                            <tr class="clickable-row" data-href="{% url 'manager:details' technician.id %}">
                                 <td>{{ technician.first_name|title }} {{ technician.last_name|upper }}</td>
                                 <td>
                                     {% if technician.date %}

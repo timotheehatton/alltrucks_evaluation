@@ -15,7 +15,7 @@ class LoginRequiredMiddleware:
                 if request.user.user_type == 'technician':
                     return redirect(reverse('technician:stats'))
                 elif request.user.user_type == 'manager':
-                    return redirect(reverse('workshop:stats'))
+                    return redirect(reverse('manager:stats'))
                 
         
         response = self.get_response(request)
