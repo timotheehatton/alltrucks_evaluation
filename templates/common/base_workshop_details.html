@@ -52,9 +52,13 @@
                     <canvas id="radarChart" height="515"></canvas>
                 </div>
                 <div id="legend-container"></div>
+                {% if not global_scores %}
+                    <div class="graph-no-data">No data available yet, Your technicians need to finish there first evaluations.</div>
+                {% endif%}
             </div>
         </div>
-    <div class="col s4">
+        {% if global_scores %}
+        <div class="col s4">
             <div class="card">
                 <div class="category-scores">
                     {% for category, score in global_scores.items %}
@@ -68,6 +72,7 @@
                 </div>
             </div>
         </div>
+        {% endif%}
     </div>
 </div>
 {% endblock %}

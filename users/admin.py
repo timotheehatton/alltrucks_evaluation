@@ -164,9 +164,9 @@ class MyAdminSite(admin.AdminSite):
         )
         email.send_email(
             to_email=user.email,
-            subject=content.email.title,
-            title=content.email.title,
-            content=content.email.content,
+            subject=content['email']['title'],
+            title=content['email']['title'],
+            content=content['email']['content'],
             link=activation_link
         )
 
@@ -190,7 +190,7 @@ class MyAdminSite(admin.AdminSite):
                 )
                 content = strapi_content.get_content(
                     pages=['email'],
-                    parameters={'locale': company.country}
+                    parameters={'locale': company.country.lower()}
                 )
                 manager_user.save()
                 self.send_activation_email(request, manager_user, content)

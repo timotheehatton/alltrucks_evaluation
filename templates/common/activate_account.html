@@ -1,25 +1,57 @@
 {% extends "layout.html" %}
 {% load static %}
 
+{% block sidebar %}{% endblock sidebar %}
+
 {% block body %}
     <div class="content no-sidebar">
         <div class="account-activation">
             <div class="card">
                 <img class="account-activation-img1" src="{% static 'img/logo-dark.svg' %}">
-                <h3 class="center-align">{{ page_content.activate_account.page_title }}</h3>
-                <p>{{ page_content.activate_account.intro }}</p>
+                <h3 class="center-align">
+                    {% if page_content.action == "activate" %}
+                        {{ page_content.activate_account.page_title }}
+                    {% else %}
+                        Reset password
+                    {% endif %}
+                </h3>
+                <p>
+                    {% if page_content.action == "activate" %}
+                        {{ page_content.activate_account.intro }}
+                    {% else %}
+                        fill your password to reset it
+                    {% endif %}
+                </p>
                 <form method="post">
                     {% csrf_token %}
                     <div class="input-field">
-                        <label for="id_new_password1">{{ page_content.activate_account.input_password }}</label>
+                        <label for="id_new_password1">
+                            {% if page_content.action == "activate" %}
+                                {{ page_content.activate_account.input_password }}
+                            {% else %}
+                                password
+                            {% endif %}
+                        </label>
                         <input type="password" name="new_password1" id="id_new_password1" required>
                     </div>
                     <div class="input-field">
-                        <label for="id_new_password2">{{ page_content.activate_account.input_password_confirmation }}</label>
+                        <label for="id_new_password2">
+                            {% if page_content.action == "activate" %}
+                                {{ page_content.activate_account.input_password_confirmation }}
+                            {% else %}
+                                confirm password
+                            {% endif %}
+                        </label>
                         <input type="password" name="new_password2" id="id_new_password2" required>
                     </div>
                     <div class="center-align">
-                        <button type="submit" class="btn blue waves-effect waves-light">{{ page_content.activate_account.button }}</button>
+                        <button type="submit" class="btn blue waves-effect waves-light">
+                            {% if page_content.action == "activate" %}
+                                {{ page_content.activate_account.button }}
+                            {% else %}
+                                Validate
+                            {% endif %}
+                        </button>
                     </div>
                 </form>
                 {% if messages %}

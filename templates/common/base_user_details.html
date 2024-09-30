@@ -63,7 +63,7 @@
                     <div class="card graph {% if not scores_by_category %}disabled{% endif %}">
                         <canvas id="radarChart"></canvas>
                     </div>
-                    {% if not scores_by_category and user.is_superuser == False %}
+                    {% if not scores_by_category and user.is_superuser == False and user.user_type != 'manager' %}
                         <a href="{% url 'technician:quiz' %}" class="btn blue disabled-action">{{page_content.user_statistic.placeholder_button}}</a>
                     {% endif %}
                 </div>
