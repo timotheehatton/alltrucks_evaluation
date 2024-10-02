@@ -93,6 +93,7 @@ WSGI_APPLICATION = 'alltrucks_training.wsgi.application'
 
 if ENV == 'prod':
     DATABASE_URL = 'postgres://localhost'
+    SECURE_SSL_REDIRECT = True
 else:
     DATABASE_URL = 'sqlite:///' + os.path.join(BASE_DIR, 'db.sqlite3')
 
