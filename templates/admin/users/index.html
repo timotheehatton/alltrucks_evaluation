@@ -58,7 +58,7 @@
                 <tr class="clickable-row" data-href="{% url 'admin:single_user' user.id %}">
                     <td>{{ user.id }}</td>
                     <td>{{ user.user_type|upper }}</td>
-                    <td>{{ user.last_name|title }} {{ user.first_name|upper }}</td>
+                    <td>{{ user.first_name|title }} {{ user.last_name|upper }}</td>
                     <td>{{ user.email }}</td>
                     <td>{{ user.company_name }}</td>
                     <td>{{ user.company_country|upper }}</td>

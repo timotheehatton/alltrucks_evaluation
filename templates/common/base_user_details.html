@@ -16,7 +16,7 @@
         {% if current_user %}
             <a href="{% if user.is_superuser == False %}{% url 'manager:technicians' %}{% else %}{% url 'admin:users' %}{% endif %}" class="button-back"><i class="material-icons">arrow_back</i>Technicians</a>
             {% if user.is_superuser == False %}
-                <div class="card name-card"><i class="material-icons page-title-icon">person</i> {{ current_user.first_name }} {{ current_user.last_name }}</div>
+                <div class="card name-card"><i class="material-icons page-title-icon">person</i> {{ current_user.first_name|title }} {{ current_user.last_name|upper }}</div>
             {% endif %}
         {% else %}
             <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {% firstof page_content.user_statistic.page_title "User details" %}</h1>
