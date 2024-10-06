@@ -19,6 +19,8 @@ class Email:
         template = self.load_template()
         html_content = template.replace('{{ content }}', content).replace('{{ title }}', title).replace('{{ link }}', link)
         payload = {
+            "from": "info@alltrucks-amcat.com",
+            "replyTo": "info@alltrucks-amcat.com",
             "to": to_email,
             "subject": subject,
             "html": html_content,
