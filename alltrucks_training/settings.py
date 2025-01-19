@@ -25,6 +25,8 @@ ENV = os.getenv('ENV')
 
 ALLOWED_HOSTS = [
     'localhost',
+    '127.0.0.1',
+    '192.168.1.31',
     '.herokuapp.com',
     'alltrucks-amcat.com',
     '.alltrucks-amcat.com',
