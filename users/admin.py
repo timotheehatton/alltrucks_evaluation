@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.conf import settings
 
 from common.useful.email import email
 from common.useful.strapi import strapi_content
@@ -67,7 +68,7 @@ class MyAdminSite(admin.AdminSite):
             date__in=(score['last_date'] for score in last_dates)
         ).values('user__first_name', 'user__last_name', 'user__id', 'question_type').annotate(
             total_score=Sum('score'),
-            success_percentage=ExpressionWrapper((Sum('score') * 100) / 20, output_field=IntegerField())
+            success_percentage=ExpressionWrapper((Sum('score') * 100) / settings.QUESTION_NUMBER, output_field=IntegerField())
         )
 
         technician_scores = collections.defaultdict(dict)
@@ -102,7 +103,7 @@ class MyAdminSite(admin.AdminSite):
         )
         last_datetime = Score.objects.filter(user=technician).aggregate(date=Max('date'))['date']
         scores_by_category = Score.objects.filter(user=technician, date=last_datetime).values('question_type').annotate(
-            success_percentage=ExpressionWrapper((Sum('score') * 100) / 20, output_field=IntegerField())
+            success_percentage=ExpressionWrapper((Sum('score') * 100) / settings.QUESTION_NUMBER, output_field=IntegerField())
         )
         scores_by_category = [
             {

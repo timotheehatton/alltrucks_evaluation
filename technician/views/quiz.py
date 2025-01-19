@@ -75,5 +75,6 @@ def index(request):
 
     return render(request, 'technician/quiz/index.html', {
         'questions': json.dumps(displayed_questions),
-        'page_content': page_content
+        'page_content': page_content,
+        'question_number': settings.QUESTION_NUMBER
     })

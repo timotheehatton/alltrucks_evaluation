@@ -1,5 +1,6 @@
 from django.db.models import ExpressionWrapper, IntegerField, Max, Sum
 from django.shortcuts import get_object_or_404, render
+from django.conf import settings
 
 from common.useful.strapi import strapi_content
 from users.decorators import manager_required
@@ -19,7 +20,7 @@ def index(request, id):
     technician = get_object_or_404(User, id=id)
     last_datetime = Score.objects.filter(user=technician).aggregate(date=Max('date'))['date']
     scores_by_category = Score.objects.filter(user=technician, date=last_datetime).values('question_type').annotate(
-        success_percentage=ExpressionWrapper((Sum('score') * 100) / 20, output_field=IntegerField())
+        success_percentage=ExpressionWrapper((Sum('score') * 100) / settings.QUESTION_NUMBER, output_field=IntegerField())
     )
     scores_by_category = [
         {

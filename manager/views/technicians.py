@@ -1,5 +1,6 @@
 from django.db.models import ExpressionWrapper, F, IntegerField, Max, Sum
 from django.shortcuts import render
+from django.conf import settings
 
 from common.useful.strapi import strapi_content
 from users.decorators import manager_required
@@ -30,7 +31,7 @@ def index(request):
             id=F('user__id'),
             first_name=F('user__first_name'),
             last_name=F('user__last_name'),
-            score=ExpressionWrapper((Sum('score') * 100) / (20 * 8), output_field=IntegerField())
+            score=ExpressionWrapper((Sum('score') * 100) / (settings.QUESTION_NUMBER * 8), output_field=IntegerField())
         )
     else:
         technicians = company_users.values('first_name', 'last_name', 'id')

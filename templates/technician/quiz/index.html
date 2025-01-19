@@ -111,8 +111,10 @@
         document.querySelector('.answer-5')
     ];
 
+    const question_number = {{question_number}};
+
     // Get random questions by category
-    function getRandomQuestionsByCategory(questions, limit = 10) {
+    function getRandomQuestionsByCategory(questions, limit = question_number) {
         const categorizedQuestions = {};
 
         questions.forEach(question => {
