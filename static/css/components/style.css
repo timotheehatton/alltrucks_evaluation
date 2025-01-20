@@ -1,6 +1,6 @@
 /* training-progress */
 .training-progress {
-    margin-top: 70px;
+    margin-top: 100px;
 }
 
 .training-progress:first-child {
@@ -15,7 +15,7 @@
 }
 
 .progress-percentage {
-    font-size: 24px;
+    font-size: 28px;
     font-weight: bold;
     margin-right: 10px;
     color: #575757;
@@ -59,11 +59,11 @@
     top: -11px;
     width: 25px;
     height: 25px;
-    border: 1px solid #D8D8D8;
+    border: 2px solid #D8D8D8;
     background-color: #fff;
     border-radius: 50%;
     color: white;
-    font-weight: bold;
+    font-weight: 600;
     font-size: 14px;
     transform: translateX(-50%);
 }
@@ -82,14 +82,14 @@
 
 .progress-indicator.checked {
     background-color: #01B5E2;
-    border: 1px solid #01B5E2;
+    border: 2px solid #01B5E2;
 }
 .progress-indicator.checked::after {
     display: none;
 }
 
 .progress-indicator.active {
-    border: 1px solid #01B5E2;
+    border: 2px solid #01B5E2;
 }
 
 .progress-indicator.active::after {
@@ -106,11 +106,11 @@
 
 .training-recommendation {
     text-align: left;
-    position: relative;
+    position: absolute;
     left: 50%;
     transform: translateX(-50%);
     display: block;
-    top: -80px;
+    bottom: 35px;
     width: 300px;
     padding: 10px;
     border: 1px solid #e0e0e0;

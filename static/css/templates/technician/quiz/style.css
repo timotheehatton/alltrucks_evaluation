@@ -71,7 +71,7 @@
     justify-content: center;
     align-items: center;
     flex-direction: row;
-    margin-top: 40px;
+    margin-top: 20px;
     height: 310px;
 }
 
@@ -92,7 +92,7 @@
     line-height: 24px;
     color: #363636;
     display: block;
-    max-width: 90%;
+    max-width: 80%;
     margin: 20px auto 0 auto;
     line-height: 1.5;
 }
@@ -117,7 +117,7 @@
 }
 
 .quiz-next {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .launcher {

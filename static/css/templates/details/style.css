@@ -2,7 +2,7 @@
     padding: 0;
     background-color: #01B5E2;
     padding-bottom: 35px;
-    height: 500px;
+    height: 460px;
 }
 
 .diploma.disabled {
@@ -10,6 +10,7 @@
 }
 
 .diploma img {
+    max-width: 280px;
     width: 90%;
     margin-top: 10px;
 }
@@ -47,7 +48,7 @@
 }
 
 .stats .s9 .card canvas {
-    height: 425px;
+    height: 380px;
 }
 
 .disabled-action {

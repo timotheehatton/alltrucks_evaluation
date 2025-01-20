@@ -25,7 +25,7 @@ def index(request):
         {
             'question_type': page_content['category'][score['question_type']],
             'success_percentage': score['success_percentage'],
-            'trainings': [item for item in page_content['trainings'] if item['training_category'] == score['question_type']]
+            'trainings': sorted([item for item in page_content['trainings'] if item['training_category'] == score['question_type']], key=lambda x: x['maximum_score'])
         }
         for score in scores_by_category
     ]
