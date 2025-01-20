@@ -19,10 +19,10 @@ def index(request):
     page_content = get_content(request)
     user = request.user
     company_users = User.objects.filter(company=user.company, user_type='technician')
-
+    technicians = list(company_users.values('first_name', 'last_name', 'id'))
     last_dates = Score.objects.filter(user__in=company_users).values('user').annotate(last_date=Max('date'))
     if last_dates:
-        technicians = Score.objects.filter(
+        technicians_score = Score.objects.filter(
             user__in=company_users,
             date__in=(score['last_date'] for score in last_dates)
         ).values(
@@ -31,10 +31,29 @@ def index(request):
             id=F('user__id'),
             first_name=F('user__first_name'),
             last_name=F('user__last_name'),
-            score=ExpressionWrapper((Sum('score') * 100) / (settings.QUESTION_NUMBER * 8), output_field=IntegerField())
+            score=ExpressionWrapper(
+                (Sum('score') * 100) / (settings.QUESTION_NUMBER * 8),
+                output_field=IntegerField()
+            )
         )
-    else:
-        technicians = company_users.values('first_name', 'last_name', 'id')
+        technicians_dict = {technician['id']: technician for technician in technicians}
+        for technician_score in technicians_score:
+            technician_id = technician_score['id']
+
+            if technician_id in technicians_dict:
+                technicians_dict[technician_id].update({
+                    'date': technician_score['date'],
+                    'score': technician_score['score'],
+                })
+            else:
+                technicians_dict[technician_id] = {
+                    'id': technician_id,
+                    'first_name': technician_score['first_name'],
+                    'last_name': technician_score['last_name'],
+                    'date': technician_score['date'],
+                    'score': technician_score['score'],
+                }
+        technicians = list(technicians_dict.values())
 
     return render(request, 'manager/technicians/index.html', {
         'technicians': technicians,
