@@ -5,7 +5,7 @@ from common.useful.strapi import strapi_content
 
 
 def get_content(request):
-    lang = {'locale': request.LANGUAGE_CODE.lower()} if request.LANGUAGE_CODE.lower() in settings.AVAILABLE_LANGUAGES else {}
+    lang = {'locale': request.LANGUAGE_CODE.lower()} if request.LANGUAGE_CODE.lower() in settings.AVAILABLE_LANGUAGES else {'locale': 'fr'}
     return strapi_content.get_content(
         pages=['login'],
         parameters=lang
@@ -27,6 +27,7 @@ def user_login(request):
                     return redirect('manager:stats')
         except:
             pass
+        # TODO: Translation -> GOOD
         return render(request, 'users/login/index.html', {
             'error': 'Invalid email or password',
             'page_content': page_content

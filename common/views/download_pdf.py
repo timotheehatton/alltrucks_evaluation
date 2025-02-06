@@ -20,7 +20,7 @@ def downloadPdf(request, user_id):
     template_path = os.path.join(settings.STATIC_ROOT, 'pdf/diploma.pdf')
     output = BytesIO()
     document = fitz.open(template_path)
-
+    # TODO: Translation -> GOOD
     pdf = {
         'name': (f"{user.first_name.capitalize()} {user.last_name.upper()}", 22, 'center', 'helvetica'),
         'date': (f"{last_datetime.strftime('%Y/%m/%d')}", 12, 'right', 'helvetica'),

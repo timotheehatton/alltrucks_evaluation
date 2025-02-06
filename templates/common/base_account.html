@@ -112,21 +112,21 @@
                         <button type="submit" class="btn blue">{{page_content.account.settings_btn}}</button>
                     </form>
                     {% if messages %}
-                    <ul>
-                        {% for message in messages %}
-                            {% if "language" in message.message %}
-                                <li class="{% if message.tags %} {{message.tags}} {% endif %}">
-                                    {% if "success" in message.tags %}
-                                        <div class="green lighten-4 green-text">{{message}}</div>
-                                    {% elif "error" in message.tags %}
-                                        <div class="red lighten-4 red-text">{{message}}</div>
-                                    {% else %}
-                                        <div class="grey lighten-4 grey-text">{{message}}</div>
-                                    {% endif %}
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
+                        <ul>
+                            {% for message in messages %}
+                                {% if "language" in message.message %}
+                                    <li class="{% if message.tags %} {{message.tags}} {% endif %}">
+                                        {% if "success" in message.tags %}
+                                            <div class="green lighten-4 green-text">
+                                                <i class="material-icons">check_circle</i>
+                                            </div>
+                                        {% elif "error" in message.tags %}
+                                            <div class="red lighten-4 red-text">{{message}}</div>
+                                        {% endif %}
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
                     {% endif %}
                     <div class="separator"></div>
                     <div class="account-info-title"><i class="material-icons left">power_settings_new</i>{{page_content.account.section_title_logout}}</div>

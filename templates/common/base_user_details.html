@@ -21,6 +21,8 @@
         {% else %}
             <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {% firstof page_content.user_statistic.page_title "User details" %}</h1>
         {% endif %}
+
+        {# ADMIN SECTION #}
         {% if user.is_superuser == True %}
             <div class="card stats-admin-details">
                 <div class="row">
@@ -40,16 +42,20 @@
                         </div>
                     </div>
                     <div class="col s6">
+                        {# TODO: Translation#}
                         <div class="stats-info-title"><i class="material-icons left">business</i>Workshop information</div>
                         <div class="stats-info-item">
+                            {# TODO: Translation#}
                             <span class="stats-info-item-label">Company name</span>
                             <p class="stats-info-item-content">{{current_user.company.name|upper}}</p>
                         </div>
                         <div class="stats-info-item">
+                            {# TODO: Translation#}
                             <span class="stats-info-item-label">Location</span>
                             <p class="stats-info-item-content">{{current_user.company.city|title}}, {{current_user.company.country|upper}}</p>
                         </div>
                         <div class="stats-info-item">
+                            {# TODO: Translation#}
                             <span class="stats-info-item-label">CU Number</span>
                             <p class="stats-info-item-content">{{current_user.company.cu_number}}</p>
                         </div>
@@ -57,6 +63,8 @@
                 </div>
             </div>
         {% endif %}
+        {# END ADMIN SECTION #}
+
         {% if current_user.user_type != 'manager' %}
             <div class="row">
                 <div class="col s9">

@@ -16,9 +16,18 @@ class Content:
             cache_key = self._generate_cache_key(page, parameters)
             page_content = cache.get(cache_key)
             if not page_content:
+
                 response = requests.get(f"{self.api_url}/{page}", params=parameters)
-                response.raise_for_status()
-                data = response.json()['data']
+                if response.status_code == 200:
+                    data = response.json()['data']
+                elif response.status_code == 404:
+                    parameters['locale'] = "fr"
+                    response = requests.get(f"{self.api_url}/{page}", params=parameters)
+                    response.raise_for_status()
+                    data = response.json()['data']
+                else:
+                    return False
+
                 if isinstance(data, list):
                     page_content = [{**item['attributes'], 'id': item['id']} for item in data]
                 else:

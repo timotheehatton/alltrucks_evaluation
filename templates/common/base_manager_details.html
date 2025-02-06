@@ -13,12 +13,15 @@
 {% block body %}
 <div class="content">
     <div class="stats stats-admin">
+
         {% if user.is_superuser == True %}
         <a href="{% url 'admin:workshops' %}" class="button-back"><i class="material-icons">arrow_back</i>All Workshops</a>
         {% else %}
         <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {{page_content.user_statistic.page_title}}</h1>
         {% endif %}
-        
+
+
+            {# ADMIN PART #}
             {% if user.is_superuser == True %}
             <div class="card stats-admin-details">
                 <div class="row">
@@ -43,6 +46,7 @@
                     </div>
                 </div>
             </div>
+            {# END ADMIN PART #}
         {% endif %}
 
         <div class="row">
@@ -53,6 +57,7 @@
                 </div>
                 <div id="legend-container"></div>
                 {% if not global_scores %}
+                    {# TODO: Translation #}
                     <div class="graph-no-data">No data available yet, Your technicians need to finish there first evaluations.</div>
                 {% endif%}
             </div>

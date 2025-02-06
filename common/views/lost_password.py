@@ -25,7 +25,7 @@ def lostPassword(request):
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
 
                 reset_link = f"{request.scheme}://{request.get_host()}/common/reset/{uid}/{token}/"
-
+                # TODO: Translation -> GOOD
                 email.send_email(
                     to_email=user.email,
                     subject='Reset your password',
@@ -33,10 +33,13 @@ def lostPassword(request):
                     content='Please click the link below to reset your password:',
                     link=reset_link
                 )
+                # TODO: Translation -> GOOD
                 messages.success(request, 'A link to reset your password has been sent to your email.')
             else:
+                # TODO: Translation -> GOOD
                 messages.error(request, 'There is no user with that email address.')
         else:
+            # TODO: Translation -> GOOD
             messages.error(request, 'Please enter a valid email address.')
     else:
         form = PasswordResetForm()

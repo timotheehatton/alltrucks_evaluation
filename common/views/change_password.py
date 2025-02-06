@@ -11,9 +11,11 @@ def changePassword(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)
+            # TODO: Translation -> GOOD
             messages.success(request, 'Your password was successfully updated!')
             return redirect(reverse(f'{request.user.user_type}:account'))
         else:
+            # TODO: Translation -> GOOD
             messages.error(request, 'Please correct the error below.')
     else:
         form = PasswordChangeForm(request.user)

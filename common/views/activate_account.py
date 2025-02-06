@@ -49,6 +49,3 @@ def activateAccount(request, uidb64, token):
             'form': form,
             'page_content': page_content
         })
-    else:
-        messages.error(request, 'Activation link is invalid!')
-        return render(request, 'common/activation_invalid.html')

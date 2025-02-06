@@ -12,6 +12,7 @@
                     {% if page_content.action == "activate" %}
                         {{ page_content.activate_account.page_title }}
                     {% else %}
+                        {# TODO: Translation #}
                         Reset password
                     {% endif %}
                 </h3>
@@ -19,7 +20,8 @@
                     {% if page_content.action == "activate" %}
                         {{ page_content.activate_account.intro }}
                     {% else %}
-                        fill your password to reset it
+                        {# TODO: Translation #}
+                        Fill your Email to reset your password it
                     {% endif %}
                 </p>
                 <form method="post">
@@ -36,11 +38,7 @@
                     </div>
                     <div class="input-field">
                         <label for="id_new_password2">
-                            {% if page_content.action == "activate" %}
-                                {{ page_content.activate_account.input_password_confirmation }}
-                            {% else %}
-                                confirm password
-                            {% endif %}
+                            {{ page_content.activate_account.input_password_confirmation }}
                         </label>
                         <input type="password" name="new_password2" id="id_new_password2" required>
                     </div>
@@ -49,6 +47,7 @@
                             {% if page_content.action == "activate" %}
                                 {{ page_content.activate_account.button }}
                             {% else %}
+                                {# TODO: Translation #}
                                 Validate
                             {% endif %}
                         </button>
