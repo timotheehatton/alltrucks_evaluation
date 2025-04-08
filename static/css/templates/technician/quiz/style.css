@@ -72,7 +72,8 @@
     align-items: center;
     flex-direction: row;
     margin-top: 20px;
-    height: 310px;
+    min-height: 310px;
+    max-height: 450px;
 }
 
 .quiz-category {
@@ -99,6 +100,7 @@
 
 .quiz-image {
     margin-right: 80px;
+    width: 300px;
 }
 
 .quiz-answers {

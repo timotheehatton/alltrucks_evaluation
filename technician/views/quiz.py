@@ -69,7 +69,7 @@ def index(request):
             'choice_3': item['choice_3'],
             'choice_4': item['choice_4'],
             'choice_5': item['choice_5'],
-            'image': None if not item['image']['data'] else f"{settings.STRAPI_URL}{item['image']['data']['attributes']['url']}",
+            'image': None if not item['image']['data'] else item['image']['data']['attributes']['url'],
         } for item in page_content['questions']
     ]
 

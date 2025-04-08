@@ -157,6 +157,7 @@
         quizCategory.innerText = question.category_displayed;
         quizQuestion.innerText = question.question;
 
+        console.log(question.image)
         if (question.image) {
             quizImage.src = question.image;
             quizImage.style.display = 'block';
