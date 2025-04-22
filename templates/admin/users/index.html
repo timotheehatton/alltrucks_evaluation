@@ -40,9 +40,9 @@
             </div>
         </form>
     </div>
-    <div class="model-list-table">
+    <div class="model-list-table" style="max-height: 77vh;overflow-y: auto;">
         <table class="highlight responsive-table">
-            <thead>
+            <thead style="position: sticky;top: 0;background-color: white;z-index: 10;box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);">
                 <tr>
                     <th>ID</th>
                     <th>USER TYPE</th>
@@ -50,7 +50,8 @@
                     <th>EMAIL</th>
                     <th>WORKSHOP</th>
                     <th>COUNTRY</th>
-                    <th>TEST</th>
+                    <th>ACCOUNT ACTIVATION</th>
+                    <th>FIRST EVALUATION</th>
                 </tr>
             </thead>
             <tbody>
@@ -62,6 +63,13 @@
                     <td>{{ user.email }}</td>
                     <td>{{ user.company_name }}</td>
                     <td>{{ user.company_country|upper }}</td>
+                    <td>
+                        {% if user.has_activated %}
+                            <span class="status-completed"><i class="material-icons">check_circle</i> Activated</span>
+                        {% else %}
+                            <span class="status-not-completed"><i class="material-icons">schedule</i> Not Activated</span>
+                        {% endif %}
+                    </td>
                     <td>
                         {% if user.user_type == 'technician' %}
                             {% if user.has_completed_test %}

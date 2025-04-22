@@ -9,7 +9,7 @@
             <div class="card">
                 <img class="account-activation-img1" src="{% static 'img/logo-dark.svg' %}">
                 <h3 class="center-align">
-                    {% if page_content.action == "activate" %}
+                    {% if activate_account %}
                         {{ page_content.activate_account.page_title }}
                     {% else %}
                         {# TODO: Translation #}
@@ -17,7 +17,7 @@
                     {% endif %}
                 </h3>
                 <p>
-                    {% if page_content.action == "activate" %}
+                    {% if activate_account %}
                         {{ page_content.activate_account.intro }}
                     {% else %}
                         {# TODO: Translation #}
@@ -28,7 +28,7 @@
                     {% csrf_token %}
                     <div class="input-field">
                         <label for="id_new_password1">
-                            {% if page_content.action == "activate" %}
+                            {% if activate_account %}
                                 {{ page_content.activate_account.input_password }}
                             {% else %}
                                 password
@@ -44,7 +44,7 @@
                     </div>
                     <div class="center-align">
                         <button type="submit" class="btn blue waves-effect waves-light">
-                            {% if page_content.action == "activate" %}
+                            {% if activate_account %}
                                 {{ page_content.activate_account.button }}
                             {% else %}
                                 {# TODO: Translation #}

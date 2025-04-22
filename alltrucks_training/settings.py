@@ -22,6 +22,7 @@ STRAPI_URL = os.getenv('STRAPI_URL')
 STRAPI_EMAIL_TOKEN = os.getenv('STRAPI_EMAIL_TOKEN')
 DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't')
 ENV = os.getenv('ENV')
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -163,4 +164,4 @@ CACHES = {
     }
 }
 CONTENT_CACHE_DURATION = os.getenv('CONTENT_CACHE_DURATION')
-QUESTION_NUMBER = 10
+QUESTION_NUMBER = 15

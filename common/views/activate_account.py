@@ -47,5 +47,6 @@ def activateAccount(request, uidb64, token):
             form = SetPasswordForm(user)
         return render(request, 'common/activate_account.html', {
             'form': form,
-            'page_content': page_content
+            'page_content': page_content,
+            'activate_account': True,
         })

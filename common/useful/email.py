@@ -1,16 +1,14 @@
-import requests
 import os
 from django.conf import settings
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 
 class Email:
     def __init__(self):
-        self.url = f'{settings.STRAPI_URL}/api/email'
-        self.headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {settings.STRAPI_EMAIL_TOKEN}"
-        }
+        self.sg = SendGridAPIClient(api_key=settings.SENDGRID_API_KEY)
 
-    def load_template(self):
+    @staticmethod
+    def load_template():
         file_path = os.path.join(settings.STATIC_ROOT, 'mail/template.html')
         with open(file_path, 'r') as file:
             return file.read()
@@ -18,19 +16,26 @@ class Email:
     def send_email(self, to_email, subject, content, title, link):
         template = self.load_template()
         html_content = template.replace('{{ content }}', content).replace('{{ title }}', title).replace('{{ link }}', link)
-        payload = {
-            "from": "info@alltrucks-amcat.com",
-            "replyTo": "info@alltrucks-amcat.com",
-            "to": to_email,
-            "subject": subject,
-            "html": html_content,
-            "text": content,
-        }
-        response = requests.post(self.url, json=payload, headers=self.headers)
-        if response.status_code == 200:
-            return True
-        else:
-            print(f"Failed to send email: {response.status_code}, {response.text}")
+
+        message = Mail(
+            from_email="info@alltrucks-amcat.com",
+            to_emails=to_email,
+            subject=subject,
+            plain_text_content=content,
+            html_content=html_content
+        )
+        message.reply_to = "info@alltrucks-amcat.com"
+
+        try:
+            response = self.sg.send(message)
+            print('response', response)
+            if response.status_code in (200, 201, 202):
+                return True
+            else:
+                print(f"Failed to send email: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"Error sending email: {str(e)}")
             return False
 
 email = Email()

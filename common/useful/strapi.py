@@ -6,7 +6,8 @@ class Content:
     def __init__(self):
         self.api_url = f'{settings.STRAPI_URL}/api'
 
-    def _generate_cache_key(self, page, parameters):
+    @staticmethod
+    def _generate_cache_key(page, parameters):
         params_key = "_".join(f"{key}={value}" for key, value in parameters.items())
         return f"content_{page}_{params_key}"
 

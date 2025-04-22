@@ -152,6 +152,7 @@ class MyAdminSite(admin.AdminSite):
                     'company_name': user.company.name,
                     'company_country': user.company.country,
                     'has_completed_test': has_completed_test,
+                    'has_activated': user.is_active,
                 })
 
         return render(request, 'admin/users/index.html', {'users': data})
