@@ -12,7 +12,6 @@ User = get_user_model()
 
 
 def resetPassword(request, uidb64, token):
-    print('here', uidb64, token)
     try:
         uid = urlsafe_base64_decode(uidb64).decode()
         user = User.objects.get(pk=uid)

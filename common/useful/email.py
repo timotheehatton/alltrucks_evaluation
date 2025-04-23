@@ -28,7 +28,6 @@ class Email:
 
         try:
             response = self.sg.send(message)
-            print('response', response)
             if response.status_code in (200, 201, 202):
                 return True
             else:
