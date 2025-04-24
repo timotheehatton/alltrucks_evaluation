@@ -13,9 +13,12 @@ class Email:
         with open(file_path, 'r') as file:
             return file.read()
 
-    def send_email(self, to_email, subject, content, title, link):
+    def send_email(self, to_email, subject, content, title, link, link_label):
         template = self.load_template()
-        html_content = template.replace('{{ content }}', content).replace('{{ title }}', title).replace('{{ link }}', link)
+        html_content = template.replace('{{ content }}', content)\
+            .replace('{{ title }}', title)\
+            .replace('{{ link }}', link)\
+            .replace('{{ link_label }}', link_label)
 
         message = Mail(
             from_email="info@alltrucks-amcat.com",

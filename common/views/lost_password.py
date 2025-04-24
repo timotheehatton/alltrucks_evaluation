@@ -31,7 +31,8 @@ def lostPassword(request):
                     subject='Reset your password',
                     title='Password Reset Request',
                     content='Please click the link below to reset your password:',
-                    link=reset_link
+                    link=reset_link,
+                    link_label='Reset password'
                 )
                 # TODO: Translation -> GOOD
                 messages.success(request, 'A link to reset your password has been sent to your email.')

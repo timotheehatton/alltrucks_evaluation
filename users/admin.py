@@ -161,15 +161,15 @@ class MyAdminSite(admin.AdminSite):
     def send_activation_email(self, request, user, content):
         token = default_token_generator.make_token(user)
         uid = urlsafe_base64_encode(force_bytes(user.pk))
-        activation_link = request.build_absolute_uri(
-            reverse('common:activate-account', kwargs={'uidb64': uid, 'token': token})
-        )
+        reversed_url = reverse('common:activate-account', kwargs={'uidb64': uid, 'token': token})
+        activation_link = settings.SITE_DOMAIN.rstrip('/') + reversed_url
         email.send_email(
             to_email=user.email,
             subject=content['email']['title'],
             title=content['email']['title'],
             content=content['email']['content'],
-            link=activation_link
+            link=activation_link,
+            link_label="Activer mon compte AMCAT"
         )
 
 
