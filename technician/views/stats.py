@@ -1,6 +1,6 @@
-from django.db.models import ExpressionWrapper, IntegerField, Max, Sum
-from django.shortcuts import render
 from django.conf import settings
+from django.db.models import Case, ExpressionWrapper, IntegerField, Max, Sum, When
+from django.shortcuts import render
 
 from common.useful.strapi import strapi_content
 from users.decorators import technician_required
@@ -19,13 +19,21 @@ def index(request):
     page_content = get_content(request)
     last_datetime = Score.objects.filter(user=request.user).aggregate(date=Max('date'))['date']
     scores_by_category = Score.objects.filter(user=request.user, date=last_datetime).values('question_type').annotate(
-        success_percentage=ExpressionWrapper((Sum('score') * 100) / settings.QUESTION_NUMBER, output_field=IntegerField())
+        success_percentage=ExpressionWrapper(
+            (Sum('score') * 100) / Case(
+                *[When(question_type=qt, then=val) for qt, val in settings.QUESTION_NUMBER.items()],
+                default=1
+            ),
+            output_field=IntegerField()
+        )
     )
     scores_by_category = [
         {
             'question_type': page_content['category'][score['question_type']],
             'success_percentage': score['success_percentage'],
-            'trainings': sorted([item for item in page_content['trainings'] if item['training_category'] == score['question_type']], key=lambda x: x['maximum_score'])
+            'trainings': sorted(
+                [item for item in page_content['trainings'] if item['training_category'] == score['question_type']],
+                key=lambda x: x['maximum_score'])
         }
         for score in scores_by_category
     ]

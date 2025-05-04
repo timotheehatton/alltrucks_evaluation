@@ -85,6 +85,14 @@
     color: #363636;
 }
 
+.quiz-category-position {
+    margin-left: 10px;
+    font-style: normal;
+    font-size: 16px;
+    text-transform: uppercase;
+    color: #363636;
+}
+
 .quiz-question {
     text-align: center;
     font-style: normal;

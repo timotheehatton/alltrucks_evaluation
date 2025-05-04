@@ -1,14 +1,13 @@
 import base64
+import fitz
 import json
 import os
-from io import BytesIO
-
-import fitz
+from PIL import Image
 from django.conf import settings
 from django.db.models import Max
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from PIL import Image
+from io import BytesIO
 
 from common.useful.strapi import strapi_content
 from users.models import Score, User
@@ -24,8 +23,12 @@ def downloadPdf(request, user_id):
     pdf = {
         'name': (f"{user.first_name.capitalize()} {user.last_name.upper()}", 22, 'center', 'helvetica'),
         'date': (f"{last_datetime.strftime('%Y/%m/%d')}", 12, 'right', 'helvetica'),
-        'location': (f"{user.company.name.capitalize()}, {user.company.city.capitalize()}, {user.company.country.upper()}", 14, 'center', 'helvetica'),
-        'content': ("You have performed your expertise evaluation and the Alltrucks team would like to thanks you for that. Please find here ender information regarding your expertise.", 12, 'center', 'helvetica-oblique')
+        'location': (
+            f"{user.company.name.capitalize()}, {user.company.city.capitalize()}, {user.company.country.upper()}", 14,
+            'center', 'helvetica'),
+        'content': (
+            "Vous avez effectué votre évaluation d'expertise et l'équipe Alltrucks tient à vous en remercier. Veuillez trouver ici les informations concernant votre expertise",
+            12, 'center', 'helvetica-oblique')
     }
 
     for key, value in pdf.items():
@@ -74,7 +77,7 @@ def downloadPdf(request, user_id):
         page = document[0]
         rect = page.rect
         image_width = rect.width / 1.5
-        image_height = rect.height  / 1.5
+        image_height = rect.height / 1.5
 
         center_x = (rect.width - image_width) / 2
         center_y = ((rect.height - image_height) / 2) + 10

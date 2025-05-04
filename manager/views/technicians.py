@@ -1,6 +1,6 @@
+from django.conf import settings
 from django.db.models import ExpressionWrapper, F, IntegerField, Max, Sum
 from django.shortcuts import render
-from django.conf import settings
 
 from common.useful.strapi import strapi_content
 from users.decorators import manager_required
@@ -32,7 +32,7 @@ def index(request):
             first_name=F('user__first_name'),
             last_name=F('user__last_name'),
             score=ExpressionWrapper(
-                (Sum('score') * 100) / (settings.QUESTION_NUMBER * 8),
+                (Sum('score') * 100) / (12.5 * 8),
                 output_field=IntegerField()
             )
         )

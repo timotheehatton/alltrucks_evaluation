@@ -2,46 +2,49 @@
 {% load static %}
 
 {% block stylesheets %}
-{% if user.is_superuser == True %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
-{% endif %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/templates/manager/stats/style.css' %}">
+    {% if user.is_superuser == True %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    {% endif %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/templates/manager/stats/style.css' %}">
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
-<div class="content">
+    <div class="content">
     <div class="stats stats-admin">
 
         {% if user.is_superuser == True %}
-        <a href="{% url 'admin:workshops' %}" class="button-back"><i class="material-icons">arrow_back</i>All Workshops</a>
+            <a href="{% url 'admin:workshops' %}" class="button-back"><i class="material-icons">arrow_back</i>All
+                Workshops</a>
         {% else %}
-        <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {{page_content.user_statistic.page_title}}</h1>
+            <h1 class="page-title"><i
+                    class="material-icons page-title-icon">bar_chart</i> {{ page_content.user_statistic.page_title }}
+            </h1>
         {% endif %}
 
 
-            {# ADMIN PART #}
-            {% if user.is_superuser == True %}
+        {# ADMIN PART #}
+        {% if user.is_superuser == True %}
             <div class="card stats-admin-details">
                 <div class="row">
                     <div class="stats-info-title"><i class="material-icons left">business</i>Workshop information</div>
                     <div class="col s4">
                         <div class="stats-info-item">
                             <span class="stats-info-item-label">Company name</span>
-                            <p class="stats-info-item-content">{{current_user.name|upper}}</p>
+                            <p class="stats-info-item-content">{{ current_user.name|upper }}</p>
                         </div>
                     </div>
                     <div class="col s4">
                         <div class="stats-info-item">
                             <span class="stats-info-item-label">Location</span>
-                            <p class="stats-info-item-content">{{current_user.city|title}}, {{current_user.country|upper}}</p>
+                            <p class="stats-info-item-content">{{ current_user.city|title }}, {{ current_user.country|upper }}</p>
                         </div>
                     </div>
                     <div class="col s4">
                         <div class="stats-info-item">
                             <span class="stats-info-item-label">CU Number</span>
-                            <p class="stats-info-item-content">{{current_user.cu_number}}</p>
+                            <p class="stats-info-item-content">{{ current_user.cu_number }}</p>
                         </div>
                     </div>
                 </div>
@@ -51,157 +54,53 @@
 
         <div class="row">
             <div class="col s8">
-            <div class="card">
-                <div class="graph">
-                    <canvas id="radarChart" height="515"></canvas>
-                </div>
-                <div id="legend-container"></div>
-                {% if not global_scores %}
-                    {# TODO: Translation #}
-                    <div class="graph-no-data">No data available yet, Your technicians need to finish there first evaluations.</div>
-                {% endif%}
-            </div>
-        </div>
-        {% if global_scores %}
-        <div class="col s4">
-            <div class="card">
-                <div class="category-scores">
-                    {% for category, score in global_scores.items %}
-                        <div class="category-score">
-                            <div class="category-title">{{ category }} <span class="score-percentage">{{ score }}%</span></div>
-                            <div class="progress">
-                                <div class="determinate {% if score >= 30 %}green{% else %}orange{% endif %}" style="width: {{ score }}%"></div>
-                            </div>
+                <div class="card">
+                    <div class="graph">
+                        <canvas id="radarChart" height="515"></canvas>
+                    </div>
+                    <div id="legend-container"></div>
+                    {% if not global_scores %}
+                        {# TODO: Translation #}
+                        <div class="graph-no-data">
+                            Aucune donnée disponible pour l'instant, vos techniciens doivent terminer leurs premières évaluations.
                         </div>
-                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
+            {% if global_scores %}
+                <div class="col s4">
+                    <div class="card">
+                        <div class="category-scores">
+                            {% for category, score in global_scores.items %}
+                                <div class="category-score">
+                                    <div class="category-title">{{ category }} <span
+                                            class="score-percentage">{{ score }}%</span></div>
+                                    <div class="progress">
+                                        <div class="determinate {% if score >= 30 %}green{% else %}orange{% endif %}"
+                                             style="width: {{ score }}%"></div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
         </div>
-        {% endif%}
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    let update = false;
-    const htmlLegendPlugin = {
-        id: 'htmlLegend',
-        afterUpdate(chart, args, options) {
-            const ul = document.getElementById(options.containerID);
-            while (ul.firstChild) {
-                ul.firstChild.remove();
-            }
-            const items = chart.options.plugins.legend.labels.generateLabels(chart);
-            items.forEach((item, index) => {
-                const li = document.createElement('li');
-                li.style.display = 'flex';
-                li.style.alignItems = 'center';
-                const svgIcon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                svgIcon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-                svgIcon.setAttribute('height', '24px');
-                svgIcon.setAttribute('viewBox', '0 -960 960 960');
-                svgIcon.setAttribute('width', '24px');
-                svgIcon.setAttribute('fill', item.strokeStyle);
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute('d', 'M480-480q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM160-160v-112q0-34 17.5-62.5T224-378q62-31 126-46.5T480-440q66 0 130 15.5T736-378q29 15 46.5 43.5T800-272v112H160Z');
-                svgIcon.appendChild(path);
-                const anchor = document.createElement('a');
-                anchor.style.color = item.fontColor;
-                anchor.style.textDecoration = item.hidden ? 'line-through' : 'none';
-                anchor.href = `{% if user.is_superuser == True %}/admin/user/{% else %}/manager/technician/{% endif %}${chart.data.datasets[index].technicianId}/`;
-                anchor.textContent = item.text;
-
-                li.appendChild(svgIcon);
-                li.appendChild(anchor);
-                ul.appendChild(li);
-                li.addEventListener('mouseenter', () => {
-                    if (update == false) {
-                        update = true;
-                        chart.getDatasetMeta(index).hidden = false;
-                        chart.data.datasets.forEach((dataset, i) => {
-                            if (i !== index) {
-                                chart.getDatasetMeta(i).hidden = true;
-                            }
-                        });
-                        chart.update();
-                    }
-                });
-                li.addEventListener('mouseleave', () => {
-                    update = false;
-                    chart.data.datasets.forEach((_, i) => {
-                        chart.getDatasetMeta(i).hidden = false;
-                    });
-                    chart.update();
-                });
-            });
-        }
-    };
-    Chart.register(htmlLegendPlugin);
-
-    const ctx = document.getElementById('radarChart').getContext('2d');
-    const data = {
-        labels: [
-            {% for category in global_scores.keys %}
-                "{{ category }}",
+    <script>
+        const GLOBAL_SCORE = {{ global_scores|safe }};
+        const TECHNICIAN_SCORES = [
+            {% for key, value in technician_scores.items %}
+                {
+                    name: "{{ key.0 }}",
+                    id: {{ key.1 }},
+                    values: {{ value|safe }}
+                }{% if not forloop.last %},{% endif %}
             {% endfor %}
-        ],
-        datasets: [
-            {% for technician, categories in technician_scores.items %}
-            {
-                label: "{{ technician.0 }}",
-                technicianId: "{{ technician.1 }}",
-                data: [
-                    {% for category, score in categories.items %}
-                        {{ score }},
-                    {% endfor %}
-                ],
-                fill: false,
-                pointRadius: 0,
-                borderWidth: 4
-            },
-            {% endfor %}
-        ]
-    };
-
-    const radarChart = new Chart(ctx, {
-        type: 'radar',
-        data: data,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                htmlLegend: {
-                    containerID: 'legend-container'
-                },
-                legend: {
-                    display: false
-                },
-            },
-            scales: {
-                r: {
-                    min: 0,
-                    max: 100,
-                    ticks: {
-                        display: false
-                    },
-                    angleLines: {
-                        display: true
-                    },
-                    grid: {
-                        drawBorder: true,
-                        drawOnChartArea: false
-                    },
-                    pointLabels: {
-                        font: {
-                            size: 13,
-                            weight: 'bold',
-                        },
-                    },
-                    beginAtZero: true
-                }
-            }
-        }
-    });
-</script>
+        ];
+    </script>
+    <script src="{% static 'js/maps/manager.js' %}"></script>
 {% endblock %}

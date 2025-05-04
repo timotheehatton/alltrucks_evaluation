@@ -1,9 +1,10 @@
+from django.contrib import messages
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import redirect, render
-from django.contrib import messages
-from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+
 from common.useful.email import email
 from users.models import User
 
@@ -28,11 +29,11 @@ def lostPassword(request):
                 # TODO: Translation -> GOOD
                 email.send_email(
                     to_email=user.email,
-                    subject='Reset your password',
-                    title='Password Reset Request',
-                    content='Please click the link below to reset your password:',
+                    subject='Réinitialiser votre mot de passe',
+                    title='Demande de réinitialisation de mot de passe',
+                    content='Veuillez cliquer sur le lien ci-dessous pour réinitialiser votre mot de passe :',
                     link=reset_link,
-                    link_label='Reset password'
+                    link_label='Réinitialiser le mot de passe'
                 )
                 # TODO: Translation -> GOOD
                 messages.success(request, 'A link to reset your password has been sent to your email.')

@@ -2,39 +2,39 @@
 {% load static %}
 
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
-<div class="content">
+    <div class="content">
 
-    <div class="header">
-        <h1 class="page-title">Workshops</h1>
-        <a href="{% url 'admin:create_company' %}" class="btn blue">Add Company</a>
-    </div>
+        <div class="header">
+            <h1 class="page-title">Workshops</h1>
+            <a href="{% url 'admin:create_company' %}" class="btn blue">Add Company</a>
+        </div>
 
-    {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
-                    {% if "success" in message.tags %}
-                        <div class="green lighten-4 green-text">{{ message }}</div>
-                    {% elif "error" in message.tags %}
-                        <div class="red lighten-4 red-text">{{ message }}</div>
-                    {% else %}
-                        <div class="grey lighten-4 grey-text">{{ message }}</div>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{% if message.tags %}{{ message.tags }}{% endif %}">
+                        {% if "success" in message.tags %}
+                            <div class="green lighten-4 green-text">{{ message }}</div>
+                        {% elif "error" in message.tags %}
+                            <div class="red lighten-4 red-text">{{ message }}</div>
+                        {% else %}
+                            <div class="grey lighten-4 grey-text">{{ message }}</div>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
 
-    <div class="model-list-table">
-        <table class="highlight responsive-table">
-            <thead>
+        <div class="model-list-table">
+            <table class="highlight responsive-table">
+                <thead>
                 <tr>
                     <th>ID</th>
                     <th>NAME</th>
@@ -42,28 +42,19 @@
                     <th>EMAIL</th>
                     <th>COUNTRY</th>
                 </tr>
-            </thead>
-            <tbody>
+                </thead>
+                <tbody>
                 {% for company in companies %}
-                <tr class="clickable-row" data-href="{% url 'admin:single_workshop' company.id %}">
-                    <td>{{ company.id }}</td>
-                    <td>{{ company.name }}</td>
-                    <td>{{ company.first_name|title }} {{ company.last_name|upper }}</td>
-                    <td>{{ company.email }}</td>
-                    <td>{{ company.country|upper }}</td>
-                </tr>
+                    <tr class="clickable-row" data-href="{% url 'admin:single_workshop' company.id %}">
+                        <td>{{ company.id }}</td>
+                        <td>{{ company.name }}</td>
+                        <td>{{ company.first_name|title }} {{ company.last_name|upper }}</td>
+                        <td>{{ company.email }}</td>
+                        <td>{{ company.country|upper }}</td>
+                    </tr>
                 {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var elems = document.querySelectorAll('select');
-        var instances = M.FormSelect.init(elems);
-    });
-</script>
 {% endblock %}

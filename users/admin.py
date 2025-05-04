@@ -1,26 +1,23 @@
 import collections
-
+from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LogoutView
-from django.db.models import ExpressionWrapper, IntegerField, Max, Q, Sum
+from django.db.models import ExpressionWrapper, IntegerField, Max, Q, Sum, When, Case
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from django.conf import settings
 
 from common.useful.email import email
 from common.useful.strapi import strapi_content
 from common.views.forms import AdminUserForm, CompanyUserForm
-
 from .models import Company, Score, User
 
 
 class MyAdminSite(admin.AdminSite):
     site_header = 'Alltrucks AMCAT Admin'
     site_title = 'Workshops'
-
 
     def get_urls(self):
         urls = super().get_urls()
@@ -35,7 +32,6 @@ class MyAdminSite(admin.AdminSite):
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
-
 
     def companies_view(self, request):
         companies = Company.objects.all()
@@ -56,7 +52,6 @@ class MyAdminSite(admin.AdminSite):
             companies=companies_with_emails,
         )
         return render(request, 'admin/workshops/index.html', context)
-    
 
     def single_company_view(self, request, company_id):
         company = get_object_or_404(Company, id=company_id)
@@ -68,12 +63,20 @@ class MyAdminSite(admin.AdminSite):
             date__in=(score['last_date'] for score in last_dates)
         ).values('user__first_name', 'user__last_name', 'user__id', 'question_type').annotate(
             total_score=Sum('score'),
-            success_percentage=ExpressionWrapper((Sum('score') * 100) / settings.QUESTION_NUMBER, output_field=IntegerField())
+            success_percentage=ExpressionWrapper(
+                (Sum('score') * 100) / Case(
+                    *[When(question_type=qt, then=val) for qt, val in settings.QUESTION_NUMBER.items()],
+                    default=1
+                ),
+                output_field=IntegerField()
+            )
         )
 
         technician_scores = collections.defaultdict(dict)
         for item in scores_by_category:
-            technician_scores[(f"{item['user__first_name'].capitalize()} {item['user__last_name'].upper()}", item['user__id'])][item['question_type']] = item['success_percentage']
+            technician_scores[
+                (f"{item['user__first_name'].capitalize()} {item['user__last_name'].upper()}", item['user__id'])][
+                item['question_type']] = item['success_percentage']
 
         global_scores = {}
         for score in scores_by_category:
@@ -85,7 +88,6 @@ class MyAdminSite(admin.AdminSite):
             'current_user': company,
         })
 
-
     def admins_view(self, request):
         admins = User.objects.filter(is_superuser=True).values()
         context = dict(
@@ -93,7 +95,6 @@ class MyAdminSite(admin.AdminSite):
             admins=admins,
         )
         return render(request, 'admin/admins/index.html', context)
-    
 
     def single_user_view(self, request, user_id):
         technician = get_object_or_404(User, id=user_id)
@@ -103,24 +104,30 @@ class MyAdminSite(admin.AdminSite):
         )
         last_datetime = Score.objects.filter(user=technician).aggregate(date=Max('date'))['date']
         scores_by_category = Score.objects.filter(user=technician, date=last_datetime).values('question_type').annotate(
-            success_percentage=ExpressionWrapper((Sum('score') * 100) / settings.QUESTION_NUMBER, output_field=IntegerField())
+            success_percentage=ExpressionWrapper(
+                (Sum('score') * 100) / Case(
+                    *[When(question_type=qt, then=val) for qt, val in settings.QUESTION_NUMBER.items()],
+                    default=1
+                ),
+                output_field=IntegerField()
+            )
         )
         scores_by_category = [
             {
                 'question_type': score['question_type'],
                 'success_percentage': score['success_percentage'],
-                'trainings': [item for item in page_content['trainings'] if item['training_category'] == score['question_type']]
+                'trainings': [item for item in page_content['trainings'] if
+                              item['training_category'] == score['question_type']]
             }
             for score in scores_by_category
         ]
-            
+
         context = {
             'scores_by_category': scores_by_category,
             'page_content': page_content,
             'current_user': technician
         }
         return render(request, 'admin/users/single_user.html', context)
-
 
     def users_view(self, request):
         search_query = request.GET.get('search', '')
@@ -156,7 +163,6 @@ class MyAdminSite(admin.AdminSite):
                 })
 
         return render(request, 'admin/users/index.html', {'users': data})
-    
 
     def send_activation_email(self, request, user, content):
         token = default_token_generator.make_token(user)
@@ -171,7 +177,6 @@ class MyAdminSite(admin.AdminSite):
             link=activation_link,
             link_label="Activer mon compte AMCAT"
         )
-
 
     def create_company_view(self, request):
         if request.method == 'POST':
@@ -214,7 +219,8 @@ class MyAdminSite(admin.AdminSite):
                     self.send_activation_email(request, technician_user, content)
                     i += 1
 
-                messages.success(request, 'Company and users accounts successfully created, users will received an email to define their password.')
+                messages.success(request,
+                                 'Company and users accounts successfully created, users will received an email to define their password.')
                 return redirect('admin:workshops')
             else:
                 for field, errors in form.errors.items():
@@ -223,7 +229,6 @@ class MyAdminSite(admin.AdminSite):
         else:
             form = CompanyUserForm()
         return render(request, 'admin/workshops/create_company.html', {'form': form})
-
 
     def create_admin_view(self, request):
         if request.method == 'POST':

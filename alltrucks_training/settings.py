@@ -165,4 +165,13 @@ CACHES = {
     }
 }
 CONTENT_CACHE_DURATION = os.getenv('CONTENT_CACHE_DURATION')
-QUESTION_NUMBER = 15
+QUESTION_NUMBER = {
+    'diagnostic': 15,
+    'electricity': 10,
+    'engine_exhaust': 15,
+    'engine_injection': 10,
+    'general_mechanic': 10,
+    'powertrain': 10,
+    'trailer_braking_system': 15,
+    'truck_air_braking_system': 15
+}

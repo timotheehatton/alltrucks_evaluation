@@ -6,27 +6,30 @@
     <div class="progress-bar-container">
         <div class="progress-bar" style="width: {{ progress }}%"></div>
         {% if trainings|length > 0 %}
-            <div class="progress-bar-dashed" style="width: calc({{trainings.0.maximum_score}}% - {{ progress }}%); left: {{ progress }}%;"></div>
-            
+            <div class="progress-bar-dashed"
+                 style="width: calc({{ trainings.0.maximum_score }}% - {{ progress }}%); left: {{ progress }}%;"></div>
+
             <div class="progress-indicator {% if progress >= trainings.0.maximum_score %}checked{% elif progress < trainings.0.maximum_score %}active{% endif %}">
                 {% if progress < trainings.0.maximum_score %}
-                <div class="training-recommendation">
-                    <span class="recommendation-title"><i class="material-icons">info_outline</i>{{ recommandation_label }}</span>
-                    <span class="recommendation-description">{{ trainings.0.training_number }} - {{ trainings.0.training_title }}</span>
-                </div>
+                    <div class="training-recommendation">
+                        <span class="recommendation-title"><i
+                                class="material-icons">info_outline</i>{{ recommandation_label }}</span>
+                        <span class="recommendation-description">{{ trainings.0.training_number }} - {{ trainings.0.training_title }}</span>
+                    </div>
                 {% endif %}
                 <i class="progress-indicator-icon material-icons">check</i>
             </div>
             {% if trainings|length > 1 %}
-            <div class="progress-indicator {% if progress >= trainings.1.maximum_score %}checked{% elif progress < trainings.1.maximum_score and progress >= trainings.0.maximum_score %}active{% endif %}">
-                {% if progress >= trainings.0.maximum_score and progress < trainings.1.maximum_score %}
-                <div class="training-recommendation">
-                    <span class="recommendation-title"><i class="material-icons">info_outline</i>{{ recommandation_label }}</span>
-                    <span class="recommendation-description">{{ trainings.1.training_number }} - {{ trainings.1.training_title }}</span>
+                <div class="progress-indicator {% if progress >= trainings.1.maximum_score %}checked{% elif progress < trainings.1.maximum_score and progress >= trainings.0.maximum_score %}active{% endif %}">
+                    {% if progress >= trainings.0.maximum_score and progress < trainings.1.maximum_score %}
+                        <div class="training-recommendation">
+                            <span class="recommendation-title"><i
+                                    class="material-icons">info_outline</i>{{ recommandation_label }}</span>
+                            <span class="recommendation-description">{{ trainings.1.training_number }} - {{ trainings.1.training_title }}</span>
+                        </div>
+                    {% endif %}
+                    <i class="progress-indicator-icon material-icons">check</i>
                 </div>
-                {% endif %}
-                <i class="progress-indicator-icon material-icons">check</i>
-            </div>
             {% endif %}
         {% endif %}
     </div>

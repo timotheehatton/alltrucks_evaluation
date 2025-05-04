@@ -1,7 +1,6 @@
 import collections
 import json
 import random
-
 import requests
 from django.conf import settings
 from django.http import JsonResponse
@@ -48,7 +47,6 @@ def handle_quiz(request, page_content):
         return JsonResponse({"success": True, "message": "Quiz successfully corrected."})
     except Exception as e:
         return JsonResponse({"success": False, "message": str(e)})
-
 
 
 @technician_required

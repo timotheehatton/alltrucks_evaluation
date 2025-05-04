@@ -1,10 +1,10 @@
 import collections
-
+from django.conf import settings
+from django.db.models import Case, ExpressionWrapper, IntegerField, Max, Sum, When
 from django.db.models import ExpressionWrapper, IntegerField, Max, Sum
 from django.http import HttpResponse
 from django.shortcuts import render
 from reportlab.pdfgen import canvas
-from django.conf import settings
 
 from common.useful.strapi import strapi_content
 from users.decorators import manager_required
@@ -30,7 +30,13 @@ def index(request):
         date__in=(score['last_date'] for score in last_dates)
     ).values('user__first_name', 'user__last_name', 'user__id', 'question_type').annotate(
         total_score=Sum('score'),
-        success_percentage=ExpressionWrapper((Sum('score') * 100) / settings.QUESTION_NUMBER, output_field=IntegerField())
+        success_percentage=ExpressionWrapper(
+            (Sum('score') * 100) / Case(
+                *[When(question_type=qt, then=val) for qt, val in settings.QUESTION_NUMBER.items()],
+                default=1
+            ),
+            output_field=IntegerField()
+        )
     )
 
     technician_scores = collections.defaultdict(dict)

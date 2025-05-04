@@ -2,255 +2,131 @@
 {% load static %}
 
 {% block stylesheets %}
-{% if user.is_superuser == True %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
-{% endif %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/templates/details/style.css' %}">
+    {% if user.is_superuser == True %}
+        <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    {% endif %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/templates/details/style.css' %}">
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
-<div class="content">
-    <div class="stats {% if user.is_superuser == True %}stats-admin{% endif %}">
-        {% if current_user %}
-            <a href="{% if user.is_superuser == False %}{% url 'manager:technicians' %}{% else %}{% url 'admin:users' %}{% endif %}" class="button-back"><i class="material-icons">arrow_back</i>Technicians</a>
-            {% if user.is_superuser == False %}
-                <div class="card name-card"><i class="material-icons page-title-icon">person</i> {{ current_user.first_name|title }} {{ current_user.last_name|upper }}</div>
-            {% endif %}
-        {% else %}
-            <h1 class="page-title"><i class="material-icons page-title-icon">bar_chart</i> {% firstof page_content.user_statistic.page_title "User details" %}</h1>
-        {% endif %}
+    <div class="content">
+        <div class="stats {% if user.is_superuser == True %}stats-admin{% endif %}">
+            {% if current_user %}
+                <a href="
 
-        {# ADMIN SECTION #}
-        {% if user.is_superuser == True %}
-            <div class="card stats-admin-details">
+
+
+
+                        {% if user.is_superuser == False %}{% url 'manager:technicians' %}{% else %}{% url 'admin:users' %}{% endif %}"
+                   class="button-back"><i class="material-icons">arrow_back</i>Technicians</a>
+                {% if user.is_superuser == False %}
+                    <div class="card name-card"><i
+                            class="material-icons page-title-icon">person</i> {{ current_user.first_name|title }} {{ current_user.last_name|upper }}
+                    </div>
+                {% endif %}
+            {% else %}
+                <h1 class="page-title"><i
+                        class="material-icons page-title-icon">bar_chart</i> {% firstof page_content.user_statistic.page_title "User details" %}
+                </h1>
+            {% endif %}
+
+            {# ADMIN SECTION #}
+            {% if user.is_superuser == True %}
+                <div class="card stats-admin-details">
+                    <div class="row">
+                        <div class="col s6">
+                            <div class="stats-info-title"><i class="material-icons left">person</i>User information
+                            </div>
+                            <div class="stats-info-item">
+                                <span class="stats-info-item-label">User</span>
+                                <p class="stats-info-item-content">{{ current_user.first_name|title }} {{ current_user.last_name|upper }}</p>
+                            </div>
+                            <div class="stats-info-item">
+                                <span class="stats-info-item-label">Email</span>
+                                <p class="stats-info-item-content">{{ current_user.email }}</p>
+                            </div>
+                            <div class="stats-info-item">
+                                <span class="stats-info-item-label">CT Number</span>
+                                <p class="stats-info-item-content">{{ current_user.ct_number }}</p>
+                            </div>
+                        </div>
+                        <div class="col s6">
+                            {# TODO: Translation#}
+                            <div class="stats-info-title">
+                                <i class="material-icons left">business</i>
+                                Informations sur l'atelier
+                            </div>
+                            <div class="stats-info-item">
+                                {# TODO: Translation#}
+                                <span class="stats-info-item-label">Nom de l'entreprise</span>
+                                <p class="stats-info-item-content">{{ current_user.company.name|upper }}</p>
+                            </div>
+                            <div class="stats-info-item">
+                                {# TODO: Translation#}
+                                <span class="stats-info-item-label">Localisation</span>
+                                <p class="stats-info-item-content">{{ current_user.company.city|title }}, {{ current_user.company.country|upper }}</p>
+                            </div>
+                            <div class="stats-info-item">
+                                {# TODO: Translation#}
+                                <span class="stats-info-item-label">Numéro CU</span>
+                                <p class="stats-info-item-content">{{ current_user.company.cu_number }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+            {# END ADMIN SECTION #}
+
+            {% if current_user.user_type != 'manager' %}
                 <div class="row">
-                    <div class="col s6">
-                        <div class="stats-info-title"><i class="material-icons left">person</i>User information</div>
-                        <div class="stats-info-item">
-                            <span class="stats-info-item-label">User</span>
-                            <p class="stats-info-item-content">{{ current_user.first_name|title }} {{ current_user.last_name|upper }}</p>
+                    <div class="col s9">
+                        <div class="card graph {% if not scores_by_category %}disabled{% endif %}">
+                            <canvas id="radarChart"></canvas>
                         </div>
-                        <div class="stats-info-item">
-                            <span class="stats-info-item-label">Email</span>
-                            <p class="stats-info-item-content">{{current_user.email}}</p>
-                        </div>
-                        <div class="stats-info-item">
-                            <span class="stats-info-item-label">CT Number</span>
-                            <p class="stats-info-item-content">{{current_user.ct_number}}</p>
-                        </div>
+                        {% if not scores_by_category and user.is_superuser == False and user.user_type != 'manager' %}
+                            <a href="{% url 'technician:quiz' %}"
+                               class="btn blue disabled-action">{{ page_content.user_statistic.placeholder_button }}</a>
+                        {% endif %}
                     </div>
-                    <div class="col s6">
-                        {# TODO: Translation#}
-                        <div class="stats-info-title"><i class="material-icons left">business</i>Workshop information</div>
-                        <div class="stats-info-item">
-                            {# TODO: Translation#}
-                            <span class="stats-info-item-label">Company name</span>
-                            <p class="stats-info-item-content">{{current_user.company.name|upper}}</p>
-                        </div>
-                        <div class="stats-info-item">
-                            {# TODO: Translation#}
-                            <span class="stats-info-item-label">Location</span>
-                            <p class="stats-info-item-content">{{current_user.company.city|title}}, {{current_user.company.country|upper}}</p>
-                        </div>
-                        <div class="stats-info-item">
-                            {# TODO: Translation#}
-                            <span class="stats-info-item-label">CU Number</span>
-                            <p class="stats-info-item-content">{{current_user.company.cu_number}}</p>
+                    <div class="col s3">
+                        <div class="card center-align diploma {% if not scores_by_category %}disabled{% endif %}">
+                            <img src="{% static 'img/illu-diploma.svg' %}">
+                            <h5>{% firstof page_content.user_statistic.diploma_title "Diploma available" %}</h5>
+                            <a href="#"
+                               class="download-pdf btn white {% if not scores_by_category %}disabled{% endif %}"><i
+                                    class="material-icons page-title-icon">download</i> {% firstof page_content.user_statistic.diploma_button "Download" %}
+                            </a>
                         </div>
                     </div>
                 </div>
-            </div>
-        {% endif %}
-        {# END ADMIN SECTION #}
-
-        {% if current_user.user_type != 'manager' %}
-            <div class="row">
-                <div class="col s9">
-                    <div class="card graph {% if not scores_by_category %}disabled{% endif %}">
-                        <canvas id="radarChart"></canvas>
+                {% if scores_by_category %}
+                    <div class="row">
+                        <div class="col s12 m12">
+                            <h2 class="page-title-secondary">{% firstof page_content.user_statistic.training_title "Trainings recommandation" %}</h2>
+                            <div class="card">
+                                {% for score in scores_by_category %}
+                                    {% firstof page_content.user_statistic.training_recommendation 'Training recommandation' as recommandation_label %}
+                                    {% with progress=score.success_percentage title=score.question_type recommandation_label=recommandation_label trainings=score.trainings %}
+                                        {% include 'components/training_progress.html' %}
+                                    {% endwith %}
+                                {% endfor %}
+                            </div>
+                        </div>
                     </div>
-                    {% if not scores_by_category and user.is_superuser == False and user.user_type != 'manager' %}
-                        <a href="{% url 'technician:quiz' %}" class="btn blue disabled-action">{{page_content.user_statistic.placeholder_button}}</a>
-                    {% endif %}
-                </div>
-                <div class="col s3">
-                    <div class="card center-align diploma {% if not scores_by_category %}disabled{% endif %}">
-                        <img src="{% static 'img/illu-diploma.svg' %}">
-                        <h5>{% firstof page_content.user_statistic.diploma_title "Diploma available" %}</h5>
-                        <a href="#" class="download-pdf btn white {% if not scores_by_category %}disabled{% endif %}"><i class="material-icons page-title-icon">download</i> {% firstof page_content.user_statistic.diploma_button "Download" %}</a>
-                    </div>
-                </div>
-            </div>
-            {% if scores_by_category %}
-            <div class="row">
-                <div class="col s12 m12">
-                    <h2 class="page-title-secondary">{% firstof page_content.user_statistic.training_title "Trainings recommandation" %}</h2>
-                    <div class="card">
-                        {% for score in scores_by_category %}
-                            {% firstof page_content.user_statistic.training_recommendation 'Training recommandation' as recommandation_label %}
-                            {% with progress=score.success_percentage title=score.question_type recommandation_label=recommandation_label trainings=score.trainings %}
-                                {% include 'components/training_progress.html' %}
-                            {% endwith %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
+                {% endif %}
             {% endif %}
-        {% endif %}
+        </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-let radarChart;
-
-function initializeChart() {
-    const ctx = document.getElementById('radarChart').getContext('2d');
-    const data = {
-        labels: [
-            {% if scores_by_category %}
-                {% for score in scores_by_category %}
-                    "{{ score.question_type }}",
-                {% endfor %}
-            {% else %}
-            "diagnostic", "electricity", "engine_exhaust", "engine injection", "powertrain", "trailer braking system", "truck air braking system"
-            {% endif %}
-        ],
-        datasets: [
-            {
-                data: [
-                    {% if scores_by_category %}
-                        {% for score in scores_by_category %}
-                            {{ score.success_percentage }},
-                        {% endfor %}
-                    {% else %}
-                        38, 80, 90, 43, 100, 30, 54,
-                    {% endif %}
-                ],
-                fill: false,
-                pointRadius: 0,
-                borderWidth: 4
-            }
-        ]
-    };
-
-    radarChart = new Chart(ctx, {
-        type: 'radar',
-        data: data,
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                r: {
-                    min: 0,
-                    max: 100,
-                    pointLabels: {
-                        display: false
-                    },
-                    ticks: {
-                        display: false
-                    },
-                    angleLines: {
-                        display: true
-                    },
-                    grid: {
-                        drawBorder: true,
-                        drawOnChartArea: false,
-                    },
-                    pointLabels: {
-                        font: {
-                            size: 14,
-                            weight: 'bold'
-                        },
-                        padding: 10,
-                        callback: function(label) {
-                            const words = label.split(' ');
-                            const maxWidth = 27;
-                            let lines = [];
-                            let currentLine = words[0];
-
-                            for (let i = 1; i < words.length; i++) {
-                                if (currentLine.length + words[i].length + 1 <= maxWidth) {
-                                    currentLine += ' ' + words[i];
-                                } else {
-                                    lines.push(currentLine);
-                                    currentLine = words[i];
-                                }
-                            }
-                            lines.push(currentLine);
-                            return lines;
-                        }
-                    },
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                tooltip: {
-                    enabled: false
-                },
-                legend: {
-                    display: false
-                }
-            },
-            animation: {
-                onComplete: function() {
-                    const chartInstance = this;
-                    const ctx = chartInstance.ctx;
-                    const chartArea = chartInstance.chartArea;
-                    ctx.font = Chart.helpers.fontString(11, "bold", Chart.defaults.font.family);
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-
-                    chartInstance.data.datasets.forEach((dataset, i) => {
-                        const meta = chartInstance.getDatasetMeta(i);
-                        ctx.fillStyle = dataset.borderColor || 'blue';
-                        meta.data.forEach((point, index) => {
-                            const data = `${dataset.data[index]}%`;
-                            const angle = point.angle;
-                            const offset = 15;
-                            const posX = point.x + Math.cos(angle) * offset;
-                            const posY = point.y + Math.sin(angle) * offset;
-                            ctx.fillText(data, posX, posY);
-                        });
-                    });
-                }
-            }
-        }
-    });
-}
-
-initializeChart();
-
-document.querySelector('.download-pdf').addEventListener('click', function() {
-    const image = radarChart.toBase64Image();
-
-    fetch('{% if user.is_superuser == True %}{% url 'common:download-pdf' current_user.id %}{% elif user.user_type == 'manager' %}{% url 'common:download-pdf' current_user.id %}{% else %}{% url 'common:download-pdf' user.id %}{% endif %}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ chart_image_base64: image })
-    })
-    .then(response => response.blob())
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'diploma.pdf';
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-    })
-    .catch(error => console.error('Error:', error));
-});
-</script>
+    <script>
+        const SCORES_BY_CATEGORY = {{ scores_by_category|safe }};
+        const USER_INFO = '{{ user }}';
+        const CSRF_TOKEN = '{{ csrf_token }}';
+        const DOWNLOAD_PDF_URL = '{% if user.is_superuser == True %}{% url "common:download-pdf" current_user.id %}{% elif user.user_type == "manager" %}{% url "common:download-pdf" current_user.id %}{% else %}{% url "common:download-pdf" user.id %}{% endif %}';
+    </script>
+    <script src="{% static 'js/maps/user.js' %}"></script>
 {% endblock %}

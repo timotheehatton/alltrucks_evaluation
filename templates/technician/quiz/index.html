@@ -2,356 +2,115 @@
 {% load static %}
 
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/templates/technician/quiz/style.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/templates/technician/quiz/style.css' %}">
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
-<div class="content">
-    <h1 class="page-title"><i class="material-icons page-title-icon">assignment</i> {{page_content.test.page_title}}</h1>
+    <div class="content">
+        <h1 class="page-title"><i
+                class="material-icons page-title-icon">assignment</i> {{ page_content.test.page_title }}</h1>
 
-    <div class="container">
-        <div class="row">
-            <div class="col s12 l10 offset-l1">
-                <div class="card launcher center-align">
-                    <img class="launcher-image" src="{% static 'img/illu-computer.svg' %}">
-                    <h5 class="launcher-title">{{page_content.test.card_title}}</h5>
-                    <p class="launcher-description">{{page_content.test.card_content}}</p>
-                    <a href="#modal1" class="btn blue modal-trigger">{{page_content.test.card_btn}}</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="modal1" class="modal">
-        <div class="modal-content">
-            <div class="modal-content-header">
-                <span class="quiz-progress">{{page_content.test.test_question}} <span class="quiz-progress-number"></span></span>
-                <span class="quiz-timer">01:00:00</span>
-            </div>
-            <div class="quiz-progressbar-container">
-                <div class="quiz-progressbar" style="width: 0%;"></div>
-            </div>
-            <div class="modal-content-question">
-                <span class="quiz-category"></span>
-                <span class="quiz-question"></span>
-                <div class="quiz-image-anwsers-container">
-                    <img class="quiz-image" src="#">
-                    <div class="quiz-answers">
-                        <label class="answer-1" style="display:none;">
-                            <input type="radio" name="choice" class="filled-in" value="choice_1" />
-                            <span class="quiz-answer-1"></span>
-                        </label>
-                        <label class="answer-2" style="display:none;">
-                            <input type="radio" name="choice" class="filled-in" value="choice_2" />
-                            <span class="quiz-answer-2"></span>
-                        </label>
-                        <label class="answer-3" style="display:none;">
-                            <input type="radio" name="choice" class="filled-in" value="choice_3" />
-                            <span class="quiz-answer-3"></span>
-                        </label>
-                        <label class="answer-4" style="display:none;">
-                            <input type="radio" name="choice" class="filled-in" value="choice_4" />
-                            <span class="quiz-answer-4"></span>
-                        </label>
-                        <label class="answer-5" style="display:none;">
-                            <input type="radio" name="choice" class="filled-in" value="choice_5" />
-                            <span class="quiz-answer-5"></span>
-                        </label>
+        <div class="container">
+            <div class="row">
+                <div class="col s12 l10 offset-l1">
+                    <div class="card launcher center-align">
+                        <img class="launcher-image" src="{% static 'img/illu-computer.svg' %}">
+                        <h5 class="launcher-title">{{ page_content.test.card_title }}</h5>
+                        <p class="launcher-description">{{ page_content.test.card_content }}</p>
+                        <a href="#modal1" class="btn blue modal-trigger">{{ page_content.test.card_btn }}</a>
                     </div>
                 </div>
-                <a href="#" class="btn quiz-next disabled">{{page_content.test.test_next_button}}</a>
             </div>
         </div>
-        <div class="success-message popinInfo" style="display: none;">
-            <div class="popinInfo-content">
-                <img src="{% static 'img/illu-success.svg' %}">
-                <h5 class="popinInfo-title">{{page_content.test.popin_success_title}}</h5>
-                <p class="popinInfo-message">{{page_content.test.popin_success_content}}</p>
-                <div>
-                    <a href="{% url 'technician:stats' %}" class="btn blue">{{page_content.test.popin_success_button_1}}</a>
+
+        <div id="modal1" class="modal">
+            <div class="modal-content">
+                <div class="modal-content-header">
+                    <span class="quiz-progress">{{ page_content.test.test_question }} <span
+                            class="quiz-progress-number"></span></span>
+                    <span class="quiz-timer">01:00:00</span>
+                </div>
+                <div class="quiz-progressbar-container">
+                    <div class="quiz-progressbar" style="width: 0%;"></div>
+                </div>
+                <div class="modal-content-question">
+                    <span class="quiz-category"> </span><span class="quiz-category-position"></span>
+                    <span class="quiz-question"></span>
+                    <div class="quiz-image-anwsers-container">
+                        <img class="quiz-image" src="#">
+                        <div class="quiz-answers">
+                            <label class="answer-1" style="display:none;">
+                                <input type="radio" name="choice" class="filled-in" value="choice_1"/>
+                                <span class="quiz-answer-1"></span>
+                            </label>
+                            <label class="answer-2" style="display:none;">
+                                <input type="radio" name="choice" class="filled-in" value="choice_2"/>
+                                <span class="quiz-answer-2"></span>
+                            </label>
+                            <label class="answer-3" style="display:none;">
+                                <input type="radio" name="choice" class="filled-in" value="choice_3"/>
+                                <span class="quiz-answer-3"></span>
+                            </label>
+                            <label class="answer-4" style="display:none;">
+                                <input type="radio" name="choice" class="filled-in" value="choice_4"/>
+                                <span class="quiz-answer-4"></span>
+                            </label>
+                            <label class="answer-5" style="display:none;">
+                                <input type="radio" name="choice" class="filled-in" value="choice_5"/>
+                                <span class="quiz-answer-5"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <a href="#" class="btn quiz-next disabled">{{ page_content.test.test_next_button }}</a>
                 </div>
             </div>
-        </div>
-        <div class="timeout-message popinInfo" style="display: none;">
-            <div class="popinInfo-content">
-                <img src="{% static 'img/illu-error.svg' %}">
-                <h5 class="popinInfo-title">{{page_content.test.popin_timeout_title}}</h5>
-                <p class="popinInfo-message">{{page_content.test.popin_timeout_content}}</p>
-                <div>
-                    <a href="{% url 'technician:stats' %}" class="btn blue">{{page_content.test.popin_timeout_button_1}}</a>
-                    <a href="{% url 'technician:quiz' %}" class="btn white">{{page_content.test.popin_timeout_button_2}}</a>
+            <div class="success-message popinInfo" style="display: none;">
+                <div class="popinInfo-content">
+                    <img src="{% static 'img/illu-success.svg' %}">
+                    <h5 class="popinInfo-title">{{ page_content.test.popin_success_title }}</h5>
+                    <p class="popinInfo-message">{{ page_content.test.popin_success_content }}</p>
+                    <div>
+                        <a href="{% url 'technician:stats' %}"
+                           class="btn blue">{{ page_content.test.popin_success_button_1 }}</a>
+                    </div>
+                </div>
+            </div>
+            <div class="timeout-message popinInfo" style="display: none;">
+                <div class="popinInfo-content">
+                    <img src="{% static 'img/illu-error.svg' %}">
+                    <h5 class="popinInfo-title">{{ page_content.test.popin_timeout_title }}</h5>
+                    <p class="popinInfo-message">{{ page_content.test.popin_timeout_content }}</p>
+                    <div>
+                        <a href="{% url 'technician:stats' %}"
+                           class="btn blue">{{ page_content.test.popin_timeout_button_1 }}</a>
+                        <a href="{% url 'technician:quiz' %}"
+                           class="btn white">{{ page_content.test.popin_timeout_button_2 }}</a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
-{% autoescape off %}
-<script>
-    const allQuestions = {{questions|safe}};
-    const userAnswers = JSON.parse(localStorage.getItem('userAnswers')) || {};
-
-    // DOM Elements
-    const quizTimer = document.querySelector('.quiz-timer');
-    const quizProgress = document.querySelector('.quiz-progress-number');
-    const quizCategory = document.querySelector('.quiz-category');
-    const quizQuestion = document.querySelector('.quiz-question');
-    const quizImage = document.querySelector('.quiz-image');
-    const quizNextBtn = document.querySelector('.quiz-next');
-    const quizChoices = document.querySelectorAll('input[name="choice"]');
-    const answerLabels = [
-        document.querySelector('.answer-1'),
-        document.querySelector('.answer-2'),
-        document.querySelector('.answer-3'),
-        document.querySelector('.answer-4'),
-        document.querySelector('.answer-5')
-    ];
-
-    const question_number = {{question_number}};
-
-    // Get random questions by category
-    function getRandomQuestionsByCategory(questions, limit = question_number) {
-        const categorizedQuestions = {};
-
-        questions.forEach(question => {
-            const category = question.category;
-            if (!categorizedQuestions[category]) {
-                categorizedQuestions[category] = [];
+    <script>
+        window.QUIZ_CONFIG = {
+            ALL_QUESTIONS: {{ questions|safe }},
+            CSRF_TOKEN: '{{ csrf_token }}',
+            QUIZ_URL: "{% url 'technician:quiz' %}",
+            CATEGORY_QUESTION_LIMITS: {
+                diagnostic: 15,
+                electricity: 10,
+                engine_exhaust: 15,
+                engine_injection: 10,
+                general_mechanic: 10,
+                powertrain: 10,
+                trailer_braking_system: 15,
+                truck_air_braking_system: 15
             }
-            categorizedQuestions[category].push(question);
-        });
-
-        const selectedQuestions = [];
-        for (const category in categorizedQuestions) {
-            const shuffled = categorizedQuestions[category].sort(() => Math.random() - 0.5);
-            selectedQuestions.push(...shuffled.slice(0, limit));
-        }
-
-        return selectedQuestions;
-    }
-
-    const questions = getRandomQuestionsByCategory(allQuestions);
-
-    // Find first unanswered question
-    function findFirstUnansweredQuestion() {
-        for (let i = 0; i < questions.length; i++) {
-            if (!userAnswers[questions[i].id]) {
-                return i;
-            }
-        }
-        return questions.length;
-    }
-
-    // Display question
-    function displayQuestion(index) {
-        if (index < 0 || index >= questions.length) {
-            return;
-        }
-
-        const question = questions[index];
-        quizProgress.innerText = `${index + 1}/${questions.length}`;
-        quizCategory.innerText = question.category_displayed;
-        quizQuestion.innerText = question.question;
-
-        console.log(question.image)
-        if (question.image) {
-            quizImage.src = question.image;
-            quizImage.style.display = 'block';
-        } else {
-            quizImage.style.display = 'none';
-        }
-
-        const answers = [
-            question.choice_1,
-            question.choice_2,
-            question.choice_3,
-            question.choice_4,
-            question.choice_5
-        ];
-
-        answers.forEach((answer, i) => {
-            const label = answerLabels[i];
-            if (answer) {
-                label.style.display = 'block';
-                label.querySelector('span').innerText = answer;
-            } else {
-                label.style.display = 'none';
-            }
-        });
-
-        quizChoices.forEach(input => (input.checked = false));
-        quizNextBtn.classList.add('disabled');
-        quizNextBtn.classList.remove('blue');
-
-        updateProgressBar(index, questions.length);
-    }
-
-    // Enable next button
-    function enableNextButton() {
-        const isAnyChecked = Array.from(quizChoices).some(input => input.checked);
-        quizNextBtn.classList.toggle('disabled', !isAnyChecked);
-        quizNextBtn.classList.toggle('blue', isAnyChecked);
-    }
-
-    // Start timer
-    function startTimer(duration, display) {
-        let timer = duration;
-        const timerInterval = setInterval(() => {
-            const hours = String(Math.floor(timer / 3600)).padStart(2, '0');
-            const minutes = String(Math.floor((timer % 3600) / 60)).padStart(2, '0');
-            const seconds = String(Math.floor(timer % 60)).padStart(2, '0');
-
-            display.textContent = `${hours}:${minutes}:${seconds}`;
-
-            if (--timer < 0) {
-                clearInterval(timerInterval);
-                timeoutModal();
-                saveScore();
-                resetTimer();
-                clearQuizData();
-            }
-
-            localStorage.setItem('quizTimer', timer);
-        }, 1000);
-    }
-
-    // Show timeout modal
-    function timeoutModal() {
-        const modalContent = document.querySelector('.modal-content');
-        const timeoutMessage = document.querySelector('.timeout-message');
-
-        if (modalContent) modalContent.remove();
-        if (timeoutMessage) timeoutMessage.style.display = 'block';
-    }
-
-    // Save score
-    function saveScore() {
-        fetch("{% url 'technician:quiz' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({ answers: userAnswers })
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.querySelector('.modal-content').remove();
-                    document.querySelector('.success-message').style.display = 'block';
-                    clearQuizData();
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }
-
-    // Update progress bar
-    function updateProgressBar(index, total) {
-        const progressBar = document.querySelector('.quiz-progressbar');
-        progressBar.style.width = `${((index) / total) * 100}%`;
-    }
-
-    // Reset timer
-    function resetTimer() {
-        localStorage.removeItem('quizEndTime');
-        localStorage.removeItem('quizTimer');
-    }
-
-    // Clear quiz data
-    function clearQuizData() {
-        localStorage.removeItem('userAnswers');
-        localStorage.removeItem('currentQuestionIndex');
-    }
-
-    // Calculate remaining time
-    function calculateRemainingTime(endTime) {
-        const now = Date.now();
-        return Math.max((endTime - now) / 1000, 0);
-    }
-
-    // Initialize current question index
-    let currentQuestionIndex = parseInt(localStorage.getItem('currentQuestionIndex'), 10);
-    if (isNaN(currentQuestionIndex)) {
-        currentQuestionIndex = findFirstUnansweredQuestion();
-    }
-
-    // Event listener for modal trigger
-    document.querySelector('.modal-trigger').addEventListener('click', () => {
-        let endTime = parseInt(localStorage.getItem('quizEndTime'), 10);
-        if (!endTime) {
-            const duration = 60 * 60 * 1000; // 1 hour in milliseconds
-            endTime = Date.now() + duration;
-            localStorage.setItem('quizEndTime', endTime);
-        }
-
-        const remainingTime = calculateRemainingTime(endTime);
-        startTimer(remainingTime, quizTimer);
-    });
-
-    // Event listener for next button
-    quizNextBtn.addEventListener('click', () => {
-        const selectedChoices = Array.from(quizChoices)
-            .filter(input => input.checked)
-            .map(input => input.value);
-
-        if (selectedChoices.length) {
-            userAnswers[questions[currentQuestionIndex].id] = {
-                category: questions[currentQuestionIndex].category,
-                choice: selectedChoices
-            };
-
-            localStorage.setItem('userAnswers', JSON.stringify(userAnswers));
-
-            if (currentQuestionIndex < questions.length - 1) {
-                currentQuestionIndex++;
-                localStorage.setItem('currentQuestionIndex', currentQuestionIndex);
-                displayQuestion(currentQuestionIndex);
-            } else {
-                // Finish quiz
-                saveScore();
-                resetTimer();
-                clearQuizData();
-            }
-        }
-    });
-
-    // Display initial question
-    displayQuestion(currentQuestionIndex);
-
-    // Add change event listener to choices
-    quizChoices.forEach(input => {
-        input.addEventListener('change', enableNextButton);
-    });
-
-    // Initialize modal and timer on DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', () => {
-        const elems = document.querySelectorAll('.modal');
-        const modalInstances = M.Modal.init(elems, { dismissible: false });
-
-        const endTime = parseInt(localStorage.getItem('quizEndTime'), 10);
-
-        if (endTime) {
-            const remainingTime = calculateRemainingTime(endTime);
-
-            // Open the modal regardless of the remaining time
-            modalInstances[0].open();
-
-            if (remainingTime > 0) {
-                // If time is remaining, start the timer
-                startTimer(remainingTime, quizTimer);
-            } else {
-                // Timer has expired, display timeout message and handle timeout state
-                timeoutModal();
-                saveScore();
-                resetTimer();
-                clearQuizData();
-            }
-        }
-    });
-</script>
-{% endautoescape %}
+        };
+    </script>
+    <script type="module" src="{% static 'js/quiz/main.js' %}"></script>
 {% endblock %}
