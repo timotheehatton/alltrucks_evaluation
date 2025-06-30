@@ -184,44 +184,65 @@ class MyAdminSite(admin.AdminSite):
             if form.is_valid():
                 company = form.save()
                 manager_email = form.cleaned_data['manager_email']
-                manager_user = User.objects.create_user(
-                    username=manager_email,
-                    email=manager_email,
-                    first_name=form.cleaned_data['manager_first_name'],
-                    last_name=form.cleaned_data['manager_last_name'],
-                    user_type='manager',
-                    language=company.country,
-                    company=company,
-                    ct_number=form.cleaned_data['manager_ct_number'],
-                    is_active=False
-                )
-                content = strapi_content.get_content(
-                    pages=['email'],
-                    parameters={'locale': company.country.lower()}
-                )
-                manager_user.save()
-                self.send_activation_email(request, manager_user, content)
 
-                i = 1
-                while f'technician_first_name_{i}' in request.POST:
-                    technician_email = request.POST[f'technician_email_{i}']
-                    technician_user = User.objects.create_user(
-                        username=technician_email,
-                        email=technician_email,
-                        first_name=request.POST[f'technician_first_name_{i}'],
-                        last_name=request.POST[f'technician_last_name_{i}'],
-                        user_type='technician',
+                if User.objects.filter(username=manager_email).exists():
+                    messages.error(request, f'A user with email {manager_email} already exists.')
+                    company.delete()
+                    return render(request, 'admin/workshops/create_company.html', {'form': form})
+                
+                try:
+                    manager_user = User.objects.create_user(
+                        username=manager_email,
+                        email=manager_email,
+                        first_name=form.cleaned_data['manager_first_name'],
+                        last_name=form.cleaned_data['manager_last_name'],
+                        user_type='manager',
+                        language=company.country,
                         company=company,
-                        ct_number=request.POST[f'technician_ct_number_{i}'],
+                        ct_number=form.cleaned_data['manager_ct_number'],
                         is_active=False
                     )
-                    technician_user.save()
-                    self.send_activation_email(request, technician_user, content)
-                    i += 1
+                    content = strapi_content.get_content(
+                        pages=['email'],
+                        parameters={'locale': company.country.lower()}
+                    )
+                    manager_user.save()
+                    self.send_activation_email(request, manager_user, content)
 
-                messages.success(request,
-                                 'Company and users accounts successfully created, users will received an email to define their password.')
-                return redirect('admin:workshops')
+                    technician_emails = []
+                    i = 1
+                    while f'technician_first_name_{i}' in request.POST:
+                        technician_email = request.POST[f'technician_email_{i}']
+                        if User.objects.filter(username=technician_email).exists():
+                            messages.error(request, f'A user with email {technician_email} already exists.')
+                            manager_user.delete()
+                            company.delete()
+                            return render(request, 'admin/workshops/create_company.html', {'form': form})
+                        technician_emails.append((i, technician_email))
+                        i += 1
+
+                    for idx, technician_email in technician_emails:
+                        technician_user = User.objects.create_user(
+                            username=technician_email,
+                            email=technician_email,
+                            first_name=request.POST[f'technician_first_name_{idx}'],
+                            last_name=request.POST[f'technician_last_name_{idx}'],
+                            user_type='technician',
+                            company=company,
+                            ct_number=request.POST[f'technician_ct_number_{idx}'],
+                            is_active=False
+                        )
+                        technician_user.save()
+                        self.send_activation_email(request, technician_user, content)
+
+                    messages.success(request,
+                                     'Company and users accounts successfully created, users will received an email to define their password.')
+                    return redirect('admin:workshops')
+                    
+                except Exception as e:
+                    messages.error(request, f'Error creating users: {str(e)}')
+                    company.delete()
+                    return render(request, 'admin/workshops/create_company.html', {'form': form})
             else:
                 for field, errors in form.errors.items():
                     for error in errors:
