@@ -24,6 +24,7 @@ class MyAdminSite(admin.AdminSite):
         custom_urls = [
             path('', self.admin_view(self.companies_view), name='workshops'),
             path('workshop/<int:company_id>/', self.admin_view(self.single_company_view), name='single_workshop'),
+            path('workshop/<int:company_id>/delete/', self.admin_view(self.delete_company_view), name='delete_workshop'),
             path('create-workshop/', self.admin_view(self.create_company_view), name='create_company'),
             path('users/', self.admin_view(self.users_view), name='users'),
             path('user/<int:user_id>/', self.admin_view(self.single_user_view), name='single_user'),
@@ -82,10 +83,15 @@ class MyAdminSite(admin.AdminSite):
         for score in scores_by_category:
             global_scores[score['question_type']] = score['success_percentage']
 
+        managers = company_users.filter(user_type='manager').order_by('last_name', 'first_name')
+        technicians = company_users.filter(user_type='technician').order_by('last_name', 'first_name')
+
         return render(request, 'admin/workshops/single_workshop.html', {
             'technician_scores': dict(technician_scores),
             'global_scores': global_scores,
             'current_user': company,
+            'managers': managers,
+            'technicians': technicians,
         })
 
     def admins_view(self, request):
@@ -98,6 +104,34 @@ class MyAdminSite(admin.AdminSite):
 
     def single_user_view(self, request, user_id):
         technician = get_object_or_404(User, id=user_id)
+        
+        if request.method == 'POST':
+            # Handle password change
+            if 'new_password' in request.POST:
+                new_password = request.POST.get('new_password')
+                confirm_password = request.POST.get('confirm_password')
+                
+                if new_password and new_password == confirm_password:
+                    technician.set_password(new_password)
+                    # Ensure username is synced with email for authentication
+                    technician.username = technician.email
+                    technician.save()
+                    messages.success(request, f'Password updated successfully for {technician.email}')
+                else:
+                    messages.error(request, 'Passwords do not match or are empty.')
+            
+            # Handle activation status change
+            if 'update_activation' in request.POST:
+                is_active = request.POST.get('is_active') == 'on'
+                technician.is_active = is_active
+                technician.save()
+                if is_active:
+                    messages.success(request, f'User {technician.email} has been activated.')
+                else:
+                    messages.warning(request, f'User {technician.email} has been deactivated.')
+            
+            return redirect('admin:single_user', user_id=user_id)
+        
         page_content = strapi_content.get_content(
             pages=['trainings'],
             parameters={'locale': technician.language.lower()}
@@ -269,6 +303,21 @@ class MyAdminSite(admin.AdminSite):
         else:
             admin_form = AdminUserForm()
         return render(request, 'admin/admins/create_admin.html', {'admin_form': admin_form})
+
+    def delete_company_view(self, request, company_id):
+        company = get_object_or_404(Company, id=company_id)
+        
+        if request.method == 'POST':
+            # Delete all users associated with the company (this will cascade delete scores)
+            User.objects.filter(company=company).delete()
+            # Delete the company
+            company_name = company.name
+            company.delete()
+            messages.success(request, f'Workshop "{company_name}" and all associated users have been deleted.')
+            return redirect('admin:workshops')
+        
+        # This shouldn't happen as we'll use JavaScript confirmation
+        return redirect('admin:single_workshop', company_id=company_id)
 
 
 admin_site = MyAdminSite(name='myadmin')

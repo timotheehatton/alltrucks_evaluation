@@ -49,6 +49,67 @@
                     </div>
                 </div>
             </div>
+
+            <div class="card stats-admin-details">
+                <div class="row">
+                    <div class="stats-info-title"><i class="material-icons left">people</i>Workshop users</div>
+                    <div class="col s6">
+                        <div class="stats-info-item">
+                            <span class="stats-info-item-label">Managers ({{ managers|length }})</span>
+                            {% for manager in managers %}
+                                <p class="stats-info-item-content" style="margin-top: {% if forloop.first %}10px{% else %}5px{% endif %};">
+                                    <a href="{% url 'admin:single_user' manager.id %}" style="color: #01B5E2;">
+                                        {{ manager.first_name|title }} {{ manager.last_name|upper }}
+                                        <i class="material-icons tiny" style="vertical-align: middle;">open_in_new</i>
+                                    </a>
+                                    <span style="color: #666; font-size: 14px; display: block;">{{ manager.email }}</span>
+                                </p>
+                            {% empty %}
+                                <p class="stats-info-item-content">No managers assigned</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col s6">
+                        <div class="stats-info-item">
+                            <span class="stats-info-item-label">Technicians ({{ technicians|length }})</span>
+                            <div style="max-height: 300px; overflow-y: auto;">
+                                {% for technician in technicians %}
+                                    <p class="stats-info-item-content" style="margin-top: {% if forloop.first %}10px{% else %}5px{% endif %};">
+                                        <a href="{% url 'admin:single_user' technician.id %}" style="color: #01B5E2;">
+                                            {{ technician.first_name|title }} {{ technician.last_name|upper }}
+                                            <i class="material-icons tiny" style="vertical-align: middle;">open_in_new</i>
+                                        </a>
+                                        <span style="color: #666; font-size: 14px; display: block;">{{ technician.email }}</span>
+                                    </p>
+                                {% empty %}
+                                    <p class="stats-info-item-content">No technicians assigned</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card stats-admin-details" style="background-color: #ffebee;">
+                <div class="row">
+                    <div class="stats-info-title" style="color: #c62828;"><i class="material-icons left" style="color: #c62828;">warning</i>Danger Zone</div>
+                    <div class="col s12">
+                        <p style="margin-bottom: 20px;">Deleting this workshop will permanently remove:</p>
+                        <ul style="margin-left: 20px; margin-bottom: 20px;">
+                            <li>• The workshop information</li>
+                            <li>• All {{ managers|length }} manager{% if managers|length != 1 %}s{% endif %}</li>
+                            <li>• All {{ technicians|length }} technician{% if technicians|length != 1 %}s{% endif %}</li>
+                            <li>• All technician scores and quiz results</li>
+                        </ul>
+                        <form id="delete-workshop-form" method="post" action="{% url 'admin:delete_workshop' current_user.id %}">
+                            {% csrf_token %}
+                            <button type="button" class="btn red" onclick="confirmDelete()">
+                                <i class="material-icons left">delete_forever</i>Delete Workshop
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
             {# END ADMIN PART #}
         {% endif %}
 
@@ -103,4 +164,26 @@
         ];
     </script>
     <script src="{% static 'js/maps/manager.js' %}"></script>
+    
+    {% if user.is_superuser == True %}
+    <script>
+        function confirmDelete() {
+            const workshopName = "{{ current_user.name }}";
+            const managerCount = {{ managers|length }};
+            const technicianCount = {{ technicians|length }};
+            
+            const message = `Are you sure you want to delete the workshop "${workshopName}"?\n\n` +
+                `This action will permanently delete:\n` +
+                `• The workshop information\n` +
+                `• ${managerCount} manager${managerCount !== 1 ? 's' : ''}\n` +
+                `• ${technicianCount} technician${technicianCount !== 1 ? 's' : ''}\n` +
+                `• All technician scores and quiz results\n\n` +
+                `This action cannot be undone!`;
+            
+            if (confirm(message)) {
+                document.getElementById('delete-workshop-form').submit();
+            }
+        }
+    </script>
+    {% endif %}
 {% endblock %}
