@@ -1,7 +1,7 @@
 // js/main.js
 import {ALL_QUESTIONS} from './modules/constants.js';
 import {QuizSession} from './modules/quizSession.js';
-import {QuizUi} from './modules/quizUI.js';
+import {QuizUi} from './modules/quizUi.js';
 import {calculateRemainingTime} from './modules/timeUtils.js';
 import {loadFromStorage} from './modules/storage.js';
 
