@@ -22,7 +22,6 @@ export class QuizUi {
     }
 
     initEventListeners() {
-        // Next button click
         this.elements.nextBtn.addEventListener('click', () => this.handleNextButtonClick());
 
         // Choice inputs change
