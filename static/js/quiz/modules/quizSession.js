@@ -1,7 +1,7 @@
 // js/models/QuizSession.js
 import {loadFromStorage, removeFromStorage, saveToStorage} from './storage.js';
 import {CATEGORY_QUESTION_LIMITS} from './constants.js';
-import {QuizQuestion} from './QuizQuestion.js';
+import {QuizQuestion} from './quizQuestion.js';
 import {calculateRemainingTime, formatTime} from './timeUtils.js';
 import {submitQuizAnswers} from './quizService.js';
 
