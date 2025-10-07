@@ -5,7 +5,11 @@ from django.db import models
 class Company(models.Model):
     name = models.CharField(max_length=255, default=None)
     city = models.CharField(max_length=100)
-    country = models.CharField(max_length=100, choices=(('FR', 'FR'), ('ES', 'ES')), default='FR')
+    country = models.CharField(max_length=100, choices=(
+        ('FR', 'FR'),
+        ('ES', 'ES'),
+        ('PL', 'PL'),
+    ), default='FR')
     cu_number = models.CharField(max_length=20)
 
     def __str__(self):
@@ -14,7 +18,11 @@ class Company(models.Model):
 
 class User(AbstractUser):
     user_type = models.CharField(max_length=55, blank=True, null=True)
-    language = models.CharField(max_length=2, choices=(('FR', 'FR'), ('ES', 'ES')), default='FR')
+    language = models.CharField(max_length=2, choices=(
+        ('FR', 'FR'),
+        ('ES', 'ES'),
+        ('PL', 'PL'),
+    ), default='FR')
     company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True)
     ct_number = models.CharField(max_length=20, null=True)
 

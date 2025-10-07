@@ -97,8 +97,8 @@
                         <p style="margin-bottom: 20px;">Deleting this workshop will permanently remove:</p>
                         <ul style="margin-left: 20px; margin-bottom: 20px;">
                             <li>• The workshop information</li>
-                            <li>• All {{ managers|length }} manager{% if managers|length != 1 %}s{% endif %}</li>
-                            <li>• All {{ technicians|length }} technician{% if technicians|length != 1 %}s{% endif %}</li>
+                            <li>• {{ managers|length }} manager{% if managers|length != 1 %}s{% endif %}</li>
+                            <li>• {{ technicians|length }} technician{% if technicians|length != 1 %}s{% endif %}</li>
                             <li>• All technician scores and quiz results</li>
                         </ul>
                         <form id="delete-workshop-form" method="post" action="{% url 'admin:delete_workshop' current_user.id %}">

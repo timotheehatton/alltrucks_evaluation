@@ -28,7 +28,8 @@ class CompanyUserForm(forms.ModelForm):
 
     COUNTRY_CHOICES = [
         ('FR', 'FR'),
-        ('ES', 'ES')
+        ('ES', 'ES'),
+        ('PL', 'PL')
     ]
     country = forms.ChoiceField(choices=COUNTRY_CHOICES, required=True, label='Country')
 
