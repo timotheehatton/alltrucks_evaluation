@@ -16,8 +16,8 @@ pip install -r requirements.txt
 # Run migrations
 python manage.py migrate
 
-# Load test data
-python manage.py loaddata fixtures/test_data.json
+# Load test data (options: complete_data.json, only_admin.json, only_users.json)
+python manage.py loaddata fixtures/complete_data.json
 
 # Create superuser
 python manage.py createsuperuser
@@ -26,7 +26,7 @@ python manage.py createsuperuser
 python manage.py runserver
 
 # Collect static files
-python manage.py collectstatic
+python manage.py collectstatic --noinput
 ```
 
 ### Testing
@@ -38,6 +38,10 @@ python manage.py test
 python manage.py test users
 python manage.py test technician
 python manage.py test manager
+python manage.py test common
+
+# Run specific test method
+python manage.py test users.tests.TestClassName.test_method_name
 ```
 
 ### Database
@@ -62,58 +66,74 @@ python manage.py dbshell
 ### Core Apps Structure
 ```
 users/          # Custom User model, authentication, company management
-├── models.py   # User, Company, Role models
+├── models.py   # User, Company, Score models
 ├── forms.py    # Registration, login forms
-└── views.py    # Auth views, user management
+├── decorators.py  # @technician_required, @manager_required
+└── views/      # Auth views, user management
 
 technician/     # Technician features
-├── quiz.py     # Quiz logic, scoring system
-├── stats.py    # Performance statistics
-└── views.py    # Technician dashboard, quiz interface
+└── views/      # Modular view organization
+    ├── quiz.py     # Quiz logic, Strapi integration, scoring
+    ├── stats.py    # Performance statistics
+    └── account.py  # Account management
 
 manager/        # Manager features
-├── views/      # Modular view organization
-│   ├── dashboard.py
-│   ├── reports.py
-│   └── technicians.py
-└── reports.py  # PDF certificate generation
+└── views/      # Modular view organization
+    ├── stats.py        # Manager dashboard
+    ├── details.py      # Technician details
+    ├── technicians.py  # Technician list
+    └── account.py      # Manager account management
 
 common/         # Shared functionality
-├── password_reset.py  # Custom password reset flow
-├── email_utils.py     # SendGrid integration
-└── language.py        # Language switching
+├── views/      # Shared views
+│   ├── lost_password.py    # Password reset request
+│   ├── reset_password.py   # Password reset confirmation
+│   ├── change_password.py  # Change password
+│   ├── change_language.py  # Language switching
+│   ├── download_pdf.py     # PDF certificate generation
+│   └── activate_account.py # Account activation
+└── useful/     # Utility modules
+    ├── strapi.py  # Strapi CMS API integration
+    └── email.py   # SendGrid email service
 ```
 
 ### Quiz System Architecture
-- 8 technical categories stored in `Question` and `Category` models
-- Questions fetched from Strapi CMS API (configurable)
-- Scoring: 10 points per correct answer, -5 for incorrect
-- Results stored in `QuizScore` model with detailed question tracking
-- PDF certificates generated for scores ≥ 80%
+- 8 technical categories: diagnostic, electricity, engine_exhaust, engine_injection, general_mechanic, powertrain, trailer_braking_system, truck_air_braking_system
+- Questions fetched from Strapi CMS API via `common/useful/strapi.py`
+- Question counts per category defined in `settings.QUESTION_NUMBER`
+- Scoring: 1 point per correct answer per category
+- Results stored in `Score` model (users/models.py) with category breakdown
+- PDF certificates generated via `common/views/download_pdf.py`
 
 ### Frontend Structure
 - Server-rendered Django templates with progressive enhancement
 - Materialize CSS framework
-- ES6 modules for interactive components:
-  - `quiz.js`: Quiz timer, navigation, answer handling
-  - `stats.js`: Chart.js visualizations
-  - `language.js`: Client-side language switching
-  - `pwa.js`: Service worker registration
+- ES6 modules in `static/js/quiz/modules/`:
+  - `quizSession.js`: Quiz timer, state management
+  - `quizQuestion.js`: Question rendering and navigation
+  - `quizService.js`: API communication
+  - `quizUi.js`: UI updates and interactions
+  - `storage.js`: LocalStorage persistence
+  - `constants.js`: Shared constants
+  - `timeUtils.js`: Time formatting utilities
+- Main entry point: `static/js/quiz/main.js`
 
 ### Email System
-- SendGrid for transactional emails
-- Templates in `templates/emails/`
-- Custom password reset flow with 4-hour expiry tokens
-- Multi-language email support
+- SendGrid integration via `common/useful/email.py`
+- HTML email template in `staticfiles/mail/template.html`
+- Custom password reset flow via `common/views/lost_password.py` and `reset_password.py`
+- Multi-language support based on user preferences
 
 ### Configuration
 - Environment variables (`.env` file):
-  - `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`
-  - `DATABASE_URL` (PostgreSQL in production)
-  - `SENDGRID_API_KEY`, `DEFAULT_FROM_EMAIL`
-  - `STRAPI_BASE_URL`, `STRAPI_API_TOKEN`
-- Static files served by WhiteNoise in production
-- Media files for quiz images
+  - `SECRET_KEY`, `DEBUG`, `ENV` (set to 'prod' for production)
+  - `SITE_DOMAIN`
+  - `SENDGRID_API_KEY`
+  - `STRAPI_URL`, `STRAPI_EMAIL_TOKEN`
+  - `CONTENT_CACHE_DURATION` (in minutes)
+- Database: SQLite (development), PostgreSQL (production via `ENV=prod`)
+- Static files served by WhiteNoise with compression
+- Strapi content cached using Django's cache framework
 
 ### Deployment
 - Configured for Heroku deployment
@@ -124,23 +144,36 @@ common/         # Shared functionality
 ## Important Patterns
 
 ### View Organization
-Manager views are modularized in `manager/views/` for better organization. Each module exports its views which are imported in `manager/views/__init__.py`.
+Both manager and technician views are modularized in their respective `views/` directories. Each module exports its views which are imported in `views/__init__.py`. This pattern improves maintainability and code organization.
 
 ### Form Handling
-Custom forms in each app extend Django forms with Materialize CSS styling and additional validation.
+Custom forms in each app extend Django forms with Materialize CSS styling and additional validation. Forms are defined in `views/forms.py` within each app.
 
 ### Multi-language Support
-- `LocaleMiddleware` for language detection
-- Translation files in `locale/` directory
-- Language stored in session and user preferences
+- `django.middleware.locale.LocaleMiddleware` for language detection
+- Supported languages: French (FR), Spanish (ES), English (EN)
+- User language preference stored in `User.language` field
+- Language switching via `common/views/change_language.py`
+- Content fetched from Strapi CMS based on user's language preference
 
 ### Security
 - CSRF protection enabled
-- Secure password reset tokens
-- Login required decorators on protected views
-- Company-based data isolation
+- Custom `LoginRequiredMiddleware` in `alltrucks_training/middleware.py` redirects root to login
+- Role-based access control via `@technician_required` and `@manager_required` decorators
+- Company-based data isolation (managers only see their company's technicians)
+- SSL redirect enabled in production (`ENV=prod`)
 
 ### Database Models
-- Soft delete pattern used for some models
-- Company-based multi-tenancy
-- Detailed audit fields (created_at, updated_at)
+- Custom User model (`users.User`) extends `AbstractUser` with `company`, `language`, `user_type`, `ct_number`
+- `Company` model with `name`, `city`, `country`, `cu_number`
+- `Score` model tracks quiz results per user, category, and date
+- Company-based multi-tenancy for data isolation
+- Custom `USERNAME_FIELD = 'email'` for authentication
+
+### URL Structure
+- Root `/` redirects to appropriate dashboard based on user type
+- `/technician/*` - Technician features (quiz, stats, account)
+- `/manager/*` - Manager features (stats, technician management)
+- `/common/*` - Shared features (password reset, language, PDFs)
+- `/login/`, `/logout/` - Authentication
+- `/admin/` - Django admin (custom admin site)

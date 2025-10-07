@@ -13,22 +13,34 @@ from common.useful.strapi import strapi_content
 from users.models import Score, User
 
 
+def get_content(request):
+    return strapi_content.get_content(
+        pages=['global-pdf'],
+        parameters={'locale': request.user.language.lower()}
+    )
+
 def downloadPdf(request, user_id):
     user = get_object_or_404(User, id=user_id)
     last_datetime = Score.objects.filter(user=user).aggregate(date=Max('date'))['date']
     template_path = os.path.join(settings.STATIC_ROOT, 'pdf/diploma.pdf')
     output = BytesIO()
     document = fitz.open(template_path)
-    # TODO: Translation -> GOOD
+    page_content = get_content(request)
     pdf = {
         'name': (f"{user.first_name.capitalize()} {user.last_name.upper()}", 22, 'center', 'helvetica'),
         'date': (f"{last_datetime.strftime('%Y/%m/%d')}", 12, 'right', 'helvetica'),
         'location': (
-            f"{user.company.name.capitalize()}, {user.company.city.capitalize()}, {user.company.country.upper()}", 14,
-            'center', 'helvetica'),
+            f"{user.company.name.capitalize()}, {user.company.city.capitalize()}, {user.company.country.upper()}",
+            14,
+            'center',
+            'helvetica'
+        ),
         'content': (
-            "Vous avez effectué votre évaluation d'expertise et l'équipe Alltrucks tient à vous en remercier. Veuillez trouver ici les informations concernant votre expertise",
-            12, 'center', 'helvetica-oblique')
+            page_content['global_pdf']['diploma_content'],
+            12,
+            'center',
+            'helvetica-oblique'
+        )
     }
 
     for key, value in pdf.items():

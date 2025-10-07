@@ -121,9 +121,8 @@
                     </div>
                     <div id="legend-container"></div>
                     {% if not global_scores %}
-                        {# TODO: Translation #}
                         <div class="graph-no-data">
-                            Aucune donnée disponible pour l'instant, vos techniciens doivent terminer leurs premières évaluations.
+                            {{ page_content.user_statistic.manager_no_data_placeholder }}
                         </div>
                     {% endif %}
                 </div>

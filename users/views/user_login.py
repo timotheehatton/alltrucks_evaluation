@@ -27,9 +27,8 @@ def user_login(request):
                     return redirect('manager:stats')
         except:
             pass
-        # TODO: Translation -> GOOD
         return render(request, 'users/login/index.html', {
-            'error': 'Invalid email or password',
+            'error': page_content['login']['login_error'],
             'page_content': page_content
         })
     else:

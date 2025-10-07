@@ -10,6 +10,12 @@ from common.useful.strapi import strapi_content
 
 User = get_user_model()
 
+def get_content(user):
+    return strapi_content.get_content(
+        pages=['activate-account'],
+        parameters={'locale': user.language.lower()}
+    )
+
 
 def resetPassword(request, uidb64, token):
     try:
@@ -19,6 +25,7 @@ def resetPassword(request, uidb64, token):
         user = None
 
     if user is not None and default_token_generator.check_token(user, token):
+        page_content = get_content(user)
         if request.method == 'POST':
             form = SetPasswordForm(user, request.POST)
             if form.is_valid():
@@ -31,7 +38,8 @@ def resetPassword(request, uidb64, token):
         else:
             form = SetPasswordForm(user)
         return render(request, 'common/activate_account.html', {
-            'form': form
+            'form': form,
+            'page_content': page_content,
         })
     else:
         raise Http404("Account activation not found")

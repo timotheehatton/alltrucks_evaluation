@@ -14,13 +14,9 @@
     <div class="content">
         <div class="stats {% if user.is_superuser == True %}stats-admin{% endif %}">
             {% if current_user %}
-                <a href="
-
-
-
-
-                        {% if user.is_superuser == False %}{% url 'manager:technicians' %}{% else %}{% url 'admin:users' %}{% endif %}"
-                   class="button-back"><i class="material-icons">arrow_back</i>Technicians</a>
+                <a href="{% if user.is_superuser == False %}{% url 'manager:technicians' %}{% else %}{% url 'admin:users' %}{% endif %}"
+                   class="button-back"
+                ><i class="material-icons">arrow_back</i>Technicians</a>
                 {% if user.is_superuser == False %}
                     <div class="card name-card"><i
                             class="material-icons page-title-icon">person</i> {{ current_user.first_name|title }} {{ current_user.last_name|upper }}
@@ -53,24 +49,20 @@
                             </div>
                         </div>
                         <div class="col s12 m5 offset-m2">
-                            {# TODO: Translation#}
                             <div class="stats-info-title">
                                 <i class="material-icons left">business</i>
-                                Informations sur l'atelier
+                                Workshop information
                             </div>
                             <div class="stats-info-item">
-                                {# TODO: Translation#}
-                                <span class="stats-info-item-label">Nom de l'entreprise</span>
+                                <span class="stats-info-item-label">Company Name</span>
                                 <p class="stats-info-item-content">{{ current_user.company.name|upper }}</p>
                             </div>
                             <div class="stats-info-item">
-                                {# TODO: Translation#}
-                                <span class="stats-info-item-label">Localisation</span>
+                                <span class="stats-info-item-label">Location</span>
                                 <p class="stats-info-item-content">{{ current_user.company.city|title }}, {{ current_user.company.country|upper }}</p>
                             </div>
                             <div class="stats-info-item">
-                                {# TODO: Translation#}
-                                <span class="stats-info-item-label">Numéro CU</span>
+                                <span class="stats-info-item-label">CU Number</span>
                                 <p class="stats-info-item-content">{{ current_user.company.cu_number }}</p>
                             </div>
                         </div>
