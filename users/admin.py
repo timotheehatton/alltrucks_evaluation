@@ -192,6 +192,7 @@ class MyAdminSite(admin.AdminSite):
                     'email': user.email,
                     'company_name': user.company.name,
                     'company_country': user.company.country,
+                    'language': user.language,
                     'has_completed_test': has_completed_test,
                     'has_activated': user.is_active,
                 })
@@ -262,6 +263,7 @@ class MyAdminSite(admin.AdminSite):
                             first_name=request.POST[f'technician_first_name_{idx}'],
                             last_name=request.POST[f'technician_last_name_{idx}'],
                             user_type='technician',
+                            language=company.country,
                             company=company,
                             ct_number=request.POST[f'technician_ct_number_{idx}'],
                             is_active=False

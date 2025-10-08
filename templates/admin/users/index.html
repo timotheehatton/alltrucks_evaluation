@@ -54,6 +54,7 @@
                     <th>EMAIL</th>
                     <th>WORKSHOP</th>
                     <th>COUNTRY</th>
+                    <th>LANGUAGE</th>
                     <th>ACCOUNT ACTIVATION</th>
                     <th>FIRST EVALUATION</th>
                 </tr>
@@ -67,6 +68,7 @@
                         <td>{{ user.email }}</td>
                         <td>{{ user.company_name }}</td>
                         <td>{{ user.company_country|upper }}</td>
+                        <td>{{ user.language|upper }}</td>
                         <td>
                             {% if user.has_activated %}
                                 <span class="status-completed"><i
