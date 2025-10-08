@@ -156,10 +156,17 @@ class MyAdminSite(admin.AdminSite):
             for score in scores_by_category
         ]
 
+        # Generate activation link for manual sharing
+        token = default_token_generator.make_token(technician)
+        uid = urlsafe_base64_encode(force_bytes(technician.pk))
+        reversed_url = reverse('common:activate-account', kwargs={'uidb64': uid, 'token': token})
+        activation_link = settings.SITE_DOMAIN.rstrip('/') + reversed_url
+
         context = {
             'scores_by_category': scores_by_category,
             'page_content': page_content,
-            'current_user': technician
+            'current_user': technician,
+            'activation_link': activation_link
         }
         return render(request, 'admin/users/single_user.html', context)
 
@@ -210,6 +217,7 @@ class MyAdminSite(admin.AdminSite):
             title=content['email']['title'],
             content=content['email']['content'],
             link=activation_link,
+            # TODO: translation
             link_label=content['email']['title']
         )
 

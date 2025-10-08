@@ -10,6 +10,7 @@ def changeLanguage(request):
         form = LanguageForm(request.POST, instance=request.user)
         if form.is_valid():
             form.save()
+            # TODO: translation
             messages.success(request, 'success')
             return redirect(reverse(f'{request.user.user_type}:account'))
     else:

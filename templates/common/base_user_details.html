@@ -47,6 +47,10 @@
                                 <span class="stats-info-item-label">CT Number</span>
                                 <p class="stats-info-item-content">{{ current_user.ct_number }}</p>
                             </div>
+                            <div class="stats-info-item">
+                                <span class="stats-info-item-label">LANGUAGE</span>
+                                <p class="stats-info-item-content">{{ current_user.language }}</p>
+                            </div>
                         </div>
                         <div class="col s12 m5 offset-m2">
                             <div class="stats-info-title">
@@ -97,19 +101,34 @@
                         
                         <div class="col s12 m5 offset-m2">
                             <div class="stats-info-title"><i class="material-icons left">security</i>Account Activation</div>
+
+                            <span class="stats-info-item-label">USER ACCESS</span>
                             <form method="post" action="">
                                 {% csrf_token %}
                                 <input type="hidden" name="update_activation" value="1">
                                 <div class="stats-info-item" style="margin-top: 20px;">
                                     <label>
                                         <input type="checkbox" name="is_active" {% if current_user.is_active %}checked{% endif %} onchange="this.form.submit()">
-                                        <span>Account is {% if current_user.is_active %}Active{% else %}Inactive{% endif %}</span>
+                                        <span>Account is {% if current_user.is_active %}active{% else %}inactive{% endif %}, {% if current_user.is_active %}User can log in and access the platform.{% else %}User is blocked from accessing the platform.{% endif %}</span>
                                     </label>
                                 </div>
-                                <div class="stats-info-item">
-                                    <p class="grey-text">{% if current_user.is_active %}User can log in and access the platform.{% else %}User is blocked from accessing the platform.{% endif %}</p>
-                                </div>
                             </form>
+
+                            {% if activation_link %}
+                                <div class="stats-info-item" style="margin-top: 30px;">
+                                    <span class="stats-info-item-label">Activation Link</span>
+                                    <p class="grey-text" style="font-size: 12px; margin-bottom: 10px;">Copy this link to manually share with the user if they didn't receive the activation email:</p>
+                                    <div style="background-color: #f5f5f5; padding: 10px; border-radius: 4px; margin-top: 10px; position: relative;">
+                                        <input type="text" id="activation-link-input" value="{{ activation_link }}" readonly style="width: 100%; border: none; background: transparent; font-size: 12px; color: #333;">
+                                        <button type="button" class="btn blue" onclick="copyActivationLink()">
+                                            <i class="material-icons">content_copy</i>
+                                        </button>
+                                    </div>
+                                    <p id="copy-success" class="green-text" style="margin-top: 10px; display: none;">
+                                        <i class="material-icons tiny" style="vertical-align: middle;">check_circle</i> Link copied to clipboard!
+                                    </p>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                     
@@ -194,6 +213,28 @@
         const USER_INFO = '{{ user }}';
         const CSRF_TOKEN = '{{ csrf_token }}';
         const DOWNLOAD_PDF_URL = '{% if user.is_superuser == True %}{% url "common:download-pdf" current_user.id %}{% elif user.user_type == "manager" %}{% url "common:download-pdf" current_user.id %}{% else %}{% url "common:download-pdf" user.id %}{% endif %}';
+
+        function copyActivationLink() {
+            const input = document.getElementById('activation-link-input');
+            input.select();
+            input.setSelectionRange(0, 99999); // For mobile devices
+
+            navigator.clipboard.writeText(input.value).then(function() {
+                const successMessage = document.getElementById('copy-success');
+                successMessage.style.display = 'block';
+                setTimeout(function() {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }).catch(function(err) {
+                // Fallback for older browsers
+                document.execCommand('copy');
+                const successMessage = document.getElementById('copy-success');
+                successMessage.style.display = 'block';
+                setTimeout(function() {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            });
+        }
     </script>
     <script src="{% static 'js/maps/user.js' %}"></script>
 {% endblock %}
