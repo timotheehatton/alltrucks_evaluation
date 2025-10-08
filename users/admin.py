@@ -210,7 +210,7 @@ class MyAdminSite(admin.AdminSite):
             title=content['email']['title'],
             content=content['email']['content'],
             link=activation_link,
-            link_label="Activer mon compte AMCAT"
+            link_label=content['email']['title']
         )
 
     def create_company_view(self, request):
