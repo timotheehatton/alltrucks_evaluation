@@ -5,6 +5,9 @@ from django.core.cache import cache
 class Content:
     def __init__(self):
         self.api_url = f'{settings.STRAPI_URL}/api'
+        self.headers = {
+            'Authorization': f'Bearer {settings.STRAPI_EMAIL_TOKEN}'
+        }
 
     @staticmethod
     def _generate_cache_key(page, parameters):
@@ -18,21 +21,19 @@ class Content:
             page_content = cache.get(cache_key)
             if not page_content:
 
-                response = requests.get(f"{self.api_url}/{page}", params=parameters)
+                response = requests.get(f"{self.api_url}/{page}", params=parameters, headers=self.headers)
                 if response.status_code == 200:
                     data = response.json()['data']
                 elif response.status_code == 404:
                     parameters['locale'] = "fr"
-                    response = requests.get(f"{self.api_url}/{page}", params=parameters)
+                    response = requests.get(f"{self.api_url}/{page}", params=parameters, headers=self.headers)
                     response.raise_for_status()
                     data = response.json()['data']
                 else:
+                    print(f"Strapi API error: {response.status_code} - {response.text}")
                     return False
 
-                if isinstance(data, list):
-                    page_content = [{**item['attributes'], 'id': item['id']} for item in data]
-                else:
-                    page_content = data['attributes']
+                page_content = data
                 cache.set(cache_key, page_content, 60 * int(settings.CONTENT_CACHE_DURATION))
             content[page.replace('-', '_')] = page_content
         return content

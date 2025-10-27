@@ -17,8 +17,7 @@ def get_content(request):
         pages=['test', 'menu', 'category', 'questions'],
         parameters={
             'locale': request.user.language.lower(),
-            'populate': 'image',
-            'size': 'large',
+            'populate': '*',
             'pagination[pageSize]': 500,
         }
     )
@@ -67,7 +66,7 @@ def index(request):
             'choice_3': item['choice_3'],
             'choice_4': item['choice_4'],
             'choice_5': item['choice_5'],
-            'image': None if not item['image']['data'] else item['image']['data']['attributes']['url'],
+            'image': item['image']['formats']['large']['url'] if item.get('image') and item['image'].get('formats') and item['image']['formats'].get('large') else (item['image']['url'] if item.get('image') else None),
         } for item in page_content['questions']
     ]
 
