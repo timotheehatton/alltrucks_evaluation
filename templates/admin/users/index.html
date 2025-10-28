@@ -64,7 +64,11 @@
                 {% for user in users %}
                     <tr class="clickable-row" data-href="{% url 'admin:single_user' user.id %}">
                         <td>{{ user.id }}</td>
-                        <td>{{ user.user_type|upper }}</td>
+                        <td>
+                            <span class="user-type-badge user-type-{{ user.user_type }}">
+                                {{ user.user_type }}
+                            </span>
+                        </td>
                         <td>{{ user.first_name|title }} {{ user.last_name|upper }}</td>
                         <td>{{ user.email }}</td>
                         <td>{{ user.company_name }}</td>

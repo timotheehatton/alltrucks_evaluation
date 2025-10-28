@@ -28,6 +28,7 @@ class MyAdminSite(admin.AdminSite):
             path('create-workshop/', self.admin_view(self.create_company_view), name='create_company'),
             path('users/', self.admin_view(self.users_view), name='users'),
             path('user/<int:user_id>/', self.admin_view(self.single_user_view), name='single_user'),
+            path('user/<int:user_id>/delete/', self.admin_view(self.delete_user_view), name='delete_user'),
             path('admins/', self.admin_view(self.admins_view), name='admins'),
             path('create-admin/', self.admin_view(self.create_admin_view), name='create_admin'),
             path('logout/', LogoutView.as_view(), name='logout'),
@@ -88,6 +89,40 @@ class MyAdminSite(admin.AdminSite):
                 messages.success(request, f'Workshop information updated successfully.')
                 return redirect('admin:single_workshop', company_id=company_id)
 
+            if 'add_user_to_workshop' in request.POST:
+                user_type = request.POST.get('user_type')
+                first_name = request.POST.get('first_name')
+                last_name = request.POST.get('last_name')
+                email = request.POST.get('email')
+                ct_number = request.POST.get('ct_number')
+
+                if User.objects.filter(email=email).exists():
+                    messages.error(request, f'A user with email {email} already exists.')
+                else:
+                    try:
+                        new_user = User.objects.create_user(
+                            username=email,
+                            email=email,
+                            first_name=first_name,
+                            last_name=last_name,
+                            user_type=user_type,
+                            language=company.country,
+                            company=company,
+                            ct_number=ct_number,
+                            is_active=False
+                        )
+                        content = strapi_content.get_content(
+                            pages=['email'],
+                            parameters={'locale': company.country.lower()}
+                        )
+                        new_user.save()
+                        self.send_activation_email(request, new_user, content)
+                        messages.success(request, f'{user_type.capitalize()} "{first_name} {last_name}" has been added successfully.')
+                    except Exception as e:
+                        messages.error(request, f'Error creating user: {str(e)}')
+
+                return redirect('admin:single_workshop', company_id=company_id)
+
         company_users = User.objects.filter(company=company)
         last_dates = Score.objects.filter(user__in=company_users).values('user').annotate(last_date=Max('date'))
 
@@ -118,12 +153,22 @@ class MyAdminSite(admin.AdminSite):
         managers = company_users.filter(user_type='manager').order_by('last_name', 'first_name')
         technicians = company_users.filter(user_type='technician').order_by('last_name', 'first_name')
 
+        workshop_users = []
+        for user in company_users.order_by('user_type', 'last_name', 'first_name'):
+            user_data = user
+            if user.user_type == 'technician':
+                user_data.has_completed_test = Score.objects.filter(user=user).exists()
+            else:
+                user_data.has_completed_test = False
+            workshop_users.append(user_data)
+
         return render(request, 'admin/workshops/single_workshop.html', {
             'technician_scores': dict(technician_scores),
             'global_scores': global_scores,
             'current_user': company,
             'managers': managers,
             'technicians': technicians,
+            'workshop_users': workshop_users,
         })
 
     def admins_view(self, request):
@@ -367,17 +412,27 @@ class MyAdminSite(admin.AdminSite):
 
     def delete_company_view(self, request, company_id):
         company = get_object_or_404(Company, id=company_id)
-        
+
         if request.method == 'POST':
-            # Delete all users associated with the company (this will cascade delete scores)
             User.objects.filter(company=company).delete()
-            # Delete the company
             company_name = company.name
             company.delete()
             messages.success(request, f'Workshop "{company_name}" and all associated users have been deleted.')
             return redirect('admin:workshops')
-        
-        # This shouldn't happen as we'll use JavaScript confirmation
+
+        return redirect('admin:single_workshop', company_id=company_id)
+
+    def delete_user_view(self, request, user_id):
+        user_to_delete = get_object_or_404(User, id=user_id)
+        company_id = user_to_delete.company.id
+
+        if request.method == 'POST':
+            user_name = f"{user_to_delete.first_name} {user_to_delete.last_name}"
+            user_type = user_to_delete.user_type
+            user_to_delete.delete()
+            messages.success(request, f'{user_type.capitalize()} "{user_name}" has been deleted successfully.')
+            return redirect('admin:single_workshop', company_id=company_id)
+
         return redirect('admin:single_workshop', company_id=company_id)
 
 

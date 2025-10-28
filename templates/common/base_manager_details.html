@@ -149,43 +149,130 @@
             </div>
 
             <div class="card stats-admin-details">
-                <div class="row">
-                    <div class="stats-info-title"><i class="material-icons left">people</i>Workshop users</div>
-                    <div class="col s6">
-                        <div class="stats-info-item">
-                            <span class="stats-info-item-label">Managers ({{ managers|length }})</span>
-                            {% for manager in managers %}
-                                <p class="stats-info-item-content" style="margin-top: {% if forloop.first %}10px{% else %}5px{% endif %};">
-                                    <a href="{% url 'admin:single_user' manager.id %}" style="color: #01B5E2;">
-                                        {{ manager.first_name|title }} {{ manager.last_name|upper }}
-                                        <i class="material-icons tiny" style="vertical-align: middle;">open_in_new</i>
-                                    </a>
-                                    <span style="color: #666; font-size: 14px; display: block;">{{ manager.email }}</span>
-                                </p>
+                <div class="stats-info-title"><i class="material-icons left">people</i>Workshop users ({{ workshop_users|length }})</div>
+
+                <div class="model-list-table" style="max-height: 500px; overflow-y: auto; margin-top: 20px;">
+                    <table class="highlight responsive-table">
+                        <thead style="position: sticky; top: 0; background-color: white; z-index: 10; box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);">
+                            <tr>
+                                <th>USER TYPE</th>
+                                <th>NAME</th>
+                                <th>EMAIL</th>
+                                <th>LANGUAGE</th>
+                                <th>ACCOUNT ACTIVATION</th>
+                                <th>FIRST EVALUATION</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in workshop_users %}
+                                <tr>
+                                    <td class="clickable-cell" onclick="window.location.href='{% url 'admin:single_user' user.id %}'">
+                                        <span class="user-type-badge user-type-{{ user.user_type }}">
+                                            {{ user.user_type }}
+                                        </span>
+                                    </td>
+                                    <td class="clickable-cell" onclick="window.location.href='{% url 'admin:single_user' user.id %}'">{{ user.first_name|title }} {{ user.last_name|upper }}</td>
+                                    <td class="clickable-cell" onclick="window.location.href='{% url 'admin:single_user' user.id %}'">{{ user.email }}</td>
+                                    <td class="clickable-cell" onclick="window.location.href='{% url 'admin:single_user' user.id %}'">{{ user.language|upper }}</td>
+                                    <td class="clickable-cell" onclick="window.location.href='{% url 'admin:single_user' user.id %}'">
+                                        {% if user.is_active %}
+                                            <span class="status-completed"><i class="material-icons">check_circle</i> Activated</span>
+                                        {% else %}
+                                            <span class="status-not-completed"><i class="material-icons">schedule</i> Not Activated</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="clickable-cell" onclick="window.location.href='{% url 'admin:single_user' user.id %}'">
+                                        {% if user.user_type == 'technician' %}
+                                            {% if user.has_completed_test %}
+                                                <span class="status-completed"><i class="material-icons">check_circle</i> Completed</span>
+                                            {% else %}
+                                                <span class="status-not-completed"><i class="material-icons">schedule</i> Not completed</span>
+                                            {% endif %}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{% url 'admin:delete_user' user.id %}" style="display: inline;" onsubmit="return confirmUserDelete(event, '{{ user.first_name|title }} {{ user.last_name|upper }}', '{{ user.user_type }}')">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn-small red" style="padding: 0 10px;">
+                                                <i class="material-icons">delete</i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
                             {% empty %}
-                                <p class="stats-info-item-content">No managers assigned</p>
+                                <tr>
+                                    <td colspan="7" style="text-align: center; padding: 20px;">No users assigned to this workshop</td>
+                                </tr>
                             {% endfor %}
-                        </div>
-                    </div>
-                    <div class="col s6">
-                        <div class="stats-info-item">
-                            <span class="stats-info-item-label">Technicians ({{ technicians|length }})</span>
-                            <div style="max-height: 300px; overflow-y: auto;">
-                                {% for technician in technicians %}
-                                    <p class="stats-info-item-content" style="margin-top: {% if forloop.first %}10px{% else %}5px{% endif %};">
-                                        <a href="{% url 'admin:single_user' technician.id %}" style="color: #01B5E2;">
-                                            {{ technician.first_name|title }} {{ technician.last_name|upper }}
-                                            <i class="material-icons tiny" style="vertical-align: middle;">open_in_new</i>
-                                        </a>
-                                        <span style="color: #666; font-size: 14px; display: block;">{{ technician.email }}</span>
-                                    </p>
-                                {% empty %}
-                                    <p class="stats-info-item-content">No technicians assigned</p>
-                                {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card stats-admin-details">
+                <div class="stats-info-title"><i class="material-icons left">person_add</i>Add User to Workshop</div>
+
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="add_user_to_workshop" value="1">
+
+                    <div class="row" style="margin-top: 20px;">
+                        <div class="col s6">
+                            <div class="input-field">
+                                <select id="user_type" name="user_type" required>
+                                    <option value="" disabled selected>Choose user type</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="technician">Technician</option>
+                                </select>
+                                <label>User Type</label>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <div class="row">
+                        <div class="col s6">
+                            <div class="input-field">
+                                <input id="first_name" name="first_name" type="text" class="validate" required>
+                                <label for="first_name">First Name</label>
+                            </div>
+                        </div>
+                        <div class="col s1"></div>
+                        <div class="col s5">
+                            <div class="input-field">
+                                <input id="last_name" name="last_name" type="text" class="validate" required>
+                                <label for="last_name">Last Name</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col s6">
+                            <div class="input-field">
+                                <input id="email" name="email" type="email" class="validate" required>
+                                <label for="email">Email Address</label>
+                            </div>
+                        </div>
+                        <div class="col s1"></div>
+                        <div class="col s5">
+                            <div class="input-field">
+                                <input id="ct_number" name="ct_number" type="text" class="validate" required>
+                                <label for="ct_number">CT Number</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col s12">
+                            <button class="btn blue waves-effect waves-light" type="submit">
+                                <i class="material-icons left">person_add</i>
+                                Add User
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
             {# END ADMIN PART #}
         {% endif %}
@@ -247,7 +334,7 @@
             const workshopName = "{{ current_user.name }}";
             const managerCount = {{ managers|length }};
             const technicianCount = {{ technicians|length }};
-            
+
             const message = `Are you sure you want to delete the workshop "${workshopName}"?\n\n` +
                 `This action will permanently delete:\n` +
                 `• The workshop information\n` +
@@ -255,10 +342,26 @@
                 `• ${technicianCount} technician${technicianCount !== 1 ? 's' : ''}\n` +
                 `• All technician scores and quiz results\n\n` +
                 `This action cannot be undone!`;
-            
+
             if (confirm(message)) {
                 document.getElementById('delete-workshop-form').submit();
             }
+        }
+
+        function confirmUserDelete(event, userName, userType) {
+            event.preventDefault();
+
+            const message = `Are you sure you want to delete the ${userType} "${userName}"?\n\n` +
+                `This action will permanently delete:\n` +
+                `• The user account\n` +
+                (userType === 'technician' ? `• All quiz scores and results\n` : '') +
+                `\nThis action cannot be undone!`;
+
+            if (confirm(message)) {
+                event.target.submit();
+            }
+
+            return false;
         }
     </script>
     {% endif %}
