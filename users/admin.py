@@ -104,22 +104,41 @@ class MyAdminSite(admin.AdminSite):
 
     def single_user_view(self, request, user_id):
         technician = get_object_or_404(User, id=user_id)
-        
+
         if request.method == 'POST':
+            # Handle user info update
+            if 'update_user_info' in request.POST:
+                first_name = request.POST.get('first_name')
+                last_name = request.POST.get('last_name')
+                email = request.POST.get('email')
+                ct_number = request.POST.get('ct_number')
+                language = request.POST.get('language')
+
+                if User.objects.filter(email=email).exclude(id=user_id).exists():
+                    messages.error(request, f'A user with email {email} already exists.')
+                else:
+                    technician.first_name = first_name
+                    technician.last_name = last_name
+                    technician.email = email
+                    technician.username = email
+                    technician.ct_number = ct_number
+                    technician.language = language
+                    technician.save()
+                    messages.success(request, f'User information updated successfully.')
+
             # Handle password change
             if 'new_password' in request.POST:
                 new_password = request.POST.get('new_password')
                 confirm_password = request.POST.get('confirm_password')
-                
+
                 if new_password and new_password == confirm_password:
                     technician.set_password(new_password)
-                    # Ensure username is synced with email for authentication
                     technician.username = technician.email
                     technician.save()
                     messages.success(request, f'Password updated successfully for {technician.email}')
                 else:
                     messages.error(request, 'Passwords do not match or are empty.')
-            
+
             # Handle activation status change
             if 'update_activation' in request.POST:
                 is_active = request.POST.get('is_active') == 'on'
@@ -129,7 +148,7 @@ class MyAdminSite(admin.AdminSite):
                     messages.success(request, f'User {technician.email} has been activated.')
                 else:
                     messages.warning(request, f'User {technician.email} has been deactivated.')
-            
+
             return redirect('admin:single_user', user_id=user_id)
         
         page_content = strapi_content.get_content(

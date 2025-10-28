@@ -35,22 +35,51 @@
                         <div class="col s12 m5">
                             <div class="stats-info-title"><i class="material-icons left">person</i>User information
                             </div>
-                            <div class="stats-info-item">
-                                <span class="stats-info-item-label">User</span>
-                                <p class="stats-info-item-content">{{ current_user.first_name|title }} {{ current_user.last_name|upper }}</p>
-                            </div>
-                            <div class="stats-info-item">
-                                <span class="stats-info-item-label">Email</span>
-                                <p class="stats-info-item-content">{{ current_user.email }}</p>
-                            </div>
-                            <div class="stats-info-item">
-                                <span class="stats-info-item-label">CT Number</span>
-                                <p class="stats-info-item-content">{{ current_user.ct_number }}</p>
-                            </div>
-                            <div class="stats-info-item">
-                                <span class="stats-info-item-label">LANGUAGE</span>
-                                <p class="stats-info-item-content">{{ current_user.language }}</p>
-                            </div>
+                            <form method="post" action="">
+                                {% csrf_token %}
+                                <input type="hidden" name="update_user_info" value="1">
+                                <div class="stats-info-item">
+                                    <div class="input-field">
+                                        <input id="first_name" name="first_name" type="text" class="validate" value="{{ current_user.first_name }}" required>
+                                        <label for="first_name" class="active">First Name</label>
+                                    </div>
+                                </div>
+                                <div class="stats-info-item">
+                                    <div class="input-field">
+                                        <input id="last_name" name="last_name" type="text" class="validate" value="{{ current_user.last_name }}" required>
+                                        <label for="last_name" class="active">Last Name</label>
+                                    </div>
+                                </div>
+                                <div class="stats-info-item">
+                                    <div class="input-field">
+                                        <input id="email" name="email" type="email" class="validate" value="{{ current_user.email }}" required>
+                                        <label for="email" class="active">Email</label>
+                                    </div>
+                                </div>
+                                <div class="stats-info-item">
+                                    <div class="input-field">
+                                        <input id="ct_number" name="ct_number" type="text" class="validate" value="{{ current_user.ct_number }}">
+                                        <label for="ct_number" class="active">CT Number</label>
+                                    </div>
+                                </div>
+                                <div class="stats-info-item">
+                                    <div class="input-field">
+                                        <select id="language" name="language" required>
+                                            <option value="FR" {% if current_user.language == 'FR' %}selected{% endif %}>FR</option>
+                                            <option value="ES" {% if current_user.language == 'ES' %}selected{% endif %}>ES</option>
+                                            <option value="EN" {% if current_user.language == 'EN' %}selected{% endif %}>EN</option>
+                                            <option value="DE" {% if current_user.language == 'DE' %}selected{% endif %}>DE</option>
+                                        </select>
+                                        <label for="language">Language</label>
+                                    </div>
+                                </div>
+                                <div class="stats-info-item">
+                                    <button class="btn waves-effect waves-light" type="submit">
+                                        Update User Info
+                                        <i class="material-icons right">save</i>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                         <div class="col s12 m5 offset-m2">
                             <div class="stats-info-title">
