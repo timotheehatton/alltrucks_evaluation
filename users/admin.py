@@ -35,7 +35,21 @@ class MyAdminSite(admin.AdminSite):
         return custom_urls + urls
 
     def companies_view(self, request):
+        search_query = request.GET.get('search', '')
+        country_filter = request.GET.get('country', '')
+
         companies = Company.objects.all()
+
+        if country_filter and country_filter != 'ALL':
+            companies = companies.filter(country=country_filter)
+
+        if search_query != '':
+            companies = companies.filter(
+                Q(name__icontains=search_query) |
+                Q(city__icontains=search_query) |
+                Q(cu_number__icontains=search_query)
+            )
+
         companies_with_emails = []
         for company in companies:
             manager_user = User.objects.filter(company=company, user_type='manager').first()
@@ -43,10 +57,12 @@ class MyAdminSite(admin.AdminSite):
             companies_with_emails.append({
                 'id': company.id,
                 'name': company.name,
+                'city': company.city,
+                'country': company.country,
+                'cu_number': company.cu_number,
                 'first_name': manager_user.first_name if manager_user else 'N/A',
                 'last_name': manager_user.last_name if manager_user else 'N/A',
                 'email': email,
-                'country': company.country
             })
         context = dict(
             self.each_context(request),
@@ -56,6 +72,22 @@ class MyAdminSite(admin.AdminSite):
 
     def single_company_view(self, request, company_id):
         company = get_object_or_404(Company, id=company_id)
+
+        if request.method == 'POST':
+            if 'update_workshop_info' in request.POST:
+                company_name = request.POST.get('company_name')
+                city = request.POST.get('city')
+                cu_number = request.POST.get('cu_number')
+                country = request.POST.get('country')
+
+                company.name = company_name
+                company.city = city
+                company.cu_number = cu_number
+                company.country = country
+                company.save()
+                messages.success(request, f'Workshop information updated successfully.')
+                return redirect('admin:single_workshop', company_id=company_id)
+
         company_users = User.objects.filter(company=company)
         last_dates = Score.objects.filter(user__in=company_users).values('user').annotate(last_date=Max('date'))
 

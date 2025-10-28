@@ -9,7 +9,6 @@
 
 {% block body %}
     <div class="content">
-
         <div class="header">
             <h1 class="page-title">Workshops</h1>
             <a href="{% url 'admin:create_company' %}" class="btn blue">Add Company</a>
@@ -31,16 +30,41 @@
             </ul>
         {% endif %}
 
+        <div class="row">
+            <form method="GET" action="{% url 'admin:workshops' %}" class="col s12">
+                <div class="input-field col s2">
+                    <select name="country">
+                        <option value="ALL" {% if request.GET.country == 'ALL' %}selected{% endif %}>ALL</option>
+                        <option value="FR" {% if request.GET.country == 'FR' %}selected{% endif %}>FR</option>
+                        <option value="ES" {% if request.GET.country == 'ES' %}selected{% endif %}>ES</option>
+                        <option value="PL" {% if request.GET.country == 'PL' %}selected{% endif %}>PL</option>
+                        <option value="DE" {% if request.GET.country == 'DE' %}selected{% endif %}>DE</option>
+                    </select>
+                    <label>Country</label>
+                </div>
+                <div class="input-field col s3 offset-s1">
+                    <input id="search" type="text" name="search" value="{{ request.GET.search }}">
+                    <label for="search">Search</label>
+                </div>
+                <div class="input-field col s2 offset-s1">
+                    <button class="btn blue" type="submit">Filter
+                        <i class="material-icons right">search</i>
+                    </button>
+                </div>
+            </form>
+        </div>
 
-        <div class="model-list-table">
+        <div class="model-list-table" style="max-height: 77vh;overflow-y: auto;">
             <table class="highlight responsive-table">
-                <thead>
+                <thead style="position: sticky;top: 0;background-color: white;z-index: 10;box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);">
                 <tr>
                     <th>ID</th>
-                    <th>NAME</th>
-                    <th>MANAGER</th>
-                    <th>EMAIL</th>
+                    <th>COMPANY NAME</th>
+                    <th>CITY</th>
                     <th>COUNTRY</th>
+                    <th>CU NUMBER</th>
+                    <th>MANAGER</th>
+                    <th>MANAGER EMAIL</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -48,9 +72,11 @@
                     <tr class="clickable-row" data-href="{% url 'admin:single_workshop' company.id %}">
                         <td>{{ company.id }}</td>
                         <td>{{ company.name }}</td>
+                        <td>{{ company.city|title }}</td>
+                        <td>{{ company.country|upper }}</td>
+                        <td>{{ company.cu_number }}</td>
                         <td>{{ company.first_name|title }} {{ company.last_name|upper }}</td>
                         <td>{{ company.email }}</td>
-                        <td>{{ company.country|upper }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

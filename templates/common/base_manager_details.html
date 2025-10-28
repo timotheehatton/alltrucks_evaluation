@@ -26,28 +26,126 @@
 
         {# ADMIN PART #}
         {% if user.is_superuser == True %}
+            <div class="row">
+            <div class="col s6">
             <div class="card stats-admin-details">
+                <div class="stats-info-title"><i class="material-icons left">business</i>Workshop information</div>
+                <form method="post" action="">
+                    {% csrf_token %}
+                    <input type="hidden" name="update_workshop_info" value="1">
+                    <div class="row">
+                        <div class="col s5">
+                            <div class="stats-info-item">
+                                <div class="input-field">
+                                    <input id="company_name" name="company_name" type="text" class="validate" value="{{ current_user.name }}" required>
+                                    <label for="company_name" class="active">Company Name</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col s1"></div>
+                        <div class="col s6">
+                            <div class="stats-info-item">
+                                <div class="input-field">
+                                    <input id="city" name="city" type="text" class="validate" value="{{ current_user.city }}" required>
+                                    <label for="city" class="active">City</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s5">
+                            <div class="stats-info-item">
+                                <div class="input-field">
+                                    <select id="country" name="country" required>
+                                        <option value="FR" {% if current_user.country == 'FR' %}selected{% endif %}>FR</option>
+                                        <option value="ES" {% if current_user.country == 'ES' %}selected{% endif %}>ES</option>
+                                        <option value="PL" {% if current_user.country == 'PL' %}selected{% endif %}>PL</option>
+                                        <option value="DE" {% if current_user.country == 'DE' %}selected{% endif %}>DE</option>
+                                    </select>
+                                    <label for="country">Country</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col s1"></div>
+                        <div class="col s6">
+                            <div class="stats-info-item">
+                                <div class="input-field">
+                                    <input id="cu_number" name="cu_number" type="text" class="validate" value="{{ current_user.cu_number }}" required>
+                                    <label for="cu_number" class="active">CU Number</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s6">
+                            <div class="stats-info-item">
+                                <button class="btn waves-effect waves-light" type="submit" style="margin-top: 20px;">
+                                    Update Workshop Info
+                                    <i class="material-icons right">save</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                {% if messages %}
+                    <div class="row">
+                        <div class="col s12" style="margin-top: 20px;">
+                            {% for message in messages %}
+                                {% if "success" in message.tags %}
+                                    <div class="card-panel green lighten-4 green-text text-darken-4">
+                                        <i class="material-icons left">check_circle</i>
+                                        {{ message }}
+                                    </div>
+                                {% elif "warning" in message.tags %}
+                                    <div class="card-panel orange lighten-4 orange-text text-darken-4">
+                                        <i class="material-icons left">warning</i>
+                                        {{ message }}
+                                    </div>
+                                {% elif "error" in message.tags %}
+                                    <div class="card-panel red lighten-4 red-text text-darken-4">
+                                        <i class="material-icons left">error</i>
+                                        {{ message }}
+                                    </div>
+                                {% else %}
+                                    <div class="card-panel grey lighten-4 grey-text text-darken-4">
+                                        <i class="material-icons left">info</i>
+                                        {{ message }}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+            </div>
+
+
+            <div class="col s1">
+            </div>
+            <div class="col s5">
+
+            <div class="card stats-admin-details" style="background-color: #ffebee;">
                 <div class="row">
-                    <div class="stats-info-title"><i class="material-icons left">business</i>Workshop information</div>
-                    <div class="col s4">
-                        <div class="stats-info-item">
-                            <span class="stats-info-item-label">Company name</span>
-                            <p class="stats-info-item-content">{{ current_user.name|upper }}</p>
-                        </div>
-                    </div>
-                    <div class="col s4">
-                        <div class="stats-info-item">
-                            <span class="stats-info-item-label">Location</span>
-                            <p class="stats-info-item-content">{{ current_user.city|title }}, {{ current_user.country|upper }}</p>
-                        </div>
-                    </div>
-                    <div class="col s4">
-                        <div class="stats-info-item">
-                            <span class="stats-info-item-label">CU Number</span>
-                            <p class="stats-info-item-content">{{ current_user.cu_number }}</p>
-                        </div>
+                    <div class="stats-info-title" style="color: #c62828;"><i class="material-icons left" style="color: #c62828;">warning</i>Danger Zone</div>
+                    <div class="col s12">
+                        <p style="margin-bottom: 20px;">Deleting this workshop will permanently remove:</p>
+                        <ul style="margin-left: 20px; margin-bottom: 20px;">
+                            <li>• The workshop information</li>
+                            <li>• {{ managers|length }} manager{% if managers|length != 1 %}s{% endif %}</li>
+                            <li>• {{ technicians|length }} technician{% if technicians|length != 1 %}s{% endif %}</li>
+                            <li>• All technician scores and quiz results</li>
+                        </ul>
+                        <form id="delete-workshop-form" method="post" action="{% url 'admin:delete_workshop' current_user.id %}">
+                            {% csrf_token %}
+                            <button type="button" class="btn red" onclick="confirmDelete()">
+                                <i class="material-icons left">delete_forever</i>Delete Workshop
+                            </button>
+                        </form>
                     </div>
                 </div>
+            </div>
+            </div>
             </div>
 
             <div class="card stats-admin-details">
@@ -86,27 +184,6 @@
                                 {% endfor %}
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card stats-admin-details" style="background-color: #ffebee;">
-                <div class="row">
-                    <div class="stats-info-title" style="color: #c62828;"><i class="material-icons left" style="color: #c62828;">warning</i>Danger Zone</div>
-                    <div class="col s12">
-                        <p style="margin-bottom: 20px;">Deleting this workshop will permanently remove:</p>
-                        <ul style="margin-left: 20px; margin-bottom: 20px;">
-                            <li>• The workshop information</li>
-                            <li>• {{ managers|length }} manager{% if managers|length != 1 %}s{% endif %}</li>
-                            <li>• {{ technicians|length }} technician{% if technicians|length != 1 %}s{% endif %}</li>
-                            <li>• All technician scores and quiz results</li>
-                        </ul>
-                        <form id="delete-workshop-form" method="post" action="{% url 'admin:delete_workshop' current_user.id %}">
-                            {% csrf_token %}
-                            <button type="button" class="btn red" onclick="confirmDelete()">
-                                <i class="material-icons left">delete_forever</i>Delete Workshop
-                            </button>
-                        </form>
                     </div>
                 </div>
             </div>
