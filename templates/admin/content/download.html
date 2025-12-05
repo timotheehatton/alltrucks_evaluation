@@ -1,0 +1,87 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+{% endblock %}
+
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content">
+        <a href="{% url 'admin:workshops' %}" class="button-back"><i class="material-icons">arrow_back</i>Back to admin</a>
+        <h1 class="page-title">Download Strapi Content</h1>
+
+        <div class="row">
+            <div class="col s6 offset-s3">
+                <div class="card">
+                    <div class="card-content">
+                        <form id="download-form" method="post" action="{% url 'admin:download_content' %}" class="row">
+                            {% csrf_token %}
+                            <div class="input-field col s12">
+                                <select name="content_type" required>
+                                    <option value="" disabled selected>Choose content type</option>
+                                    <option value="trainings">Trainings</option>
+                                    <option value="questions">Questions</option>
+                                </select>
+                                <label>Content Type</label>
+                            </div>
+                            <div class="input-field col s12">
+                                <select name="language" required>
+                                    <option value="" disabled selected>Choose language</option>
+                                    <option value="es">Spanish (ES)</option>
+                                    <option value="fr">French (FR)</option>
+                                    <option value="pl">Polish (PL)</option>
+                                    <option value="de">German (DE)</option>
+                                </select>
+                                <label>Language</label>
+                            </div>
+                            <div class="col s12 center-align">
+                                <button type="submit" class="btn blue">Download CSV</button>
+                            </div>
+                        </form>
+                        {% if messages %}
+                            <ul class="messages-list">
+                                {% for message in messages %}
+                                    <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
+                                        {% if "success" in message.tags %}
+                                            <div class="green lighten-4 green-text text-darken-2" style="padding: 10px; margin-top: 10px; border-radius: 4px;">{{ message }}</div>
+                                        {% elif "error" in message.tags %}
+                                            <div class="red lighten-4 red-text text-darken-2" style="padding: 10px; margin-top: 10px; border-radius: 4px;">{{ message }}</div>
+                                        {% else %}
+                                            <div class="grey lighten-4 grey-text text-darken-2" style="padding: 10px; margin-top: 10px; border-radius: 4px;">{{ message }}</div>
+                                        {% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Materialize select elements
+            var elems = document.querySelectorAll('select');
+            M.FormSelect.init(elems);
+
+            // Handle loader for download form
+            const downloadForm = document.getElementById('download-form');
+            const loader = document.getElementById('global-loader');
+
+            if (downloadForm) {
+                downloadForm.addEventListener('submit', function() {
+                    // Hide loader after 2 seconds for file downloads
+                    // File downloads don't trigger page navigation, so we need to hide the loader manually
+                    setTimeout(function() {
+                        if (loader) {
+                            loader.style.display = 'none';
+                        }
+                    }, 2000);
+                });
+            }
+        });
+    </script>
+{% endblock %}

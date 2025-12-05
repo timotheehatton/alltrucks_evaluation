@@ -20,7 +20,7 @@ class CompanyUserForm(forms.ModelForm):
     manager_last_name = forms.CharField(max_length=150, required=True, label="Last name")
     manager_email = forms.EmailField(required=True, label="Email")
     manager_ct_number = forms.CharField(max_length=20, required=True, label="CT number")
-    
+
     technician_first_name_1 = forms.CharField(max_length=150, required=True, label="First name")
     technician_last_name_1 = forms.CharField(max_length=150, required=True, label="Last name")
     technician_email_1 = forms.EmailField(required=True, label="Email")
@@ -43,3 +43,31 @@ class CompanyUserForm(forms.ModelForm):
             'country': 'Country',
             'cu_number': 'CU number'
         }
+
+
+class StrapiContentDownloadForm(forms.Form):
+    CONTENT_TYPE_CHOICES = [
+        ('trainings', 'Trainings'),
+        ('questions', 'Questions'),
+    ]
+
+    LANGUAGE_CHOICES = [
+        ('es', 'Spanish (ES)'),
+        ('fr', 'French (FR)'),
+        ('pl', 'Polish (PL)'),
+        ('de', 'German (DE)'),
+    ]
+
+    content_type = forms.ChoiceField(
+        choices=CONTENT_TYPE_CHOICES,
+        required=True,
+        label='Content Type',
+        widget=forms.Select(attrs={'class': 'browser-default'})
+    )
+
+    language = forms.ChoiceField(
+        choices=LANGUAGE_CHOICES,
+        required=True,
+        label='Language',
+        widget=forms.Select(attrs={'class': 'browser-default'})
+    )

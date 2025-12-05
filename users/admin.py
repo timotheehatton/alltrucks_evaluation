@@ -1,9 +1,12 @@
 import collections
+import csv
+import requests
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LogoutView
 from django.db.models import ExpressionWrapper, IntegerField, Max, Q, Sum, When, Case
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
 from django.utils.encoding import force_bytes
@@ -31,6 +34,7 @@ class MyAdminSite(admin.AdminSite):
             path('user/<int:user_id>/delete/', self.admin_view(self.delete_user_view), name='delete_user'),
             path('admins/', self.admin_view(self.admins_view), name='admins'),
             path('create-admin/', self.admin_view(self.create_admin_view), name='create_admin'),
+            path('download-content/', self.admin_view(self.download_strapi_content_view), name='download_content'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -434,6 +438,116 @@ class MyAdminSite(admin.AdminSite):
             return redirect('admin:single_workshop', company_id=company_id)
 
         return redirect('admin:single_workshop', company_id=company_id)
+
+    def _fetch_all_strapi_content(self, content_type, language):
+        """Fetch all paginated data from Strapi API"""
+        api_url = f'{settings.STRAPI_URL}/api/{content_type}'
+        headers = {'Authorization': f'Bearer {settings.STRAPI_EMAIL_TOKEN}'}
+        all_data = []
+        page = 1
+        page_size = 100
+
+        while True:
+            params = {
+                'locale': language,
+                'pagination[page]': page,
+                'pagination[pageSize]': page_size
+            }
+
+            response = requests.get(api_url, params=params, headers=headers)
+            response.raise_for_status()
+
+            result = response.json()
+            data = result.get('data', [])
+
+            if not data:
+                break
+
+            all_data.extend(data)
+
+            # Check if there are more pages
+            pagination = result.get('meta', {}).get('pagination', {})
+            if page >= pagination.get('pageCount', 1):
+                break
+
+            page += 1
+
+        return all_data
+
+    def download_strapi_content_view(self, request):
+        if request.method == 'POST':
+            content_type = request.POST.get('content_type')
+            language = request.POST.get('language')
+
+            # Validate inputs
+            if not content_type or not language:
+                messages.error(request, 'Please select both content type and language')
+                return render(request, 'admin/content/download.html', dict(self.each_context(request)))
+
+            if content_type not in ['trainings', 'questions']:
+                messages.error(request, 'Invalid content type')
+                return render(request, 'admin/content/download.html', dict(self.each_context(request)))
+
+            if language not in ['es', 'fr', 'pl', 'de']:
+                messages.error(request, 'Invalid language')
+                return render(request, 'admin/content/download.html', dict(self.each_context(request)))
+
+            # Fetch ALL content from Strapi with pagination
+            try:
+                data = self._fetch_all_strapi_content(content_type, language)
+
+                if not data:
+                    messages.error(request, f'No content found for {content_type} in language {language}')
+                    return render(request, 'admin/content/download.html', dict(self.each_context(request)))
+
+                # Create CSV response
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = f'attachment; filename="{content_type}_{language}.csv"'
+
+                writer = csv.writer(response)
+
+                # Write headers (use keys from first item)
+                headers = self._flatten_dict_keys(data[0])
+                writer.writerow(headers)
+
+                # Write data rows
+                for item in data:
+                    flattened = self._flatten_dict(item)
+                    writer.writerow([flattened.get(key, '') for key in headers])
+
+                return response
+
+            except Exception as e:
+                messages.error(request, f'Error fetching content: {str(e)}')
+                return render(request, 'admin/content/download.html', dict(self.each_context(request)))
+
+        context = dict(self.each_context(request))
+        return render(request, 'admin/content/download.html', context)
+
+    def _flatten_dict(self, d, parent_key='', sep='_'):
+        """Flatten nested dictionary for CSV export"""
+        items = []
+        for k, v in d.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            if isinstance(v, dict):
+                items.extend(self._flatten_dict(v, new_key, sep=sep).items())
+            elif isinstance(v, list):
+                # Convert lists to comma-separated strings
+                items.append((new_key, ', '.join(str(i) for i in v)))
+            else:
+                items.append((new_key, v))
+        return dict(items)
+
+    def _flatten_dict_keys(self, d, parent_key='', sep='_'):
+        """Get flattened keys from a nested dictionary"""
+        keys = []
+        for k, v in d.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            if isinstance(v, dict):
+                keys.extend(self._flatten_dict_keys(v, new_key, sep=sep))
+            else:
+                keys.append(new_key)
+        return keys
 
 
 admin_site = MyAdminSite(name='myadmin')

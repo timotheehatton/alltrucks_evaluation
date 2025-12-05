@@ -60,6 +60,9 @@
                     <li>
                         <a class="{% if request.resolver_match.url_name == "admins" or request.resolver_match.url_name == "create_admin" %}active{% endif %}"
                            href="{% url 'admin:admins' %}"><i class="material-icons">manage_accounts</i>Admins</a></li>
+                    <li>
+                        <a class="{% if request.resolver_match.url_name == "download_content" %}active{% endif %}"
+                           href="{% url 'admin:download_content' %}"><i class="material-icons">download</i>Content</a></li>
                     <form method="post" action="{% url 'logout' %}" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="logout-button btn red">
