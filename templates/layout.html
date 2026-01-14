@@ -76,6 +76,16 @@
     </div>
 {% endblock sidebar %}
 
+{% if messages %}
+    <div class="messages-container" style="position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;">
+        {% for message in messages %}
+            <div class="card-panel {% if message.tags == 'success' %}green lighten-4 green-text text-darken-2{% elif message.tags == 'error' %}red lighten-4 red-text text-darken-2{% elif message.tags == 'warning' %}orange lighten-4 orange-text text-darken-2{% else %}blue lighten-4 blue-text text-darken-2{% endif %}" style="margin-bottom: 10px;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
 {% block body %}{% endblock %}
 {% include 'components/loader.html' %}
 

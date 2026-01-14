@@ -20,6 +20,7 @@
                 <tr>
                     <th>ID</th>
                     <th>EMAIL</th>
+                    <th>ACTIONS</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -27,6 +28,14 @@
                     <tr>
                         <td>{{ user.id }}</td>
                         <td>{{ user.email }}</td>
+                        <td>
+                            <form method="post" action="{% url 'admin:send_admin_reset_password' admin_id=user.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-small orange" title="Send password reset email">
+                                    Send Reset Password Email
+                                </button>
+                            </form>
+                        </td>
                     </tr>
                 {% endfor %}
                 </tbody>

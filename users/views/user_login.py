@@ -15,7 +15,7 @@ def get_content(request):
 def user_login(request):
     page_content = get_content(request)
     if request.method == 'POST':
-        email = request.POST.get('email')
+        email = request.POST.get('email', '').lower().strip()
         password = request.POST.get('password')
         try:
             user = authenticate(request, username=email, password=password)

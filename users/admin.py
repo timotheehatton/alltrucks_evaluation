@@ -33,6 +33,7 @@ class MyAdminSite(admin.AdminSite):
             path('user/<int:user_id>/', self.admin_view(self.single_user_view), name='single_user'),
             path('user/<int:user_id>/delete/', self.admin_view(self.delete_user_view), name='delete_user'),
             path('admins/', self.admin_view(self.admins_view), name='admins'),
+            path('admin/<int:admin_id>/send-reset-password/', self.admin_view(self.send_admin_reset_password_view), name='send_admin_reset_password'),
             path('create-admin/', self.admin_view(self.create_admin_view), name='create_admin'),
             path('download-content/', self.admin_view(self.download_strapi_content_view), name='download_content'),
             path('logout/', LogoutView.as_view(), name='logout'),
@@ -97,7 +98,7 @@ class MyAdminSite(admin.AdminSite):
                 user_type = request.POST.get('user_type')
                 first_name = request.POST.get('first_name')
                 last_name = request.POST.get('last_name')
-                email = request.POST.get('email')
+                email = request.POST.get('email', '').lower().strip()
                 ct_number = request.POST.get('ct_number')
 
                 if User.objects.filter(email=email).exists():
@@ -191,7 +192,7 @@ class MyAdminSite(admin.AdminSite):
             if 'update_user_info' in request.POST:
                 first_name = request.POST.get('first_name')
                 last_name = request.POST.get('last_name')
-                email = request.POST.get('email')
+                email = request.POST.get('email', '').lower().strip()
                 ct_number = request.POST.get('ct_number')
                 language = request.POST.get('language')
 
@@ -326,7 +327,7 @@ class MyAdminSite(admin.AdminSite):
             form = CompanyUserForm(request.POST)
             if form.is_valid():
                 company = form.save()
-                manager_email = form.cleaned_data['manager_email']
+                manager_email = form.cleaned_data['manager_email'].lower().strip()
 
                 if User.objects.filter(username=manager_email).exists():
                     messages.error(request, f'A user with email {manager_email} already exists.')
@@ -355,7 +356,7 @@ class MyAdminSite(admin.AdminSite):
                     technician_emails = []
                     i = 1
                     while f'technician_first_name_{i}' in request.POST:
-                        technician_email = request.POST[f'technician_email_{i}']
+                        technician_email = request.POST[f'technician_email_{i}'].lower().strip()
                         if User.objects.filter(username=technician_email).exists():
                             messages.error(request, f'A user with email {technician_email} already exists.')
                             manager_user.delete()
@@ -400,6 +401,7 @@ class MyAdminSite(admin.AdminSite):
             admin_form = AdminUserForm(request.POST)
             if admin_form.is_valid():
                 user = admin_form.save(commit=False)
+                user.email = user.email.lower().strip()
                 user.username = user.email
                 user.is_staff = True
                 user.is_superuser = True
@@ -413,6 +415,29 @@ class MyAdminSite(admin.AdminSite):
         else:
             admin_form = AdminUserForm()
         return render(request, 'admin/admins/create_admin.html', {'admin_form': admin_form})
+
+    def send_admin_reset_password_view(self, request, admin_id):
+        admin_user = get_object_or_404(User, id=admin_id, is_superuser=True)
+
+        if request.method == 'POST':
+            try:
+                token = default_token_generator.make_token(admin_user)
+                uid = urlsafe_base64_encode(force_bytes(admin_user.pk))
+                reset_link = f"{request.scheme}://{request.get_host()}/common/reset/{uid}/{token}/"
+
+                email.send_email(
+                    to_email=admin_user.email,
+                    subject='Reset your password - Alltrucks AMCAT',
+                    title='Password Reset',
+                    content='You have requested to reset your password. Click the link below to set a new password.',
+                    link=reset_link,
+                    link_label='Reset Password'
+                )
+                messages.success(request, f'Password reset email sent to {admin_user.email}')
+            except Exception as e:
+                messages.error(request, f'Error sending email: {str(e)}')
+
+        return redirect('admin:admins')
 
     def delete_company_view(self, request, company_id):
         company = get_object_or_404(Company, id=company_id)

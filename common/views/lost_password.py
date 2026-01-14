@@ -23,7 +23,7 @@ def lostPassword(request):
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
         if form.is_valid():
-            email_address = form.cleaned_data['email']
+            email_address = form.cleaned_data['email'].lower().strip()
             user = User.objects.filter(email=email_address).first()
             if user:
                 token = default_token_generator.make_token(user)
