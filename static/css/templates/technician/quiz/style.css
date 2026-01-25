@@ -111,6 +111,15 @@
     width: 300px;
 }
 
+.quiz-image-loader {
+    margin-right: 80px;
+    width: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+}
+
 .quiz-answers {
     display: flex;
     flex-direction: column;

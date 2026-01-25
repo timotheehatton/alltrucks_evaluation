@@ -8,6 +8,7 @@ export class QuizUi {
             category_position: document.querySelector('.quiz-category-position'),
             question: document.querySelector('.quiz-question'),
             image: document.querySelector('.quiz-image'),
+            imageLoader: document.querySelector('.quiz-image-loader'),
             nextBtn: document.querySelector('.quiz-next'),
             choiceInputs: document.querySelectorAll('input[name="choice"]'),
             answerLabels: Array.from({length: 5}, (_, i) => document.querySelector(`.answer-${i + 1}`)),
@@ -18,7 +19,78 @@ export class QuizUi {
             successMessage: document.querySelector('.success-message')
         };
 
+        this.currentImageUrl = null;
+        this.imageRetryCount = 0;
+        this.maxImageRetries = 2;
+        this.preloadedImages = new Map();
+
         this.initEventListeners();
+        this.initImageHandlers();
+    }
+
+    initImageHandlers() {
+        if (this.elements.image) {
+            this.elements.image.addEventListener('load', () => this.onImageLoad());
+            this.elements.image.addEventListener('error', () => this.onImageError());
+        }
+    }
+
+    isCurrentImage() {
+        // Browser normalizes URLs, so we need to check if current src contains our URL
+        return this.currentImageUrl && this.elements.image.src.includes(this.currentImageUrl.split('?')[0]);
+    }
+
+    onImageLoad() {
+        if (this.isCurrentImage()) {
+            this.imageRetryCount = 0;
+            this.showImage();
+        }
+    }
+
+    onImageError() {
+        if (!this.isCurrentImage()) return;
+
+        if (this.imageRetryCount < this.maxImageRetries) {
+            this.imageRetryCount++;
+            console.warn(`Image load failed, retry ${this.imageRetryCount}/${this.maxImageRetries}: ${this.currentImageUrl}`);
+            setTimeout(() => {
+                if (this.isCurrentImage()) {
+                    // Add cache-busting query param for retry
+                    const retryUrl = this.currentImageUrl + (this.currentImageUrl.includes('?') ? '&' : '?') + 'retry=' + this.imageRetryCount;
+                    this.elements.image.src = retryUrl;
+                }
+            }, 500 * this.imageRetryCount);
+        } else {
+            console.error(`Image failed to load after ${this.maxImageRetries} retries: ${this.currentImageUrl}`);
+            this.hideImage();
+        }
+    }
+
+    showImage() {
+        if (this.elements.imageLoader) this.elements.imageLoader.style.display = 'none';
+        this.elements.image.style.display = 'block';
+        this.elements.image.style.opacity = '1';
+    }
+
+    hideImage() {
+        if (this.elements.imageLoader) this.elements.imageLoader.style.display = 'none';
+        this.elements.image.style.display = 'none';
+    }
+
+    showImageLoader() {
+        this.elements.image.style.display = 'none';
+        if (this.elements.imageLoader) this.elements.imageLoader.style.display = 'block';
+    }
+
+    preloadImages() {
+        const questions = this.quizSession.questions;
+        questions.forEach((question, index) => {
+            if (question.image && !this.preloadedImages.has(question.image)) {
+                const img = new Image();
+                img.src = question.image;
+                this.preloadedImages.set(question.image, img);
+            }
+        });
     }
 
     initEventListeners() {
@@ -99,12 +171,15 @@ export class QuizUi {
         this.elements.category_position.innerText = `${currentQuestionInCategory}/${totalQuestionsInCategory}`;
         this.elements.question.innerText = question.question;
 
-        // Display or hide image
+        // Display or hide image with retry support
         if (question.image) {
+            this.currentImageUrl = question.image;
+            this.imageRetryCount = 0;
+            this.showImageLoader();
             this.elements.image.src = question.image;
-            this.elements.image.style.display = 'block';
         } else {
-            this.elements.image.style.display = 'none';
+            this.currentImageUrl = null;
+            this.hideImage();
         }
 
         // Set up answer choices

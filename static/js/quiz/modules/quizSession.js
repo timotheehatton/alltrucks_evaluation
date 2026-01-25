@@ -8,10 +8,36 @@ import {submitQuizAnswers} from './quizService.js';
 export class QuizSession {
     constructor(allQuestions) {
         this.allQuestions = allQuestions.map(q => new QuizQuestion(q));
-        this.questions = this.getRandomQuestionsByCategory();
         this.userAnswers = loadFromStorage('userAnswers', {});
+        this.questions = this.getOrCreateQuestionSelection();
         this.currentQuestionIndex = this.determineStartingQuestion();
         this.timerInterval = null;
+    }
+
+    getOrCreateQuestionSelection() {
+        // Try to restore previously selected questions from storage
+        const savedQuestionIds = loadFromStorage('selectedQuestionIds', null);
+
+        if (savedQuestionIds && Array.isArray(savedQuestionIds)) {
+            // Restore questions in the same order they were selected
+            const questionsById = new Map(this.allQuestions.map(q => [q.id, q]));
+            const restoredQuestions = savedQuestionIds
+                .map(id => questionsById.get(id))
+                .filter(q => q !== undefined);
+
+            // Verify we still have all questions (in case content changed)
+            if (restoredQuestions.length === savedQuestionIds.length) {
+                return restoredQuestions;
+            }
+        }
+
+        // No saved selection or invalid - create new random selection
+        const newSelection = this.getRandomQuestionsByCategory();
+
+        // Save the selected question IDs for future reloads
+        saveToStorage('selectedQuestionIds', newSelection.map(q => q.id));
+
+        return newSelection;
     }
 
     getRandomQuestionsByCategory() {
@@ -102,7 +128,7 @@ export class QuizSession {
     }
 
     clearQuizData() {
-        removeFromStorage('userAnswers', 'currentQuestionIndex', 'quizEndTime', 'quizTimer');
+        removeFromStorage('userAnswers', 'currentQuestionIndex', 'quizEndTime', 'quizTimer', 'selectedQuestionIds');
     }
 
     resetTimer() {

@@ -13,6 +13,9 @@ export function initializeQuiz() {
     // Display the first question
     quizUI.displayCurrentQuestion();
 
+    // Preload all question images in the background
+    quizUI.preloadImages();
+
     // Initialize modal if using Materialize
     const modalInstance = quizUI.initializeModal();
 
