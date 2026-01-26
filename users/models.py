@@ -10,6 +10,7 @@ class Company(models.Model):
         ('ES', 'ES'),
         ('PL', 'PL'),
         ('DE', 'DE'),
+        ('IT', 'IT'),
     ), default='FR')
     cu_number = models.CharField(max_length=20)
 
@@ -24,6 +25,7 @@ class User(AbstractUser):
         ('ES', 'ES'),
         ('PL', 'PL'),
         ('DE', 'DE'),
+        ('IT', 'IT'),
     ), default='FR')
     company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True)
     ct_number = models.CharField(max_length=20, null=True)

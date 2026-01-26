@@ -513,7 +513,7 @@ class MyAdminSite(admin.AdminSite):
                 messages.error(request, 'Invalid content type')
                 return render(request, 'admin/content/download.html', dict(self.each_context(request)))
 
-            if language not in ['es', 'fr', 'pl', 'de']:
+            if language not in ['es', 'fr', 'pl', 'de', 'it']:
                 messages.error(request, 'Invalid language')
                 return render(request, 'admin/content/download.html', dict(self.each_context(request)))
 

@@ -31,6 +31,7 @@ class CompanyUserForm(forms.ModelForm):
         ('ES', 'ES'),
         ('PL', 'PL'),
         ('DE', 'DE'),
+        ('IT', 'IT'),
     ]
     country = forms.ChoiceField(choices=COUNTRY_CHOICES, required=True, label='Country')
 
@@ -56,6 +57,7 @@ class StrapiContentDownloadForm(forms.Form):
         ('fr', 'French (FR)'),
         ('pl', 'Polish (PL)'),
         ('de', 'German (DE)'),
+        ('it', 'German (IT)'),
     ]
 
     content_type = forms.ChoiceField(
