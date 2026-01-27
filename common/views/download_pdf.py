@@ -128,7 +128,7 @@ def downloadPdf(request, user_id):
         margin_x = 50
         gutter = 30
         col_width = (page1_rect.width - 2 * margin_x - gutter) / 2
-        bar_height = 4
+        bar_height = 3
         bar_radius = 0.5
 
         # Colors
@@ -204,7 +204,7 @@ def downloadPdf(request, user_id):
                         fontsize=8, fontname='helvetica', color=grey_text
                     )
                     y += card_height + 5
-                y += 40
+                y += 50
 
     document.save(output)
     document.close()
