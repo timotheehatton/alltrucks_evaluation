@@ -12,9 +12,13 @@ export const submitQuizAnswers = async (answers) => {
             body: JSON.stringify({answers})
         });
 
+        if (!response.ok) {
+            return {success: false, error: `Server error: ${response.status}`};
+        }
+
         return await response.json();
     } catch (error) {
         console.error('Error submitting quiz answers:', error);
-        throw error;
+        return {success: false, error: 'Network error'};
     }
 };

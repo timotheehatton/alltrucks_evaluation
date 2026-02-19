@@ -23,6 +23,7 @@ export class QuizUi {
         this.imageRetryCount = 0;
         this.maxImageRetries = 2;
         this.preloadedImages = new Map();
+        this.isProcessing = false;
 
         this.initEventListeners();
         this.initImageHandlers();
@@ -110,33 +111,51 @@ export class QuizUi {
     }
 
     handleNextButtonClick() {
+        if (this.isProcessing) return;
+
+        // Check timer hasn't expired before accepting answer
+        if (this.quizSession.isTimerExpired()) {
+            this.handleTimeout();
+            return;
+        }
+
         const selectedChoices = Array.from(this.elements.choiceInputs)
             .filter(input => input.checked)
             .map(input => input.value);
 
         if (selectedChoices.length) {
+            this.isProcessing = true;
             this.quizSession.saveAnswer(selectedChoices[0]);
 
             if (this.quizSession.isLastQuestion()) {
-                this.handleQuizCompletion();
+                this.handleQuizCompletion().finally(() => {
+                    this.isProcessing = false;
+                });
             } else {
                 this.quizSession.moveToNextQuestion();
                 this.displayCurrentQuestion();
+                this.isProcessing = false;
             }
         }
     }
 
     async handleQuizCompletion() {
+        this.isProcessing = true;
         const result = await this.quizSession.submitQuiz();
         if (result.success) {
             this.showSuccessMessage();
+            this.quizSession.resetTimer();
+        } else {
+            this.showTimeoutMessage();
+            this.quizSession.clearQuizData();
             this.quizSession.resetTimer();
         }
     }
 
     handleTimeout() {
         this.showTimeoutMessage();
-        this.quizSession.submitQuiz().then(() => {
+        this.quizSession.submitQuiz().finally(() => {
+            this.quizSession.clearQuizData();
             this.quizSession.resetTimer();
         });
     }

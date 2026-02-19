@@ -31,11 +31,14 @@ export function initializeQuiz() {
 
         if (remainingTime > 0) {
             // Start the timer with remaining time
-            quizSession.startTimer(quizUI.elements.timer, remainingTime, () => quizUI.handleTimeout());
+            quizSession.startTimer(quizUI.elements.timer, () => quizUI.handleTimeout());
         } else {
             // Handle timeout
             quizUI.handleTimeout();
         }
+    } else if (quizSession.hasActiveQuiz()) {
+        // Orphaned quiz data (timer removed but quiz data remains) — clear it
+        quizSession.clearQuizData();
     }
 }
 

@@ -128,38 +128,52 @@ export class QuizSession {
     }
 
     clearQuizData() {
-        removeFromStorage('userAnswers', 'currentQuestionIndex', 'quizEndTime', 'quizTimer', 'selectedQuestionIds');
+        removeFromStorage('userAnswers', 'currentQuestionIndex', 'quizEndTime', 'selectedQuestionIds');
     }
 
     resetTimer() {
-        removeFromStorage('quizEndTime', 'quizTimer');
+        removeFromStorage('quizEndTime');
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
             this.timerInterval = null;
         }
     }
 
-    startTimer(timerElement, duration = 3600, onTimeout) {
-        let timer = duration;
+    hasActiveQuiz() {
+        const answers = loadFromStorage('userAnswers', null);
+        const questionIds = loadFromStorage('selectedQuestionIds', null);
+        return answers !== null || questionIds !== null;
+    }
 
+    isTimerExpired() {
+        const endTime = parseInt(loadFromStorage('quizEndTime'), 10);
+        if (!endTime) return true;
+        return calculateRemainingTime(endTime) <= 0;
+    }
+
+    startTimer(timerElement, onTimeout) {
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
         }
 
-        this.timerInterval = setInterval(() => {
-            timerElement.textContent = formatTime(timer);
+        const endTime = parseInt(loadFromStorage('quizEndTime'), 10);
+        if (!endTime) return;
 
-            if (--timer < 0) {
+        const tick = () => {
+            const remaining = calculateRemainingTime(endTime);
+            timerElement.textContent = formatTime(remaining);
+
+            if (remaining <= 0) {
                 clearInterval(this.timerInterval);
                 this.timerInterval = null;
                 if (typeof onTimeout === 'function') {
                     onTimeout();
                 }
             }
+        };
 
-            saveToStorage('quizTimer', timer);
-        }, 1000);
-
+        tick();
+        this.timerInterval = setInterval(tick, 1000);
         return this.timerInterval;
     }
 
@@ -174,10 +188,14 @@ export class QuizSession {
 
         const remainingTime = calculateRemainingTime(endTime);
         if (remainingTime > 0) {
-            this.startTimer(timerElement, remainingTime, onTimeout);
+            this.startTimer(timerElement, onTimeout);
             return true;
         }
 
+        // Timer expired — trigger timeout callback
+        if (typeof onTimeout === 'function') {
+            onTimeout();
+        }
         return false;
     }
 }
