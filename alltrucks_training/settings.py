@@ -24,6 +24,7 @@ DEBUG = os.getenv("DEBUG", 'False').lower() in ('true', '1', 't')
 ENV = os.getenv('ENV')
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 SITE_DOMAIN = os.getenv('SITE_DOMAIN')
+SENDGRID_WEBHOOK_SECRET = os.getenv('SENDGRID_WEBHOOK_SECRET')
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -47,7 +48,8 @@ INSTALLED_APPS = [
     'technician',
     'manager',
     'common',
-    'users'
+    'users',
+    'mail_parser',
 ]
 
 MIDDLEWARE = [

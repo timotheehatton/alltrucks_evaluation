@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is the AMCAT (AllTrucks Mechanics Competency Assessment Test) platform - a Django 5.1.1 web application for evaluating and training AllTrucks mechanics. The application supports multiple languages (FR, ES, EN) and provides quiz-based assessments across 8 technical categories.
+This is the AMCAT (AllTrucks Mechanics Competency Assessment Test) platform - a Django 5.1.1 web application for evaluating and training AllTrucks mechanics. The application supports multiple languages (FR, ES, PL, DE, IT) and provides quiz-based assessments across 8 technical categories.
 
 ## Key Commands
 
@@ -68,6 +68,8 @@ python manage.py dbshell
 users/          # Custom User model, authentication, company management
 ├── models.py   # User, Company, Score models
 ├── forms.py    # Registration, login forms
+├── admin.py    # Extensive custom admin site (workshop/user/admin management, CSV export)
+├── backends.py # CaseInsensitiveEmailBackend for lowercase email auth
 ├── decorators.py  # @technician_required, @manager_required
 └── views/      # Auth views, user management
 
@@ -90,10 +92,11 @@ common/         # Shared functionality
 │   ├── reset_password.py   # Password reset confirmation
 │   ├── change_password.py  # Change password
 │   ├── change_language.py  # Language switching
-│   ├── download_pdf.py     # PDF certificate generation
-│   └── activate_account.py # Account activation
+│   ├── download_pdf.py     # PDF certificate generation (uses PyMuPDF/fitz)
+│   ├── activate_account.py # Account activation with password setup
+│   └── forms.py            # Common forms (password change/reset)
 └── useful/     # Utility modules
-    ├── strapi.py  # Strapi CMS API integration
+    ├── strapi.py  # Strapi CMS API integration (with caching)
     └── email.py   # SendGrid email service
 ```
 
@@ -135,6 +138,22 @@ common/         # Shared functionality
 - Static files served by WhiteNoise with compression
 - Strapi content cached using Django's cache framework
 
+### Key Dependencies
+- PyMuPDF (fitz) for PDF certificate manipulation
+- reportlab for PDF generation
+- Pillow for image processing
+- sendgrid for email delivery
+- dj-database-url for database URL parsing
+- Chart.js (frontend) for statistics visualization
+
+### Admin Interface
+- Custom admin site in `users/admin.py` with dedicated routes for:
+  - Workshop (company) management with manager/technician assignment
+  - User creation with activation email sending
+  - CSV export of company data
+  - Strapi content download trigger
+- Accessible at `/admin/`
+
 ### Deployment
 - Configured for Heroku deployment
 - `Procfile`: Uses Gunicorn WSGI server
@@ -151,10 +170,10 @@ Custom forms in each app extend Django forms with Materialize CSS styling and ad
 
 ### Multi-language Support
 - `django.middleware.locale.LocaleMiddleware` for language detection
-- Supported languages: French (FR), Spanish (ES), English (EN)
+- Supported languages: French (FR), Spanish (ES), Polish (PL), German (DE), Italian (IT)
 - User language preference stored in `User.language` field
 - Language switching via `common/views/change_language.py`
-- Content fetched from Strapi CMS based on user's language preference
+- Content fetched from Strapi CMS based on user's language preference (falls back to French on 404)
 
 ### Security
 - CSRF protection enabled
@@ -165,10 +184,11 @@ Custom forms in each app extend Django forms with Materialize CSS styling and ad
 
 ### Database Models
 - Custom User model (`users.User`) extends `AbstractUser` with `company`, `language`, `user_type`, `ct_number`
-- `Company` model with `name`, `city`, `country`, `cu_number`
+- `Company` model with `name`, `city`, `country` (FR/ES/PL/DE/IT), `cu_number`
 - `Score` model tracks quiz results per user, category, and date
 - Company-based multi-tenancy for data isolation
 - Custom `USERNAME_FIELD = 'email'` for authentication
+- `CaseInsensitiveEmailBackend` in `users/backends.py` normalizes email to lowercase
 
 ### URL Structure
 - Root `/` redirects to appropriate dashboard based on user type

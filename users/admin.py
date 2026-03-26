@@ -15,6 +15,7 @@ from django.utils.http import urlsafe_base64_encode
 from common.useful.email import email
 from common.useful.strapi import strapi_content
 from common.views.forms import AdminUserForm, CompanyUserForm
+from mail_parser.models import InboundWebhook
 from .models import Company, Score, User
 
 
@@ -36,6 +37,8 @@ class MyAdminSite(admin.AdminSite):
             path('admin/<int:admin_id>/send-reset-password/', self.admin_view(self.send_admin_reset_password_view), name='send_admin_reset_password'),
             path('create-admin/', self.admin_view(self.create_admin_view), name='create_admin'),
             path('download-content/', self.admin_view(self.download_strapi_content_view), name='download_content'),
+            path('webhooks/', self.admin_view(self.webhooks_view), name='webhooks'),
+            path('webhooks/<int:webhook_id>/', self.admin_view(self.webhook_detail_view), name='webhook_detail'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -548,6 +551,37 @@ class MyAdminSite(admin.AdminSite):
 
         context = dict(self.each_context(request))
         return render(request, 'admin/content/download.html', context)
+
+    def webhooks_view(self, request):
+        search_query = request.GET.get('search', '')
+        date_from = request.GET.get('date_from', '')
+        date_to = request.GET.get('date_to', '')
+        status_filter = request.GET.get('status', '')
+
+        webhooks = InboundWebhook.objects.all()
+
+        if search_query:
+            webhooks = webhooks.filter(
+                Q(sender__icontains=search_query) |
+                Q(recipient__icontains=search_query) |
+                Q(subject__icontains=search_query)
+            )
+        if date_from:
+            webhooks = webhooks.filter(received_at__date__gte=date_from)
+        if date_to:
+            webhooks = webhooks.filter(received_at__date__lte=date_to)
+        if status_filter and status_filter != 'ALL':
+            webhooks = webhooks.filter(status=status_filter)
+
+        return render(request, 'admin/mail_parser/webhooks.html', {
+            'webhooks': webhooks[:200],
+        })
+
+    def webhook_detail_view(self, request, webhook_id):
+        webhook = get_object_or_404(InboundWebhook, id=webhook_id)
+        return render(request, 'admin/mail_parser/webhook_detail.html', {
+            'webhook': webhook,
+        })
 
     def _flatten_dict(self, d, parent_key='', sep='_'):
         """Flatten nested dictionary for CSV export"""

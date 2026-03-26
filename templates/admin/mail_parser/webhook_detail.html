@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+{% endblock %}
+
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content">
+        <a href="{% url 'admin:webhooks' %}" class="btn-flat"><i class="material-icons left">arrow_back</i>Back to list</a>
+        <h1 class="page-title">Webhook #{{ webhook.id }}</h1>
+
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Status & Metadata</span>
+                        <table class="striped">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Status</strong></td>
+                                    <td>
+                                        {% if webhook.status == 'success' %}
+                                            <span class="status-completed"><i class="material-icons">check_circle</i> Success</span>
+                                        {% elif webhook.status == 'error' %}
+                                            <span class="status-not-completed"><i class="material-icons">error</i> Error</span>
+                                        {% else %}
+                                            <span class="status-not-completed"><i class="material-icons">block</i> Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                <tr><td><strong>Received at</strong></td><td>{{ webhook.received_at|date:"Y-m-d H:i:s" }}</td></tr>
+                                <tr><td><strong>Source IP</strong></td><td>{{ webhook.source_ip|default:"-" }}</td></tr>
+                                {% if webhook.error_message %}
+                                <tr><td><strong>Error</strong></td><td><pre style="white-space: pre-wrap; color: red;">{{ webhook.error_message }}</pre></td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if webhook.sender %}
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Email Details</span>
+                        <table class="striped">
+                            <tbody>
+                                <tr><td><strong>From</strong></td><td>{{ webhook.sender }}</td></tr>
+                                <tr><td><strong>To</strong></td><td>{{ webhook.recipient }}</td></tr>
+                                <tr><td><strong>Subject</strong></td><td>{{ webhook.subject }}</td></tr>
+                                <tr><td><strong>Spam score</strong></td><td>{{ webhook.spam_score|default:"-" }}</td></tr>
+                                <tr><td><strong>Attachments</strong></td><td>{{ webhook.num_attachments }}</td></tr>
+                                <tr><td><strong>Envelope</strong></td><td><pre style="white-space: pre-wrap;">{{ webhook.envelope }}</pre></td></tr>
+                                <tr><td><strong>Charsets</strong></td><td><pre style="white-space: pre-wrap;">{{ webhook.charsets }}</pre></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Body (Text)</span>
+                        <pre style="white-space: pre-wrap; max-height: 400px; overflow-y: auto; background: #f5f5f5; padding: 10px;">{{ webhook.body_text|default:"(empty)" }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if webhook.body_html %}
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Body (HTML)</span>
+                        <iframe srcdoc="{{ webhook.body_html }}" sandbox="" style="width: 100%; height: 400px; border: 1px solid #ddd;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if webhook.spam_report %}
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Spam Report</span>
+                        <pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f5f5f5; padding: 10px;">{{ webhook.spam_report }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% endif %}
+
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Headers</span>
+                        <pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f5f5f5; padding: 10px; font-size: 12px;">{{ webhook.headers }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Raw Body</span>
+                        <pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f5f5f5; padding: 10px; font-size: 12px;">{{ webhook.raw_body }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+{% endblock %}
+
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content">
+        <h1 class="page-title">Inbound Webhooks</h1>
+
+        <div class="row">
+            <form method="GET" action="{% url 'admin:webhooks' %}" class="col s12">
+                <div class="input-field col s2">
+                    <input id="date_from" type="date" name="date_from" value="{{ request.GET.date_from }}">
+                    <label for="date_from" class="active">From</label>
+                </div>
+                <div class="input-field col s2">
+                    <input id="date_to" type="date" name="date_to" value="{{ request.GET.date_to }}">
+                    <label for="date_to" class="active">To</label>
+                </div>
+                <div class="input-field col s2">
+                    <select name="status">
+                        <option value="ALL" {% if request.GET.status == 'ALL' %}selected{% endif %}>ALL</option>
+                        <option value="success" {% if request.GET.status == 'success' %}selected{% endif %}>Success</option>
+                        <option value="error" {% if request.GET.status == 'error' %}selected{% endif %}>Error</option>
+                        <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                    </select>
+                    <label>Status</label>
+                </div>
+                <div class="input-field col s3">
+                    <input id="search" type="text" name="search" value="{{ request.GET.search }}">
+                    <label for="search" class="{% if request.GET.search %}active{% endif %}">Search (from, to, subject)</label>
+                </div>
+                <div class="input-field col s2">
+                    <button class="btn blue" type="submit">Filter
+                        <i class="material-icons right">search</i>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="model-list-table" style="max-height: 77vh;overflow-y: auto;">
+            <table class="highlight responsive-table">
+                <thead style="position: sticky;top: 0;background-color: white;z-index: 10;box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);">
+                <tr>
+                    <th>ID</th>
+                    <th>STATUS</th>
+                    <th>FROM</th>
+                    <th>TO</th>
+                    <th>SUBJECT</th>
+                    <th>SPAM</th>
+                    <th>IP</th>
+                    <th>RECEIVED AT</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for wh in webhooks %}
+                    <tr class="clickable-row" data-href="{% url 'admin:webhook_detail' wh.id %}">
+                        <td>{{ wh.id }}</td>
+                        <td>
+                            {% if wh.status == 'success' %}
+                                <span class="status-completed"><i class="material-icons">check_circle</i> Success</span>
+                            {% elif wh.status == 'error' %}
+                                <span class="status-not-completed"><i class="material-icons">error</i> Error</span>
+                            {% else %}
+                                <span class="status-not-completed"><i class="material-icons">block</i> Rejected</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ wh.sender|truncatechars:35|default:"-" }}</td>
+                        <td>{{ wh.recipient|truncatechars:35|default:"-" }}</td>
+                        <td>{{ wh.subject|truncatechars:40|default:"-" }}</td>
+                        <td>{{ wh.spam_score|default:"-" }}</td>
+                        <td>{{ wh.source_ip|default:"-" }}</td>
+                        <td>{{ wh.received_at|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 20px;">No webhooks received yet.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

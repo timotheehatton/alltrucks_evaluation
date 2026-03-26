@@ -10,6 +10,7 @@ urlpatterns = [
     path("technician/", include("technician.urls", namespace='technician')),
     path("manager/", include("manager.urls", namespace='manager')),
     path("common/", include("common.urls", namespace='common')),
+    path("webhook/", include("mail_parser.urls", namespace='mail_parser')),
     path('login/', user_login, name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
 ]
