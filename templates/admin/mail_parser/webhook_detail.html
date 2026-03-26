@@ -54,7 +54,6 @@
                                 <tr><td><strong>From</strong></td><td>{{ webhook.sender }}</td></tr>
                                 <tr><td><strong>To</strong></td><td>{{ webhook.recipient }}</td></tr>
                                 <tr><td><strong>Subject</strong></td><td>{{ webhook.subject }}</td></tr>
-                                <tr><td><strong>Spam score</strong></td><td>{{ webhook.spam_score|default:"-" }}</td></tr>
                                 <tr><td><strong>Attachments</strong></td><td>{{ webhook.num_attachments }}</td></tr>
                                 <tr><td><strong>Envelope</strong></td><td><pre style="white-space: pre-wrap;">{{ webhook.envelope }}</pre></td></tr>
                                 <tr><td><strong>Charsets</strong></td><td><pre style="white-space: pre-wrap;">{{ webhook.charsets }}</pre></td></tr>
@@ -89,18 +88,6 @@
         </div>
         {% endif %}
 
-        {% if webhook.spam_report %}
-        <div class="row">
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">Spam Report</span>
-                        <pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f5f5f5; padding: 10px;">{{ webhook.spam_report }}</pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-        {% endif %}
         {% endif %}
 
         <div class="row">

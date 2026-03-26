@@ -61,18 +61,9 @@ def inbound_email_webhook(request):
         subject = request.POST.get('subject', '')
         body_text = request.POST.get('text', '')
         body_html = request.POST.get('html', '')
-        spam_score_raw = request.POST.get('spam_score', None)
-        spam_report = request.POST.get('spam_report', '')
         envelope_raw = request.POST.get('envelope', '{}')
         charsets_raw = request.POST.get('charsets', '{}')
         num_attachments = int(request.POST.get('attachments', 0) or 0)
-
-        spam_score = None
-        if spam_score_raw:
-            try:
-                spam_score = float(spam_score_raw)
-            except (ValueError, TypeError):
-                pass
 
         try:
             envelope = json.loads(envelope_raw)
@@ -92,8 +83,6 @@ def inbound_email_webhook(request):
             subject=subject,
             body_text=body_text,
             body_html=body_html,
-            spam_score=spam_score,
-            spam_report=spam_report,
             envelope=envelope,
             charsets=charsets,
             num_attachments=num_attachments,

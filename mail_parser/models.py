@@ -25,8 +25,6 @@ class InboundWebhook(models.Model):
     subject = models.CharField(max_length=1024, blank=True, default='')
     body_text = models.TextField(blank=True, default='')
     body_html = models.TextField(blank=True, default='')
-    spam_score = models.FloatField(null=True, blank=True)
-    spam_report = models.TextField(blank=True, default='')
     envelope = models.JSONField(default=dict, blank=True)
     charsets = models.JSONField(default=dict, blank=True)
     num_attachments = models.IntegerField(default=0)

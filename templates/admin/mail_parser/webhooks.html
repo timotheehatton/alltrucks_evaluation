@@ -51,7 +51,6 @@
                     <th>FROM</th>
                     <th>TO</th>
                     <th>SUBJECT</th>
-                    <th>SPAM</th>
                     <th>IP</th>
                     <th>RECEIVED AT</th>
                 </tr>
@@ -72,13 +71,12 @@
                         <td>{{ wh.sender|truncatechars:35|default:"-" }}</td>
                         <td>{{ wh.recipient|truncatechars:35|default:"-" }}</td>
                         <td>{{ wh.subject|truncatechars:40|default:"-" }}</td>
-                        <td>{{ wh.spam_score|default:"-" }}</td>
                         <td>{{ wh.source_ip|default:"-" }}</td>
                         <td>{{ wh.received_at|date:"Y-m-d H:i" }}</td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 20px;">No webhooks received yet.</td>
+                        <td colspan="7" style="text-align: center; padding: 20px;">No webhooks received yet.</td>
                     </tr>
                 {% endfor %}
                 </tbody>
