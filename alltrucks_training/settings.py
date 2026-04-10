@@ -25,6 +25,7 @@ ENV = os.getenv('ENV')
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 SITE_DOMAIN = os.getenv('SITE_DOMAIN')
 SENDGRID_WEBHOOK_SECRET = os.getenv('SENDGRID_WEBHOOK_SECRET')
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 
 ALLOWED_HOSTS = [
     'localhost',

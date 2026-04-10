@@ -15,7 +15,7 @@ from django.utils.http import urlsafe_base64_encode
 from common.useful.email import email
 from common.useful.strapi import strapi_content
 from common.views.forms import AdminUserForm, CompanyUserForm
-from mail_parser.models import InboundWebhook
+from mail_parser.models import AutoResponderConfig, InboundWebhook
 from .models import Company, Score, User
 
 
@@ -39,6 +39,7 @@ class MyAdminSite(admin.AdminSite):
             path('download-content/', self.admin_view(self.download_strapi_content_view), name='download_content'),
             path('webhooks/', self.admin_view(self.webhooks_view), name='webhooks'),
             path('webhooks/<int:webhook_id>/', self.admin_view(self.webhook_detail_view), name='webhook_detail'),
+            path('auto-responder-config/', self.admin_view(self.auto_responder_config_view), name='auto_responder_config'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -579,8 +580,56 @@ class MyAdminSite(admin.AdminSite):
 
     def webhook_detail_view(self, request, webhook_id):
         webhook = get_object_or_404(InboundWebhook, id=webhook_id)
+
+        email_preview = None
+        if webhook.ai_response:
+            email_preview = self._build_email_preview(webhook)
+
         return render(request, 'admin/mail_parser/webhook_detail.html', {
             'webhook': webhook,
+            'email_preview': email_preview,
+        })
+
+    @staticmethod
+    def _build_email_preview(webhook):
+        import os
+        file_path = os.path.join(settings.STATIC_ROOT, 'mail/auto_reply_template.html')
+        try:
+            with open(file_path, 'r') as f:
+                template = f.read()
+        except FileNotFoundError:
+            return None
+
+        subject = f'Re: {webhook.subject}'
+        review_base_url = f'#preview'
+
+        return (
+            template
+            .replace('{{ subject }}', subject)
+            .replace('{{ ai_response }}', webhook.ai_response.replace('\n', '<br>'))
+            .replace('{{ original_message }}', (webhook.parsed_content[:500] or webhook.body_text[:500] or '').replace('\n', '<br>'))
+            .replace('{{ star_1_url }}', review_base_url)
+            .replace('{{ star_2_url }}', review_base_url)
+            .replace('{{ star_3_url }}', review_base_url)
+            .replace('{{ star_4_url }}', review_base_url)
+            .replace('{{ star_5_url }}', review_base_url)
+        )
+
+    def auto_responder_config_view(self, request):
+        config = AutoResponderConfig.load()
+        if request.method == 'POST':
+            config.is_enabled = 'is_enabled' in request.POST
+            config.system_prompt = request.POST.get('system_prompt', config.system_prompt)
+            config.openai_model = request.POST.get('openai_model', config.openai_model)
+            config.is_email_enabled = 'is_email_enabled' in request.POST
+            config.send_to_user = 'send_to_user' in request.POST
+            config.test_emails = request.POST.get('test_emails', '')
+            config.from_email = request.POST.get('from_email', config.from_email)
+            config.save()
+            messages.success(request, 'Auto-responder configuration updated.')
+            return redirect('admin:auto_responder_config')
+        return render(request, 'admin/mail_parser/auto_responder_config.html', {
+            'config': config,
         })
 
     def _flatten_dict(self, d, parent_key='', sep='_'):

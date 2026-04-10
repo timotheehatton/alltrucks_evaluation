@@ -65,7 +65,10 @@
                            href="{% url 'admin:download_content' %}"><i class="material-icons">download</i>Content</a></li>
                     <li>
                         <a class="{% if request.resolver_match.url_name == "webhooks" or request.resolver_match.url_name == "webhook_detail" %}active{% endif %}"
-                           href="{% url 'admin:webhooks' %}"><i class="material-icons">email</i>Webhooks</a></li>
+                           href="{% url 'admin:webhooks' %}"><i class="material-icons">email</i>Support Emails</a></li>
+                    <li>
+                        <a class="{% if request.resolver_match.url_name == "auto_responder_config" %}active{% endif %}"
+                           href="{% url 'admin:auto_responder_config' %}"><i class="material-icons">smart_toy</i>AI Auto-Responder</a></li>
                     <form method="post" action="{% url 'logout' %}" style="display: inline;">
                         {% csrf_token %}
                         <button type="submit" class="logout-button btn red">

@@ -40,4 +40,25 @@ class Email:
             print(f"Error sending email: {str(e)}")
             return False
 
+    def send_auto_reply(self, to_email, subject, html_content, plain_text_content):
+        message = Mail(
+            from_email="info@alltrucks-amcat.com",
+            to_emails=to_email,
+            subject=subject,
+            plain_text_content=plain_text_content,
+            html_content=html_content,
+        )
+        message.reply_to = "info@alltrucks-amcat.com"
+
+        try:
+            response = self.sg.send(message)
+            if response.status_code in (200, 201, 202):
+                return True
+            else:
+                print(f"Failed to send auto-reply email: {response.status_code}")
+                return False
+        except Exception as e:
+            print(f"Error sending auto-reply email: {str(e)}")
+            return False
+
 email = Email()

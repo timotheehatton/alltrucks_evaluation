@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <style>
+        .config-form .card { padding: 20px; margin-bottom: 16px; }
+        .config-form .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; }
+        .config-form .section-title i { font-size: 20px; margin-right: 8px; }
+        .config-form .switch { margin: 12px 0; }
+        .config-form .switch label { font-size: 14px; }
+        .config-form textarea { min-height: 120px; }
+        .config-form .input-field { margin-top: 10px; margin-bottom: 10px; }
+    </style>
+{% endblock %}
+
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content config-form">
+        <h1 class="page-title" style="font-size: 22px; margin-bottom: 16px;">AI Auto-Responder Configuration</h1>
+
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}">
+                        <div style="background-color: #e8f5e9; color: #2e7d32; border-radius: 4px;">{{ message }}</div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <!-- AI Generation -->
+            <div class="card">
+                <div class="section-title"><i class="material-icons">smart_toy</i>AI Generation</div>
+                <div class="switch">
+                    <label>
+                        Off
+                        <input type="checkbox" name="is_enabled" {% if config.is_enabled %}checked{% endif %}>
+                        <span class="lever"></span>
+                        On
+                    </label>
+                    <span style="margin-left: 12px; font-size: 13px; color: #757575;">Enable AI response generation for incoming emails</span>
+                </div>
+
+                <div class="input-field">
+                    <textarea id="system_prompt" name="system_prompt" class="materialize-textarea">{{ config.system_prompt }}</textarea>
+                    <label for="system_prompt" class="active">System Prompt</label>
+                </div>
+
+                <div class="input-field">
+                    <select id="openai_model" name="openai_model">
+                        <option value="gpt-4o-mini" {% if config.openai_model == 'gpt-4o-mini' %}selected{% endif %}>gpt-4o-mini (fast, cheap)</option>
+                        <option value="gpt-4o" {% if config.openai_model == 'gpt-4o' %}selected{% endif %}>gpt-4o (most capable)</option>
+                        <option value="gpt-3.5-turbo" {% if config.openai_model == 'gpt-3.5-turbo' %}selected{% endif %}>gpt-3.5-turbo (legacy)</option>
+                    </select>
+                    <label>OpenAI Model</label>
+                </div>
+            </div>
+
+            <!-- Email Sending -->
+            <div class="card">
+                <div class="section-title"><i class="material-icons">email</i>Email Sending</div>
+                <div class="switch">
+                    <label>
+                        Off
+                        <input type="checkbox" name="is_email_enabled" {% if config.is_email_enabled %}checked{% endif %}>
+                        <span class="lever"></span>
+                        On
+                    </label>
+                    <span style="margin-left: 12px; font-size: 13px; color: #757575;">Enable sending the AI response by email</span>
+                </div>
+
+                <div class="switch">
+                    <label>
+                        Off
+                        <input type="checkbox" name="send_to_user" {% if config.send_to_user %}checked{% endif %}>
+                        <span class="lever"></span>
+                        On
+                    </label>
+                    <span style="margin-left: 12px; font-size: 13px; color: #757575;">Also send the response to the original sender</span>
+                </div>
+
+                <div class="input-field">
+                    <textarea id="test_emails" name="test_emails" class="materialize-textarea" style="min-height: 60px;">{{ config.test_emails }}</textarea>
+                    <label for="test_emails" class="active">Admin / Test Email List (comma-separated)</label>
+                </div>
+
+                <div class="input-field">
+                    <input id="from_email" name="from_email" type="email" value="{{ config.from_email }}">
+                    <label for="from_email" class="active">From Email Address</label>
+                </div>
+            </div>
+
+            <button class="btn blue" type="submit" style="margin-top: 8px;">
+                Save Configuration
+                <i class="material-icons right">save</i>
+            </button>
+        </form>
+    </div>
+{% endblock %}

@@ -3,113 +3,157 @@
 
 {% block stylesheets %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <style>
+        .webhook-detail .card { margin-bottom: 12px; height: 100%; padding: 14px; }
+        .webhook-detail .section-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; }
+        .webhook-detail .section-title i { font-size: 18px; margin-right: 6px; }
+        .webhook-detail .top-row { display: flex; gap: 24px; margin-bottom: 12px; }
+        .webhook-detail .top-row .col { padding: 0; flex: 1; }
+        .webhook-detail table td { padding: 6px 8px; font-size: 13px; }
+        .webhook-detail table td:first-child { width: 90px; color: #757575; }
+        .webhook-detail .content-block {
+            white-space: pre-wrap;
+            max-height: 350px;
+            overflow-y: auto;
+            background: #fafafa;
+            padding: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+        .webhook-detail iframe {
+            width: 100%;
+            height: 350px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+        }
+        .webhook-detail .page-title { font-size: 20px; margin: 8px 0 12px; }
+    </style>
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
-    <div class="content">
-        <a href="{% url 'admin:webhooks' %}" class="btn-flat"><i class="material-icons left">arrow_back</i>Back to list</a>
-        <h1 class="page-title">Webhook #{{ webhook.id }}</h1>
+    <div class="content webhook-detail">
+        <a href="{% url 'admin:webhooks' %}" class="btn-flat" style="padding: 0; margin-bottom: 4px; font-size: 13px;">
+            <i class="material-icons left" style="font-size: 18px;">arrow_back</i>Back to list
+        </a>
+        <h1 class="page-title">Email #{{ webhook.id }}</h1>
 
-        <div class="row">
-            <div class="col s12">
+        <div class="top-row">
+            <div class="col">
                 <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">Status & Metadata</span>
-                        <table class="striped">
-                            <tbody>
-                                <tr>
-                                    <td><strong>Status</strong></td>
-                                    <td>
-                                        {% if webhook.status == 'success' %}
-                                            <span class="status-completed"><i class="material-icons">check_circle</i> Success</span>
-                                        {% elif webhook.status == 'error' %}
-                                            <span class="status-not-completed"><i class="material-icons">error</i> Error</span>
-                                        {% else %}
-                                            <span class="status-not-completed"><i class="material-icons">block</i> Rejected</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                <tr><td><strong>Received at</strong></td><td>{{ webhook.received_at|date:"Y-m-d H:i:s" }}</td></tr>
-                                <tr><td><strong>Source IP</strong></td><td>{{ webhook.source_ip|default:"-" }}</td></tr>
-                                {% if webhook.error_message %}
-                                <tr><td><strong>Error</strong></td><td><pre style="white-space: pre-wrap; color: red;">{{ webhook.error_message }}</pre></td></tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
+                    <div class="section-title">Status & Metadata</div>
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td>Status</td>
+                                <td>
+                                    {% if webhook.status == 'received' %}
+                                        <span class="status-not-completed"><i class="material-icons">mail</i> Received</span>
+                                    {% elif webhook.status == 'answered' %}
+                                        <span class="status-completed"><i class="material-icons">reply</i> Answered</span>
+                                    {% elif webhook.status == 'reviewed' %}
+                                        <span class="status-completed"><i class="material-icons">verified</i> Reviewed</span>
+                                    {% elif webhook.status == 'ai_error' %}
+                                        <span class="status-not-completed"><i class="material-icons">error</i> AI Error</span>
+                                    {% elif webhook.status == 'parse_error' %}
+                                        <span class="status-not-completed"><i class="material-icons">warning</i> Parse Error</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr><td>Received</td><td>{{ webhook.received_at|date:"Y-m-d H:i:s" }}</td></tr>
+                            <tr><td>Source IP</td><td>{{ webhook.source_ip|default:"-" }}</td></tr>
+                            {% if webhook.error_message %}
+                            <tr><td>Error</td><td style="color: #c62828; font-size: 12px;">{{ webhook.error_message }}</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
+            {% if webhook.sender %}
+            <div class="col">
+                <div class="card">
+                    <div class="section-title">Email Details</div>
+                    <table>
+                        <tbody>
+                            <tr><td>From</td><td>{{ webhook.sender_email }}</td></tr>
+                            <tr><td>To</td><td>{{ webhook.recipient_email }}</td></tr>
+                            <tr><td>Subject</td><td>{{ webhook.subject }}</td></tr>
+                            {% if webhook.parsed_user_email %}
+                            <tr><td>User</td><td style="color: #1976d2; font-weight: 500;">{{ webhook.parsed_user_email }}</td></tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
         </div>
 
         {% if webhook.sender %}
-        <div class="row">
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">Email Details</span>
-                        <table class="striped">
-                            <tbody>
-                                <tr><td><strong>From</strong></td><td>{{ webhook.sender }}</td></tr>
-                                <tr><td><strong>To</strong></td><td>{{ webhook.recipient }}</td></tr>
-                                <tr><td><strong>Subject</strong></td><td>{{ webhook.subject }}</td></tr>
-                                <tr><td><strong>Attachments</strong></td><td>{{ webhook.num_attachments }}</td></tr>
-                                <tr><td><strong>Envelope</strong></td><td><pre style="white-space: pre-wrap;">{{ webhook.envelope }}</pre></td></tr>
-                                <tr><td><strong>Charsets</strong></td><td><pre style="white-space: pre-wrap;">{{ webhook.charsets }}</pre></td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">Body (Text)</span>
-                        <pre style="white-space: pre-wrap; max-height: 400px; overflow-y: auto; background: #f5f5f5; padding: 10px;">{{ webhook.body_text|default:"(empty)" }}</pre>
-                    </div>
-                </div>
-            </div>
+        <div class="card" style="height: auto;">
+            <div class="section-title">Content</div>
+            <div class="content-block">{{ webhook.body_text|default:"(empty)" }}</div>
         </div>
 
         {% if webhook.body_html %}
-        <div class="row">
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">Body (HTML)</span>
-                        <iframe srcdoc="{{ webhook.body_html }}" sandbox="" style="width: 100%; height: 400px; border: 1px solid #ddd;"></iframe>
-                    </div>
-                </div>
-            </div>
+        <div class="card" style="height: auto;">
+            <div class="section-title">HTML Preview</div>
+            <iframe srcdoc="{{ webhook.body_html }}" sandbox=""></iframe>
         </div>
         {% endif %}
 
+        <div class="card" style="height: auto;">
+            <div class="section-title"><i class="material-icons">smart_toy</i>AI Answer</div>
+            {% if email_preview %}
+                <div style="margin-top: 8px; font-size: 12px; color: #9e9e9e; margin-bottom: 8px;">
+                    Answered on {{ webhook.ai_responded_at|date:"Y-m-d H:i:s" }}
+                    {% if webhook.parsed_user_email %} — sent to {{ webhook.parsed_user_email }}{% endif %}
+                </div>
+                <iframe srcdoc="{{ email_preview }}" sandbox="" style="width: 100%; height: 600px; border: 1px solid #e0e0e0; border-radius: 4px;"></iframe>
+            {% elif webhook.ai_error %}
+                <div style="padding: 12px; color: #c62828; font-size: 13px; background: #ffebee; border-radius: 4px;">
+                    <i class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">error</i>
+                    {{ webhook.ai_error }}
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 16px; color: #9e9e9e; font-size: 13px;">
+                    <i class="material-icons" style="font-size: 28px; display: block; margin-bottom: 4px;">hourglass_empty</i>
+                    No AI response generated yet
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="card" style="height: auto;">
+            <div class="section-title"><i class="material-icons">rate_review</i>User Review</div>
+            {% if webhook.user_rating %}
+                <div style="text-align: center; padding: 16px;">
+                    <div style="margin-bottom: 4px;">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= webhook.user_rating %}
+                                <i class="material-icons" style="color: #ffb300; font-size: 24px;">star</i>
+                            {% else %}
+                                <i class="material-icons" style="color: #e0e0e0; font-size: 24px;">star_border</i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div style="font-size: 13px; color: #555;">{{ webhook.user_rating }}/5</div>
+                    <div style="margin-top: 6px; font-size: 12px; color: #9e9e9e;">Rated on {{ webhook.user_rated_at|date:"Y-m-d H:i:s" }}</div>
+                </div>
+            {% else %}
+                <div style="text-align: center; padding: 16px; color: #9e9e9e; font-size: 13px;">
+                    <div style="margin-bottom: 4px;">
+                        {% for i in "12345" %}
+                            <i class="material-icons" style="color: #e0e0e0; font-size: 24px;">star_border</i>
+                        {% endfor %}
+                    </div>
+                    No rating received yet
+                </div>
+            {% endif %}
+        </div>
+
         {% endif %}
-
-        <div class="row">
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">Headers</span>
-                        <pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f5f5f5; padding: 10px; font-size: 12px;">{{ webhook.headers }}</pre>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col s12">
-                <div class="card">
-                    <div class="card-content">
-                        <span class="card-title">Raw Body</span>
-                        <pre style="white-space: pre-wrap; max-height: 300px; overflow-y: auto; background: #f5f5f5; padding: 10px; font-size: 12px;">{{ webhook.raw_body }}</pre>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 {% endblock %}

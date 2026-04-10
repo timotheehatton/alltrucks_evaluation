@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rate this response - Alltrucks AMCAT</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            max-width: 480px;
+            width: 100%;
+            padding: 20px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        .accent-bar {
+            height: 3px;
+            background-color: rgb(1, 181, 226);
+        }
+        .card-body {
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 30px;
+        }
+        /* TODO Strapi: all text below is hardcoded */
+        h1 {
+            font-size: 20px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 30px;
+        }
+        .stars {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+        .stars a {
+            text-decoration: none;
+            font-size: 40px;
+            color: #e0e0e0;
+            transition: color 0.15s;
+        }
+        .stars a:hover { color: #FFB300; }
+        .stars a.filled { color: #FFB300; }
+        .stars span {
+            font-size: 40px;
+            color: #e0e0e0;
+        }
+        .stars span.filled { color: #FFB300; }
+        .rating-text {
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .rating-date {
+            font-size: 12px;
+            color: #aaa;
+        }
+        .success-icon {
+            font-size: 48px;
+            color: #4CAF50;
+            margin-bottom: 12px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #aaa;
+        }
+        .footer a { color: #aaa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="accent-bar"></div>
+            <div class="card-body">
+                <img src="https://alltrucks-assets.s3.eu-west-3.amazonaws.com/logo.png"
+                     alt="Alltrucks AMCAT" class="logo" />
+
+                {% if just_submitted %}
+                    <div class="success-icon">&#10003;</div>
+                    <h1>Thank you for your feedback!</h1>
+                    <p class="subtitle">You rated this response {{ webhook.user_rating }}/5</p>
+                    <div class="stars">
+                        {% for i in rating_range %}
+                            {% if i <= webhook.user_rating %}
+                                <span class="filled">&#9733;</span>
+                            {% else %}
+                                <span>&#9733;</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                {% elif already_reviewed %}
+                    <h1>You already rated this response</h1>
+                    <p class="subtitle">Thank you for your feedback</p>
+                    <div class="stars">
+                        {% for i in rating_range %}
+                            {% if i <= webhook.user_rating %}
+                                <span class="filled">&#9733;</span>
+                            {% else %}
+                                <span>&#9733;</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <p class="rating-text">{{ webhook.user_rating }}/5</p>
+                    <p class="rating-date">Rated on {{ webhook.user_rated_at|date:"F j, Y \a\t H:i" }}</p>
+
+                {% else %}
+                    <h1>How would you rate this response?</h1>
+                    <p class="subtitle">Your feedback helps us improve</p>
+                    <div class="stars">
+                        {% for i in rating_range %}
+                            <a href="?rating={{ i }}">&#9733;</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="footer">
+            <p>Alltrucks GmbH & Co. KG | Perchtinger Strasse 6 | 81379 Munich</p>
+            <a href="mailto:info@alltrucks-amcat.com">info@alltrucks-amcat.com</a>
+        </div>
+    </div>
+</body>
+</html>

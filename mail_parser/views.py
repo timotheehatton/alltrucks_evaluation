@@ -3,6 +3,8 @@ import traceback
 
 from django.conf import settings
 from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
@@ -48,11 +50,6 @@ def inbound_email_webhook(request):
     }
 
     if not _verify_webhook_secret(request):
-        InboundWebhook.objects.create(
-            **base_kwargs,
-            status=InboundWebhook.STATUS_REJECTED,
-            error_message='Invalid webhook secret',
-        )
         return HttpResponse(status=403)
 
     try:
@@ -77,7 +74,6 @@ def inbound_email_webhook(request):
 
         InboundWebhook.objects.create(
             **base_kwargs,
-            status=InboundWebhook.STATUS_SUCCESS,
             sender=sender,
             recipient=recipient,
             subject=subject,
@@ -93,7 +89,30 @@ def inbound_email_webhook(request):
         error_msg = f'{type(e).__name__}: {e}\n{traceback.format_exc()}'
         InboundWebhook.objects.create(
             **base_kwargs,
-            status=InboundWebhook.STATUS_ERROR,
             error_message=error_msg[:2000],
         )
         return HttpResponse(status=200)
+
+
+def review_email(request, review_token):
+    webhook = get_object_or_404(InboundWebhook, review_token=review_token)
+
+    already_reviewed = webhook.user_rating is not None
+    just_submitted = False
+
+    if not already_reviewed:
+        rating = request.GET.get('rating')
+        if rating and rating.isdigit() and 1 <= int(rating) <= 5:
+            webhook.user_rating = int(rating)
+            webhook.user_rated_at = timezone.now()
+            webhook.status = InboundWebhook.STATUS_REVIEWED
+            webhook.save(update_fields=['user_rating', 'user_rated_at', 'status'])
+            just_submitted = True
+            already_reviewed = True
+
+    return render(request, 'mail_parser/review.html', {
+        'webhook': webhook,
+        'already_reviewed': already_reviewed,
+        'just_submitted': just_submitted,
+        'rating_range': range(1, 6),
+    })

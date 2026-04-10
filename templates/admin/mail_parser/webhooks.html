@@ -9,7 +9,7 @@
 
 {% block body %}
     <div class="content">
-        <h1 class="page-title">Inbound Webhooks</h1>
+        <h1 class="page-title">Support Emails</h1>
 
         <div class="row">
             <form method="GET" action="{% url 'admin:webhooks' %}" class="col s12">
@@ -24,9 +24,11 @@
                 <div class="input-field col s2">
                     <select name="status">
                         <option value="ALL" {% if request.GET.status == 'ALL' %}selected{% endif %}>ALL</option>
-                        <option value="success" {% if request.GET.status == 'success' %}selected{% endif %}>Success</option>
-                        <option value="error" {% if request.GET.status == 'error' %}selected{% endif %}>Error</option>
-                        <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                        <option value="received" {% if request.GET.status == 'received' %}selected{% endif %}>Received</option>
+                        <option value="answered" {% if request.GET.status == 'answered' %}selected{% endif %}>Answered</option>
+                        <option value="reviewed" {% if request.GET.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
+                        <option value="ai_error" {% if request.GET.status == 'ai_error' %}selected{% endif %}>AI Error</option>
+                        <option value="parse_error" {% if request.GET.status == 'parse_error' %}selected{% endif %}>Parse Error</option>
                     </select>
                     <label>Status</label>
                 </div>
@@ -47,36 +49,42 @@
                 <thead style="position: sticky;top: 0;background-color: white;z-index: 10;box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);">
                 <tr>
                     <th>ID</th>
-                    <th>STATUS</th>
                     <th>FROM</th>
                     <th>TO</th>
                     <th>SUBJECT</th>
-                    <th>IP</th>
                     <th>RECEIVED AT</th>
+                    <th>ANSWERED AT</th>
+                    <th>REVIEWED AT</th>
+                    <th>STATUS</th>
                 </tr>
                 </thead>
                 <tbody>
                 {% for wh in webhooks %}
                     <tr class="clickable-row" data-href="{% url 'admin:webhook_detail' wh.id %}">
                         <td>{{ wh.id }}</td>
+                        <td>{{ wh.sender_email|truncatechars:35|default:"-" }}</td>
+                        <td>{{ wh.recipient_email|truncatechars:35|default:"-" }}</td>
+                        <td>{{ wh.subject|truncatechars:40|default:"-" }}</td>
+                        <td>{{ wh.received_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ wh.ai_responded_at|date:"Y-m-d H:i"|default:"--" }}</td>
+                        <td>{{ wh.user_rated_at|date:"Y-m-d H:i"|default:"--" }}</td>
                         <td>
-                            {% if wh.status == 'success' %}
-                                <span class="status-completed"><i class="material-icons">check_circle</i> Success</span>
-                            {% elif wh.status == 'error' %}
-                                <span class="status-not-completed"><i class="material-icons">error</i> Error</span>
-                            {% else %}
-                                <span class="status-not-completed"><i class="material-icons">block</i> Rejected</span>
+                            {% if wh.status == 'received' %}
+                                <span class="status-not-completed"><i class="material-icons">mail</i> Received</span>
+                            {% elif wh.status == 'answered' %}
+                                <span class="status-completed"><i class="material-icons">reply</i> Answered</span>
+                            {% elif wh.status == 'reviewed' %}
+                                <span class="status-completed"><i class="material-icons">verified</i> Reviewed</span>
+                            {% elif wh.status == 'ai_error' %}
+                                <span class="status-not-completed"><i class="material-icons">error</i> AI Error</span>
+                            {% elif wh.status == 'parse_error' %}
+                                <span class="status-not-completed"><i class="material-icons">warning</i> Parse Error</span>
                             {% endif %}
                         </td>
-                        <td>{{ wh.sender|truncatechars:35|default:"-" }}</td>
-                        <td>{{ wh.recipient|truncatechars:35|default:"-" }}</td>
-                        <td>{{ wh.subject|truncatechars:40|default:"-" }}</td>
-                        <td>{{ wh.source_ip|default:"-" }}</td>
-                        <td>{{ wh.received_at|date:"Y-m-d H:i" }}</td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 20px;">No webhooks received yet.</td>
+                        <td colspan="8" style="text-align: center; padding: 20px;">No emails received yet.</td>
                     </tr>
                 {% endfor %}
                 </tbody>
