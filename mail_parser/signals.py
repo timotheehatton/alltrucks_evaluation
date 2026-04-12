@@ -12,6 +12,56 @@ from .email_parser import parse_inbound_email
 logger = logging.getLogger(__name__)
 
 
+def generate_ai_response(webhook):
+    """
+    Parse the email, call OpenAI, and save the AI response to DB.
+    Does NOT send any email. Returns (success: bool, error: str|None).
+    """
+    config = AutoResponderConfig.load()
+
+    # Step 1: Parse email if not already parsed
+    if not webhook.parsed_content:
+        user_email, content, parse_error = parse_inbound_email(webhook)
+
+        if parse_error:
+            webhook.status = InboundWebhook.STATUS_PARSE_ERROR
+            webhook.error_message = parse_error
+            webhook.save(update_fields=['status', 'error_message'])
+            return False, parse_error
+
+        webhook.parsed_user_email = user_email
+        webhook.parsed_content = content
+        webhook.save(update_fields=['parsed_user_email', 'parsed_content'])
+    else:
+        content = webhook.parsed_content
+
+    # Step 2: Call OpenAI
+    from common.useful.openai_service import ai_service
+
+    if not webhook.review_token:
+        webhook.generate_review_token()
+
+    response_text, error = ai_service.generate_response(
+        system_prompt=config.system_prompt,
+        user_message=content,
+        model=config.openai_model,
+    )
+
+    if error:
+        webhook.ai_error = error
+        webhook.status = InboundWebhook.STATUS_AI_ERROR
+        webhook.save(update_fields=['ai_error', 'status', 'review_token'])
+        return False, error
+
+    webhook.ai_response = response_text
+    webhook.ai_responded_at = timezone.now()
+    webhook.ai_error = ''
+    webhook.status = InboundWebhook.STATUS_ANSWERED
+    webhook.save(update_fields=['ai_response', 'ai_responded_at', 'ai_error', 'status', 'review_token'])
+
+    return True, None
+
+
 def _load_auto_reply_template():
     file_path = os.path.join(settings.STATIC_ROOT, 'mail/auto_reply_template.html')
     with open(file_path, 'r') as f:
@@ -71,44 +121,11 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
     if not config.is_enabled:
         return
 
-    # Step 1: Parse the email to extract user email and content
-    user_email, content, parse_error = parse_inbound_email(instance)
+    success, error = generate_ai_response(instance)
 
-    if parse_error:
-        instance.status = InboundWebhook.STATUS_PARSE_ERROR
-        instance.error_message = parse_error
-        instance.save(update_fields=['status', 'error_message'])
-        logger.warning(f'Email parse failed for webhook {instance.id}: {parse_error}')
+    if not success:
         return
 
-    instance.parsed_user_email = user_email
-    instance.parsed_content = content
-    instance.save(update_fields=['parsed_user_email', 'parsed_content'])
-
-    # Step 2: Call OpenAI with the parsed content
-    from common.useful.openai_service import ai_service
-
-    instance.generate_review_token()
-
-    response_text, error = ai_service.generate_response(
-        system_prompt=config.system_prompt,
-        user_message=content,
-        model=config.openai_model,
-    )
-
-    if error:
-        instance.ai_error = error
-        instance.status = InboundWebhook.STATUS_AI_ERROR
-        instance.save(update_fields=['ai_error', 'status', 'review_token'])
-        logger.error(f'AI auto-responder failed for webhook {instance.id}: {error}')
-        return
-
-    instance.ai_response = response_text
-    instance.ai_responded_at = timezone.now()
-    instance.status = InboundWebhook.STATUS_ANSWERED
-    instance.save(update_fields=['ai_response', 'ai_responded_at', 'status', 'review_token'])
-
-    # Step 3: Send email if enabled
     if not config.is_email_enabled:
         return
 

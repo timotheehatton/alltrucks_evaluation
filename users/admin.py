@@ -39,6 +39,7 @@ class MyAdminSite(admin.AdminSite):
             path('download-content/', self.admin_view(self.download_strapi_content_view), name='download_content'),
             path('webhooks/', self.admin_view(self.webhooks_view), name='webhooks'),
             path('webhooks/<int:webhook_id>/', self.admin_view(self.webhook_detail_view), name='webhook_detail'),
+            path('webhooks/<int:webhook_id>/generate/', self.admin_view(self.webhook_generate_view), name='webhook_generate'),
             path('auto-responder-config/', self.admin_view(self.auto_responder_config_view), name='auto_responder_config'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
@@ -577,6 +578,22 @@ class MyAdminSite(admin.AdminSite):
         return render(request, 'admin/mail_parser/webhooks.html', {
             'webhooks': webhooks[:200],
         })
+
+    def webhook_generate_view(self, request, webhook_id):
+        if request.method != 'POST':
+            return redirect('admin:webhook_detail', webhook_id=webhook_id)
+
+        webhook = get_object_or_404(InboundWebhook, id=webhook_id)
+
+        from mail_parser.signals import generate_ai_response
+        success, error = generate_ai_response(webhook)
+
+        if success:
+            messages.success(request, 'AI response generated successfully.')
+        else:
+            messages.error(request, f'AI generation failed: {error}')
+
+        return redirect('admin:webhook_detail', webhook_id=webhook_id)
 
     def webhook_detail_view(self, request, webhook_id):
         webhook = get_object_or_404(InboundWebhook, id=webhook_id)
