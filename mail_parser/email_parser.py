@@ -77,11 +77,46 @@ def parse_portal_email(webhook):
 def parse_forum_email(webhook):
     """
     Parse emails from technic.forum@alltrucks.com.
-    These are forum notification emails — skip them.
+    Extracts the forum post subject, author and message from body_text.
+
+    No user email available (forum users don't expose their email).
+    AI response will only go to admin/test list.
 
     Returns: (user_email, content, error)
     """
-    return None, None, 'Forum notification emails are not processed'
+    text = webhook.body_text
+    if not text:
+        return None, None, 'No text body in forum email'
+
+    # Extract the block between the two separator lines
+    # Pattern: _____ \n Sujet : ... \n Auteur : ... \n Message : \n ... \n _____
+    block_match = re.search(
+        r'_{5,}\s*\n(.*?)\n_{5,}',
+        text,
+        re.DOTALL,
+    )
+
+    if not block_match:
+        return None, None, 'Could not extract forum post content'
+
+    block = block_match.group(1).strip()
+
+    # Extract subject, author, message
+    subject_match = re.search(r'Sujet\s*:\s*(.+)', block)
+    author_match = re.search(r'Auteur\s*:\s*(.+)', block)
+    message_match = re.search(r'Message\s*:\s*\n(.*)', block, re.DOTALL)
+
+    subject = subject_match.group(1).strip() if subject_match else ''
+    author = author_match.group(1).strip() if author_match else ''
+    message = message_match.group(1).strip() if message_match else ''
+
+    if not message:
+        return None, None, 'Could not extract message from forum post'
+
+    content = f"Forum post by {author}\nSubject: {subject}\n\n{message}"
+
+    # No user email available for forum posts
+    return None, content, None
 
 
 def parse_inbound_email(webhook):

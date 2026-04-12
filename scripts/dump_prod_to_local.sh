@@ -45,7 +45,6 @@ ENV="prod" \
     --exclude contenttypes \
     --exclude auth.permission \
     --exclude sessions \
-    --exclude mail_parser \
     --indent 2 \
     -o "$DUMP_FILE"
 

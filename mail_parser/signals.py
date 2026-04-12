@@ -29,7 +29,7 @@ def generate_ai_response(webhook):
             webhook.save(update_fields=['status', 'error_message'])
             return False, parse_error
 
-        webhook.parsed_user_email = user_email
+        webhook.parsed_user_email = user_email or ''
         webhook.parsed_content = content
         webhook.save(update_fields=['parsed_user_email', 'parsed_content'])
     else:
