@@ -609,28 +609,23 @@ class MyAdminSite(admin.AdminSite):
 
     @staticmethod
     def _build_email_preview(webhook):
-        import os
-        file_path = os.path.join(settings.STATIC_ROOT, 'mail/auto_reply_template.html')
+        from mail_parser.signals import build_email_html
+
+        no_link = 'javascript:void(0)'
+        star_urls = {f'star_{i}_url': no_link for i in range(1, 6)}
+
         try:
-            with open(file_path, 'r') as f:
-                template = f.read()
+            preview = build_email_html(webhook, star_urls=star_urls)
         except FileNotFoundError:
             return None
 
-        subject = f'Re: {webhook.subject}'
-        review_base_url = f'#preview'
-
-        return (
-            template
-            .replace('{{ subject }}', subject)
-            .replace('{{ ai_response }}', webhook.ai_response.replace('\n', '<br>'))
-            .replace('{{ original_message }}', (webhook.parsed_content[:500] or webhook.body_text[:500] or '').replace('\n', '<br>'))
-            .replace('{{ star_1_url }}', review_base_url)
-            .replace('{{ star_2_url }}', review_base_url)
-            .replace('{{ star_3_url }}', review_base_url)
-            .replace('{{ star_4_url }}', review_base_url)
-            .replace('{{ star_5_url }}', review_base_url)
+        # Disable star links in preview
+        preview = preview.replace(
+            'text-decoration: none; font-size: 32px;',
+            'text-decoration: none; font-size: 32px; pointer-events: none; cursor: default;',
         )
+
+        return preview
 
     def auto_responder_config_view(self, request):
         config = AutoResponderConfig.load()

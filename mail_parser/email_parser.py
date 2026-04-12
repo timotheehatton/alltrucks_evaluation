@@ -34,33 +34,36 @@ def _html_to_text(html):
     return extractor.get_text()
 
 
-def _extract_email_address(text):
-    match = re.search(r'[\w.+-]+@[\w-]+\.[\w.-]+', text)
-    return match.group(0) if match else None
+def _extract_table_value(text, label):
+    """Extract value next to a label in the converted HTML text."""
+    match = re.search(rf'{label}\s*\n\s*(.+)', text)
+    if not match:
+        return ''
+    value = match.group(1).strip()
+    # Don't return section headers as values
+    if re.match(r'^\d+\s*-\s*', value):
+        return ''
+    return value
 
 
 def parse_portal_email(webhook):
     """
     Parse emails from portal@alltrucks.com.
-    Extracts the real user email and structured content from HTML body.
+    Extracts user email, vehicle info, and issue from HTML body.
 
-    Returns: (user_email, content, error)
+    Returns: (user_email, content, vehicle_data, issue, error)
     """
     html = webhook.body_html
     if not html:
-        return None, None, 'No HTML body in portal email'
+        return None, None, None, None, 'No HTML body in portal email'
 
     text = _html_to_text(html)
 
-    # Extract user email from the HTML table (look for Email row)
-    email_match = re.search(
-        r'Email\s*\n?\s*([\w.+-]+@[\w-]+\.[\w.-]+)',
-        text
-    )
+    # Extract user email
+    email_match = re.search(r'Email\s*\n?\s*([\w.+-]+@[\w-]+\.[\w.-]+)', text)
     user_email = email_match.group(1) if email_match else None
 
     if not user_email:
-        # Fallback: try to find any email that is not the platform email
         emails = re.findall(r'[\w.+-]+@[\w-]+\.[\w.-]+', text)
         for e in emails:
             if e not in ('portal@alltrucks.com', 'hotlinetickets@alltrucks.com',
@@ -69,9 +72,44 @@ def parse_portal_email(webhook):
                 break
 
     if not user_email:
-        return None, None, 'Could not extract user email from portal email'
+        return None, None, None, None, 'Could not extract user email from portal email'
 
-    return user_email, text, None
+    # Extract vehicle information
+    vehicle_data = {
+        'brand': _extract_table_value(text, 'Brand'),
+        'model': _extract_table_value(text, 'Model'),
+        'vin': _extract_table_value(text, 'VIN'),
+        'year': _extract_table_value(text, 'Year'),
+        'mileage': _extract_table_value(text, 'Mileage'),
+        'axle_config': _extract_table_value(text, 'Axle configuration'),
+    }
+
+    # Extract the full problem section between "3 - The problem" and "4 - Request"
+    problem_match = re.search(r'3 - The problem(.*?)(?:4 - Request|$)', text, re.DOTALL)
+    issue = ''
+    if problem_match:
+        problem_block = problem_match.group(1)
+
+        # Extract the issue description (between "Issue description..." and "Default code")
+        desc_match = re.search(
+            r'Issue description or support requested\s*\n+(.*?)(?:\n\s*Default code|\Z)',
+            problem_block,
+            re.DOTALL,
+        )
+        description = desc_match.group(1).strip() if desc_match else ''
+
+        # Extract default code if present
+        code_match = re.search(r'Default code:\s*(.+)', problem_block)
+        default_code = code_match.group(1).strip() if code_match else ''
+
+        parts = []
+        if description:
+            parts.append(description)
+        if default_code:
+            parts.append(f'Default code: {default_code}')
+        issue = '\n\n'.join(parts)
+
+    return user_email, text, vehicle_data, issue, None
 
 
 def parse_forum_email(webhook):
@@ -79,17 +117,12 @@ def parse_forum_email(webhook):
     Parse emails from technic.forum@alltrucks.com.
     Extracts the forum post subject, author and message from body_text.
 
-    No user email available (forum users don't expose their email).
-    AI response will only go to admin/test list.
-
-    Returns: (user_email, content, error)
+    Returns: (user_email, content, vehicle_data, issue, error)
     """
     text = webhook.body_text
     if not text:
-        return None, None, 'No text body in forum email'
+        return None, None, None, None, 'No text body in forum email'
 
-    # Extract the block between the two separator lines
-    # Pattern: _____ \n Sujet : ... \n Auteur : ... \n Message : \n ... \n _____
     block_match = re.search(
         r'_{5,}\s*\n(.*?)\n_{5,}',
         text,
@@ -97,11 +130,10 @@ def parse_forum_email(webhook):
     )
 
     if not block_match:
-        return None, None, 'Could not extract forum post content'
+        return None, None, None, None, 'Could not extract forum post content'
 
     block = block_match.group(1).strip()
 
-    # Extract subject, author, message
     subject_match = re.search(r'Sujet\s*:\s*(.+)', block)
     author_match = re.search(r'Auteur\s*:\s*(.+)', block)
     message_match = re.search(r'Message\s*:\s*\n(.*)', block, re.DOTALL)
@@ -111,31 +143,61 @@ def parse_forum_email(webhook):
     message = message_match.group(1).strip() if message_match else ''
 
     if not message:
-        return None, None, 'Could not extract message from forum post'
+        return None, None, None, None, 'Could not extract message from forum post'
 
     content = f"Forum post by {author}\nSubject: {subject}\n\n{message}"
+    issue = f"{subject}\n\n{message}"
 
-    # No user email available for forum posts
-    return None, content, None
+    return None, content, None, issue, None
 
 
 def parse_inbound_email(webhook):
     """
     Main parsing function. Detects the email type based on sender
-    and routes to the appropriate parser.
+    and routes to the appropriate parser. Saves parsed data on the webhook.
 
     Returns: (user_email, content, error)
-        - user_email: the real end-user email to reply to
-        - content: the meaningful text content to send to AI
-        - error: error message if parsing failed (None on success)
     """
+    from .models import InboundWebhook
+
     sender_email = webhook.sender_email.lower()
 
     if sender_email == 'portal@alltrucks.com':
-        return parse_portal_email(webhook)
+        webhook.category = InboundWebhook.CATEGORY_HOTLINE
+        user_email, content, vehicle_data, issue, error = parse_portal_email(webhook)
+
+        if error:
+            webhook.save(update_fields=['category'])
+            return None, None, error
+
+        # Save vehicle info
+        if vehicle_data:
+            webhook.vehicle_brand = vehicle_data.get('brand', '')
+            webhook.vehicle_model = vehicle_data.get('model', '')
+            webhook.vehicle_vin = vehicle_data.get('vin', '')
+            webhook.vehicle_year = vehicle_data.get('year', '')
+            webhook.vehicle_mileage = vehicle_data.get('mileage', '')
+            webhook.vehicle_axle_config = vehicle_data.get('axle_config', '')
+
+        webhook.parsed_issue = issue or ''
+        webhook.save(update_fields=[
+            'category', 'vehicle_brand', 'vehicle_model', 'vehicle_vin',
+            'vehicle_year', 'vehicle_mileage', 'vehicle_axle_config', 'parsed_issue',
+        ])
+
+        return user_email, content, None
 
     if sender_email == 'technic.forum@alltrucks.com':
-        return parse_forum_email(webhook)
+        webhook.category = InboundWebhook.CATEGORY_FORUM
+        user_email, content, vehicle_data, issue, error = parse_forum_email(webhook)
 
-    # Unknown sender pattern — cannot parse
+        if error:
+            webhook.save(update_fields=['category'])
+            return None, None, error
+
+        webhook.parsed_issue = issue or ''
+        webhook.save(update_fields=['category', 'parsed_issue'])
+
+        return user_email, content, None
+
     return None, None, f'Unrecognized sender pattern: {sender_email}'

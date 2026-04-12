@@ -49,8 +49,8 @@
                 <thead style="position: sticky;top: 0;background-color: white;z-index: 10;box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);">
                 <tr>
                     <th>ID</th>
+                    <th>TYPE</th>
                     <th>FROM</th>
-                    <th>TO</th>
                     <th>SUBJECT</th>
                     <th>RECEIVED AT</th>
                     <th>ANSWERED AT</th>
@@ -62,8 +62,16 @@
                 {% for wh in webhooks %}
                     <tr class="clickable-row" data-href="{% url 'admin:webhook_detail' wh.id %}">
                         <td>{{ wh.id }}</td>
+                        <td>
+                            {% if wh.category == 'hotline' %}
+                                <span class="user-type-manager">Hotline</span>
+                            {% elif wh.category == 'forum' %}
+                                <span class="user-type-technician">Forum</span>
+                            {% else %}
+                                <span style="color: #9e9e9e;">Unknown</span>
+                            {% endif %}
+                        </td>
                         <td>{{ wh.sender_email|truncatechars:35|default:"-" }}</td>
-                        <td>{{ wh.recipient_email|truncatechars:35|default:"-" }}</td>
                         <td>{{ wh.subject|truncatechars:40|default:"-" }}</td>
                         <td>{{ wh.received_at|date:"Y-m-d H:i" }}</td>
                         <td>{{ wh.ai_responded_at|date:"Y-m-d H:i"|default:"--" }}</td>

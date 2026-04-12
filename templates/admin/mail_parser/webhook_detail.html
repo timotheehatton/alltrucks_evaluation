@@ -93,6 +93,30 @@
         </div>
 
         {% if webhook.sender %}
+
+        {% if webhook.category == 'hotline' and webhook.vehicle_brand %}
+        <div class="card" style="height: auto;">
+            <div class="section-title"><i class="material-icons">directions_car</i>Vehicle Information</div>
+            <table>
+                <tbody>
+                    {% if webhook.vehicle_brand %}<tr><td>Brand</td><td>{{ webhook.vehicle_brand }}</td></tr>{% endif %}
+                    {% if webhook.vehicle_model %}<tr><td>Model</td><td>{{ webhook.vehicle_model }}</td></tr>{% endif %}
+                    {% if webhook.vehicle_vin %}<tr><td>VIN</td><td>{{ webhook.vehicle_vin }}</td></tr>{% endif %}
+                    {% if webhook.vehicle_year %}<tr><td>Year</td><td>{{ webhook.vehicle_year }}</td></tr>{% endif %}
+                    {% if webhook.vehicle_mileage %}<tr><td>Mileage</td><td>{{ webhook.vehicle_mileage }}</td></tr>{% endif %}
+                    {% if webhook.vehicle_axle_config %}<tr><td>Axle config</td><td>{{ webhook.vehicle_axle_config }}</td></tr>{% endif %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+        {% if webhook.parsed_issue %}
+        <div class="card" style="height: auto;">
+            <div class="section-title"><i class="material-icons">report_problem</i>Issue Reported</div>
+            <div class="content-block">{{ webhook.parsed_issue }}</div>
+        </div>
+        {% endif %}
+
         <div class="card" style="height: auto;">
             <div class="section-title">Content</div>
             <div class="content-block">{{ webhook.body_text|default:"(empty)" }}</div>

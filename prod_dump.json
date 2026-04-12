@@ -1,0 +1,2670 @@
+[
+{
+  "model": "users.company",
+  "pk": 75,
+  "fields": {
+    "name": "Alltrucks France - Chessy",
+    "city": "Chessy",
+    "country": "FR",
+    "cu_number": "CU123456"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 104,
+  "fields": {
+    "name": "GBV Trucks Sabatie SAS",
+    "city": "Portet sur Garonne",
+    "country": "FR",
+    "cu_number": "CU170425"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 137,
+  "fields": {
+    "name": "AD Poids Lourds SMVI Van Beek Sarl",
+    "city": "Amilly",
+    "country": "FR",
+    "cu_number": "CU180646"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 138,
+  "fields": {
+    "name": "Lapauze SAS",
+    "city": "Saint Jean de la Ruelle",
+    "country": "FR",
+    "cu_number": "CU170348"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 170,
+  "fields": {
+    "name": "Techni Freins Libourne",
+    "city": "LIBOURNE",
+    "country": "FR",
+    "cu_number": "CU240079"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 203,
+  "fields": {
+    "name": "Comminges Diesel S.A.S.",
+    "city": "Saint Gaudens",
+    "country": "FR",
+    "cu_number": "CU200095"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 204,
+  "fields": {
+    "name": "Techni-Freins SASU",
+    "city": "Artigues-Près-Bordeaux",
+    "country": "FR",
+    "cu_number": "CU170392"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 205,
+  "fields": {
+    "name": "STEIMA SAUTRON",
+    "city": "Sautron",
+    "country": "FR",
+    "cu_number": "CU240032"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 219,
+  "fields": {
+    "name": "AMCAT Formations",
+    "city": "Chessy",
+    "country": "FR",
+    "cu_number": "CU170493"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 220,
+  "fields": {
+    "name": "SERVIMAT",
+    "city": "VILLENEUVE LES MAGUELONE",
+    "country": "FR",
+    "cu_number": "CU230033"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 221,
+  "fields": {
+    "name": "Techno Poids Lourds SARL",
+    "city": "Perpignan",
+    "country": "FR",
+    "cu_number": "CU180557"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 222,
+  "fields": {
+    "name": "Techno Poids Lourds SARL",
+    "city": "Carcassonne",
+    "country": "FR",
+    "cu_number": "CU190010"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 223,
+  "fields": {
+    "name": "Ayme Trucks",
+    "city": "Vedene",
+    "country": "FR",
+    "cu_number": "CU02731"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 224,
+  "fields": {
+    "name": "Sodiama SAS",
+    "city": "Saint-Hilaire du Harcouët",
+    "country": "FR",
+    "cu_number": "CU170499"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 225,
+  "fields": {
+    "name": "Ets DECHARENTON SAS",
+    "city": "Flers",
+    "country": "FR",
+    "cu_number": "CU170497"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 226,
+  "fields": {
+    "name": "Sodiama SAS",
+    "city": "Agneaux",
+    "country": "FR",
+    "cu_number": "CU170498"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 236,
+  "fields": {
+    "name": "Rondeau Vacquier",
+    "city": "Mouilleron le Captif",
+    "country": "FR",
+    "cu_number": "CU170375"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 237,
+  "fields": {
+    "name": "Sodiama SAS (Saint-Hilaire du Harcouët)",
+    "city": "Saint Hilaire du Harcouët",
+    "country": "FR",
+    "cu_number": "CU170499"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 269,
+  "fields": {
+    "name": "P.L.U.S. Chavelot",
+    "city": "Chavelot",
+    "country": "FR",
+    "cu_number": "CU170448"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 304,
+  "fields": {
+    "name": "Alltrucks Poland",
+    "city": "Zielonka",
+    "country": "PL",
+    "cu_number": "CU02715"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 335,
+  "fields": {
+    "name": "Garage Tanguy SAS",
+    "city": "Sainte Marguerite",
+    "country": "FR",
+    "cu_number": "CU170520"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 337,
+  "fields": {
+    "name": "Ets Theret",
+    "city": "Saint-Maur",
+    "country": "FR",
+    "cu_number": "CU170347"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 368,
+  "fields": {
+    "name": "Beskidus Sp. z o.o.",
+    "city": "Zembrzyce",
+    "country": "PL",
+    "cu_number": "CU190035"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 369,
+  "fields": {
+    "name": "SM Logistics Sp. z o.o.",
+    "city": "Wieprz",
+    "country": "PL",
+    "cu_number": "CU230058"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 371,
+  "fields": {
+    "name": "Alltrucks Spain",
+    "city": "Alcalá de henares",
+    "country": "ES",
+    "cu_number": "CU654321"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 401,
+  "fields": {
+    "name": "BJ-Parts",
+    "city": "Chobienia",
+    "country": "PL",
+    "cu_number": "CU230058"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 402,
+  "fields": {
+    "name": "JKG Truck Service",
+    "city": "Janowo",
+    "country": "PL",
+    "cu_number": "CU190035"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 403,
+  "fields": {
+    "name": "Mobil-Tech",
+    "city": "Gołaczów",
+    "country": "PL",
+    "cu_number": "CU250030"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 404,
+  "fields": {
+    "name": "Apex-Thermo King",
+    "city": "Bydgoszcz",
+    "country": "PL",
+    "cu_number": "CU230047"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 406,
+  "fields": {
+    "name": "GMS INTERVENTION",
+    "city": "Fleury-Mérogis",
+    "country": "FR",
+    "cu_number": "CU200081"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 407,
+  "fields": {
+    "name": "Polcar",
+    "city": "Kolonia-Poczesna",
+    "country": "PL",
+    "cu_number": "CU220004"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 408,
+  "fields": {
+    "name": "ZTE Katowice",
+    "city": "Siemianowice Śląskie",
+    "country": "PL",
+    "cu_number": "CU200119"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 409,
+  "fields": {
+    "name": "Jantrans",
+    "city": "Biała Podlaska",
+    "country": "PL",
+    "cu_number": "CU240052"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 410,
+  "fields": {
+    "name": "Durand Services",
+    "city": "Chasse-sur-Rhône",
+    "country": "FR",
+    "cu_number": "CU180623"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 411,
+  "fields": {
+    "name": "Truck & Trailer Center Oleksiuk",
+    "city": "Żurobice",
+    "country": "PL",
+    "cu_number": "CU220057"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 412,
+  "fields": {
+    "name": "Galaauto Białystok",
+    "city": "Tykocin",
+    "country": "PL",
+    "cu_number": "CU170452"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 413,
+  "fields": {
+    "name": "WIMEX",
+    "city": "Białystok",
+    "country": "PL",
+    "cu_number": "CU240022"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 414,
+  "fields": {
+    "name": "Targor-Truck",
+    "city": "Ostrołęka",
+    "country": "PL",
+    "cu_number": "CU180563"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 415,
+  "fields": {
+    "name": "Galaauto Lublin",
+    "city": "Lublin",
+    "country": "PL",
+    "cu_number": "CU170452"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 416,
+  "fields": {
+    "name": "Moto-Tech",
+    "city": "Biłgoraj",
+    "country": "PL",
+    "cu_number": "CU190049"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 417,
+  "fields": {
+    "name": "Weman Sp. z o.o.",
+    "city": "Zaścianki",
+    "country": "PL",
+    "cu_number": "CU240048"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 418,
+  "fields": {
+    "name": "TSL Antkowiak Katarzyna",
+    "city": "Oborniki",
+    "country": "PL",
+    "cu_number": "CU220012"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 419,
+  "fields": {
+    "name": "ILTRANS",
+    "city": "Ośno Lubuskie",
+    "country": "PL",
+    "cu_number": "CU240078"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 420,
+  "fields": {
+    "name": "Aisne Diesel Service",
+    "city": "Argoeuves",
+    "country": "FR",
+    "cu_number": "CU170411"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 421,
+  "fields": {
+    "name": "Biache Service Maintenance par Artec",
+    "city": "Vitry en Artois",
+    "country": "FR",
+    "cu_number": "CU220031"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 422,
+  "fields": {
+    "name": "AD Herbemont SAS",
+    "city": "Verdun",
+    "country": "FR",
+    "cu_number": "CU190005"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 423,
+  "fields": {
+    "name": "Garage DUFRENNE SARL",
+    "city": "Humières",
+    "country": "FR",
+    "cu_number": "CU180695"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 424,
+  "fields": {
+    "name": "FOI 53 Ferron Ouest Injection SARL – Laval",
+    "city": "Laval",
+    "country": "FR",
+    "cu_number": "CU180571"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 425,
+  "fields": {
+    "name": "Ragues",
+    "city": "Mondeville",
+    "country": "FR",
+    "cu_number": "CU170360"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 434,
+  "fields": {
+    "name": "Knorr-Bremse France",
+    "city": "Lisieux",
+    "country": "FR",
+    "cu_number": "CU01986"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 435,
+  "fields": {
+    "name": "Duncan",
+    "city": "Radom",
+    "country": "PL",
+    "cu_number": "CU190036"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 436,
+  "fields": {
+    "name": "Talleres Orozco Automoción, S.L.U.",
+    "city": "Sangonera la Seca",
+    "country": "ES",
+    "cu_number": "CU190056"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 467,
+  "fields": {
+    "name": "Pro-Gum",
+    "city": "Kraków",
+    "country": "PL",
+    "cu_number": "CU220052"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 468,
+  "fields": {
+    "name": "DSS Service",
+    "city": "Monice",
+    "country": "PL",
+    "cu_number": "CU180582"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 469,
+  "fields": {
+    "name": "OK Truck Service",
+    "city": "Kąty Wrocławskie",
+    "country": "PL",
+    "cu_number": "CU240077"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 470,
+  "fields": {
+    "name": "JKG Truck Service",
+    "city": "Janowo",
+    "country": "PL",
+    "cu_number": "CU250067"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 471,
+  "fields": {
+    "name": "Tandem Trucks",
+    "city": "Katowice",
+    "country": "PL",
+    "cu_number": "CU180581"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 472,
+  "fields": {
+    "name": "Centrum Truck Serwice Arkadiusz Drążewski",
+    "city": "Szczecin",
+    "country": "PL",
+    "cu_number": "CU170453"
+  }
+},
+{
+  "model": "users.company",
+  "pk": 500,
+  "fields": {
+    "name": "CTL Service",
+    "city": "Piotrków Tryb.",
+    "country": "PL",
+    "cu_number": "CU260015"
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$Qbipk24D6jSdwciUC50quV$Be8coQSEFAp4V6wcOzBD2ZxR7cyk+2Tz+RsBsZDc/LI=",
+    "last_login": "2026-04-07T10:22:52.359Z",
+    "is_superuser": true,
+    "username": "admin-amcat@alltrucks.com",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-04-22T17:00:03.934Z",
+    "user_type": null,
+    "language": "FR",
+    "company": null,
+    "ct_number": null,
+    "email": "admin-amcat@alltrucks.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$vWoebRBzYwGl03R9SKIyA1$6FEt0cq6rV29x2oW3FgQU6sbQ8JkV8Htn4rQk8LwcJ4=",
+    "last_login": "2026-04-12T19:01:15.157Z",
+    "is_superuser": true,
+    "username": "timothee.hatton@gmail.com",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-04-22T17:12:37.147Z",
+    "user_type": null,
+    "language": "FR",
+    "company": null,
+    "ct_number": null,
+    "email": "timothee.hatton@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$TQNL6h8ZGMdFJVjeC8NwVF$IinkQjOj3RtCPNhFXP7Iksju4CxaKjNT95kR38RNmEE=",
+    "last_login": "2026-02-19T10:58:27.467Z",
+    "is_superuser": false,
+    "username": "laurent.hatton@alltrucks.com",
+    "first_name": "LAURENT",
+    "last_name": "HATTON",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-04-23T19:33:17.231Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 75,
+    "ct_number": "CT123457",
+    "email": "laurent.hatton@alltrucks.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$8kuELSZX7CLUwxmNFEmwkq$+SWpAGTjPczNiUy5Cu5AKWLtnwcn8lEKh6BzA3wkapQ=",
+    "last_login": "2026-04-07T07:51:44.318Z",
+    "is_superuser": false,
+    "username": "sebastien.lamidey@alltrucks.com",
+    "first_name": "SEBASTIEN",
+    "last_name": "LAMIDEY",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-04-23T19:33:17.849Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 75,
+    "ct_number": "CT234688",
+    "email": "sebastien.lamidey@alltrucks.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$ivIATwQMc5arRQF4ECt7Cz$2PKIwjkTKDhZO/CRv/18wOsWWJlYm1cQ/CAFbeayQrQ=",
+    "last_login": "2025-05-20T15:45:59.148Z",
+    "is_superuser": false,
+    "username": "laurent.ghirardo@alltrucks.com",
+    "first_name": "GHIRARDO",
+    "last_name": "LAURENT",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-04-23T19:33:18.369Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 75,
+    "ct_number": "CT788123",
+    "email": "laurent.ghirardo@alltrucks.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$Gs16071LEAT1NhgT2Je6Eb$FWwqctjjAKPKXjauiN2psxP9r3fMF5g3k2UiGp8NaLM=",
+    "last_login": "2026-01-21T12:22:43.043Z",
+    "is_superuser": false,
+    "username": "guillaume.lecluse@alltrucks.com",
+    "first_name": "GUILLAUME",
+    "last_name": "LECLUSE",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-04-23T19:33:18.388Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 75,
+    "ct_number": "CT667744",
+    "email": "guillaume.lecluse@alltrucks.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$vKxgsBjpwvpvszclzmnrA1$CFWjGhjiWF9gPwhfG5TWanl7h5nxr2EMm/r+3E8pYgw=",
+    "last_login": "2026-03-26T08:54:08.159Z",
+    "is_superuser": true,
+    "username": "marie.terodde@alltrucks.com",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-05-13T14:08:12.450Z",
+    "user_type": null,
+    "language": "FR",
+    "company": null,
+    "ct_number": null,
+    "email": "marie.terodde@alltrucks.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!IB6lWx85L7HGm9Fa5IFxggk6Od9w4jxArb5nijrI",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "christophe.romanello@sabatie.com",
+    "first_name": "Christophe",
+    "last_name": "Romanello",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-05-15T07:09:35.972Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 104,
+    "ct_number": "CT03022",
+    "email": "christophe.romanello@sabatie.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$ptOQ1SMbQxp2CDOts1C9TO$SR1YT/6PSCkSQPnQTBK0q3/PVtKUeNX3mdXGj4W+VLY=",
+    "last_login": "2025-05-15T07:57:53.920Z",
+    "is_superuser": false,
+    "username": "arnaud9731@gmail.com",
+    "first_name": "Arnaud ",
+    "last_name": "Swietoniowski",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-05-15T07:09:36.728Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 104,
+    "ct_number": "CT08904",
+    "email": "arnaud9731@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!cHxjfETeLMZbkgklHgn46Qyq2ibrotDJLktoSuKV",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "florent.sacau@sabatie.com",
+    "first_name": "Florent ",
+    "last_name": "SACAU",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-05-15T07:09:37.678Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 104,
+    "ct_number": "CT03098",
+    "email": "florent.sacau@sabatie.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$6d308IwJn0BUNLML6Jmnh7$CtNlW2RIjFn464KcMo/rSDrWKEwAas4/3BQss1xKlIo=",
+    "last_login": "2025-05-15T07:39:50.121Z",
+    "is_superuser": false,
+    "username": "frederic.teuliere@sabatie.com",
+    "first_name": "Frederic ",
+    "last_name": "TEULIERE",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-05-15T07:09:37.713Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 104,
+    "ct_number": "CT03097",
+    "email": "frederic.teuliere@sabatie.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!beMMuj9hLd663zA3LjyFvgaSIkteou14XNrnTrZF",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "jeanpierre.lavier@sabatie.com",
+    "first_name": "Jean Pierre ",
+    "last_name": "LAVIER",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-05-15T07:09:38.406Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 104,
+    "ct_number": "CT03099",
+    "email": "jeanpierre.lavier@sabatie.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!ndXUpCZU1MrgRnhGVZuuUFqjMvKLdJYmYFuO3HWD",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "maxime.delattre@sabatie.com",
+    "first_name": "Maxime ",
+    "last_name": "Delattre",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-05-15T07:09:39.267Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 104,
+    "ct_number": "CT05069",
+    "email": "maxime.delattre@sabatie.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!0q90kziw4AhhcthZgq5ytfBuJoWEPBAKJmvVyhpU",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "patrice.pujades@sabatie.com",
+    "first_name": "Patrice ",
+    "last_name": "PUJADES",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-05-15T07:09:39.397Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 104,
+    "ct_number": "CT03100",
+    "email": "patrice.pujades@sabatie.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!pYOZiX4zeNcqI8DpGnoPmMJNzTRw2rnDz4kinw1f",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "sebalddmt@gmail.com",
+    "first_name": "Sebald ",
+    "last_name": "Demanet",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-05-15T07:09:39.424Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 104,
+    "ct_number": "CT08901",
+    "email": "sebalddmt@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!WRhI3JeIZe3vBO2DQub4TH6IS3gDC5Ggd4Yz3jZC",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "yannvanbeek@gmail.com",
+    "first_name": "Yann",
+    "last_name": "VANBEEK",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-03T12:27:19.372Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 137,
+    "ct_number": "CT04003",
+    "email": "yannvanbeek@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!L0Uj6aJHTXctushDdpCaPEj2P1nnLFXt4M64zuJV",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "poidras.bruno@gmail.com",
+    "first_name": "Bruno",
+    "last_name": "POIDRAS",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-03T12:27:20.360Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 137,
+    "ct_number": "CT04003",
+    "email": "poidras.bruno@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!3JgZDQPSJw6hPjM6utQ3hdD277NvhK0ESIr2amlv",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "ericvaslier@gmail.com",
+    "first_name": "Eric",
+    "last_name": "Vaslier",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-03T12:27:20.703Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 137,
+    "ct_number": "CT04003",
+    "email": "ericvaslier@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!GvwcK3rNJG7luYrYfDOiEQSgiBXbwzKUfEgMx2nW",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "franck.perre@gmail.com",
+    "first_name": "Franck ",
+    "last_name": "Perré",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-03T12:27:20.827Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 137,
+    "ct_number": "CT04003",
+    "email": "franck.perre@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!wT0VbzIJkK04TwkMeI6ksLi8bgH4Pa7DVRcjokEJ",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "jc.lecomte@allianceautomotive.fr",
+    "first_name": "Jean Christophe",
+    "last_name": "Lecomte",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-04T08:01:48.401Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 138,
+    "ct_number": "CT01976",
+    "email": "jc.lecomte@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!RGcDAMDv6CvauKOb9XrParFmAj1E11TdGxWjwiv2",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "r.bericat@allianceautomotive.fr",
+    "first_name": "Riad ",
+    "last_name": "Bericat",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-04T08:01:49.095Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 138,
+    "ct_number": "CT01976",
+    "email": "r.bericat@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!spPd7O8k8MPOWVAMoFvqPDN1gUXLHvRiRlTpWvvQ",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "j.beaubras@allianceautomotive.fr",
+    "first_name": "Jonathan ",
+    "last_name": "Beaubras",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-04T08:01:49.596Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 138,
+    "ct_number": "CT01976",
+    "email": "j.beaubras@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!TN6WhoAktYW1QkM1NfRaZDC9widvysoVfkexICMI",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "e.marchetti@allianceautomotive.fr",
+    "first_name": "Enzo ",
+    "last_name": "Marchetti",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-04T08:01:49.622Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 138,
+    "ct_number": "CT01976",
+    "email": "e.marchetti@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!GVs0iAEkeIqSkBtMDJc2Z793MpUhxE0EzTnpwmUA",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "e.esasjas@allianceautomotive.fr",
+    "first_name": "Gianny ",
+    "last_name": "Esasjas",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-04T08:01:50.225Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 138,
+    "ct_number": "CT01976",
+    "email": "e.esasjas@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!py4UD7NVGyEP5MvqTma06f8ONuOsqfQzRbZ1cfiY",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "b.ferrari@allianceautomotive.fr",
+    "first_name": "Bruno",
+    "last_name": "Ferrari",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-05T15:12:26.243Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 170,
+    "ct_number": "CT08842",
+    "email": "b.ferrari@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!zc1TQCud1OClt3fJ1nrxfNFfTIuZOME19NzYobW0",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "ahmedhabki1@gmail.com",
+    "first_name": "Ahmed ",
+    "last_name": "Habki",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-05T15:12:26.874Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 170,
+    "ct_number": "CT08839",
+    "email": "ahmedhabki1@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!vAoJK5SbuyVDUnMHKQ0Dl0YHPU6FdLYdFWBnh2Zz",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "daviddourney@gmail.com",
+    "first_name": "David ",
+    "last_name": "Dourney",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-05T15:12:27.385Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 170,
+    "ct_number": "CT08841",
+    "email": "daviddourney@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$Phq8YyEY8cuEoLy5xZfdDf$IJx3VXXTMnowxc48HeFC38kWj/Je0P6c7SHXslktpXI=",
+    "last_login": "2025-06-05T15:58:30.795Z",
+    "is_superuser": false,
+    "username": "merco600sec@gmail.com",
+    "first_name": "Didier ",
+    "last_name": "Quincampois",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-06-05T15:12:27.405Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 170,
+    "ct_number": "CT08840",
+    "email": "merco600sec@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!xS93gbG2BnPILhscU6yldfFZ1yyLzy07KNkPvpAT",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "djbad02@live.fr",
+    "first_name": "Fabien ",
+    "last_name": "Muller",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-05T15:12:28.075Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 170,
+    "ct_number": "CT08838",
+    "email": "djbad02@live.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$bI5VdZhgznij1dMWMlN1Yc$uJ+dM0Qkbe+7fJjy93aPswqP2ilOq8y7iCg+i75dxHA=",
+    "last_login": "2025-06-06T10:56:09.923Z",
+    "is_superuser": false,
+    "username": "jonathan.bagneau@orange.fr",
+    "first_name": "Jonathan ",
+    "last_name": "Bagneau",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-06-05T15:12:28.752Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 170,
+    "ct_number": "CT08843",
+    "email": "jonathan.bagneau@orange.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!pFsBGGPoWRaDS0FBRBkPrbQ3FtLxDElnWZc3G8WS",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "jm.lignac@allianceautomotive.fr",
+    "first_name": "Jean-Michel",
+    "last_name": "Lignac",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-05T15:12:28.772Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 170,
+    "ct_number": "CT09254",
+    "email": "jm.lignac@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!IAGn9pHxm8GBc30jfw7z7csVmeCqmgXX3G6BNuIV",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "vincent.touzanne@comminges-diesel.fr",
+    "first_name": "Vincent",
+    "last_name": "Touzanne",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-24T09:56:34.191Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 203,
+    "ct_number": "CT08891",
+    "email": "vincent.touzanne@comminges-diesel.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!yjHq7uwP5Lq4SaOVTdBvYfrlqphMAEafMuiVn9K7",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "armand.hadoux31@gmail.com",
+    "first_name": "Armand ",
+    "last_name": "Hadoux",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-24T09:56:34.889Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 203,
+    "ct_number": "CT08893",
+    "email": "armand.hadoux31@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!yPf2dTEMgXFjtdLXYb17Zqo5MmYPkqO86fWCPkIs",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "aure110412.ald@gmail.com",
+    "first_name": "Aurélien",
+    "last_name": "Devos",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-24T09:56:35.354Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 203,
+    "ct_number": "CT08890",
+    "email": "aure110412.ald@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!uLaiSYkYl18yzQGkfVHQATI8Z2fwsbEph5IHyrKO",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "helder_reis.13@hotmail.com",
+    "first_name": "Helder ",
+    "last_name": "Reis",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-24T09:56:35.474Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 203,
+    "ct_number": "CT05880",
+    "email": "helder_reis.13@hotmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!hu2cajbYNKQtYuMzkO4Qkopu10ywNfQv2T2N4y8h",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "hugo.lefaix@icloud.com",
+    "first_name": "Hugo ",
+    "last_name": "Lefaix",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-24T09:56:35.602Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 203,
+    "ct_number": "CT08892",
+    "email": "hugo.lefaix@icloud.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!wZcn4YRg6XNqjBwbeU0la08qifbr8uBJ0OTna8DO",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "maxouu.2007@gmail.com",
+    "first_name": "Massimo ",
+    "last_name": "Canestri",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-24T09:56:35.880Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 203,
+    "ct_number": "CT08894",
+    "email": "maxouu.2007@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!BRfuPg5KqqMFal4X3O3ZWnqyxLdfQklAES2u1cGu",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "a.bossuet@allianceautomotive.fr",
+    "first_name": "Alexandre",
+    "last_name": "Bossuet",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-26T09:57:01.692Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 204,
+    "ct_number": "CT02732",
+    "email": "a.bossuet@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!CPzbPKjGmFONEPXCQFIeOvGzJZbODU0vrTsqHrbR",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "e.kancel@allianceautomotive.fr",
+    "first_name": "Eddy",
+    "last_name": "KANCEL",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-26T09:57:02.467Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 204,
+    "ct_number": "CT08719",
+    "email": "e.kancel@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!k7lU1Yaq4GS5S4MZAZYccvzbf2tB3SZYXdMOEiJv",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "n.karmardine@allianceautomotive.fr",
+    "first_name": "Nourdine ",
+    "last_name": "KAMARDINE",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-26T09:57:03.060Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 204,
+    "ct_number": "CT08722",
+    "email": "n.karmardine@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!FinA90FkcovI5c9K6r732RwhQaXRV1cVJGoKmMPL",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "m.boutin@allianceautomotive.fr",
+    "first_name": "Mathieu ",
+    "last_name": "BOUTIN",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-26T09:57:03.186Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 204,
+    "ct_number": "CT07214",
+    "email": "m.boutin@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!qNfTAsIY10FWA0H6Qze6F936v4V6nWWcwSH0ZH52",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "s.mahe@allianceautomotive.fr",
+    "first_name": "Sébastien",
+    "last_name": "MAHE",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-27T14:50:34.301Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 205,
+    "ct_number": "CT08354",
+    "email": "s.mahe@allianceautomotive.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!nDuTSNEUHdgwkFDSeAqLUBG2EEuK3iYFhkaqO0SE",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "mickaroll74@gmail.com",
+    "first_name": "Mickael",
+    "last_name": "Rolland",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-06-27T14:50:35.232Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 205,
+    "ct_number": "CT",
+    "email": "mickaroll74@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$TE0fLj2X8FbNRtepITOyAs$oQZHI1JoGndKZEC246x8gdl0ARzZldirtrtrK7HF1T0=",
+    "last_login": "2025-11-26T16:06:13.944Z",
+    "is_superuser": false,
+    "username": "laurent.hatton@wanadoo.fr",
+    "first_name": "Laurent",
+    "last_name": "Hatton",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:28.531Z",
+    "user_type": "manager",
+    "language": "PL",
+    "company": 219,
+    "ct_number": "CT06983",
+    "email": "laurent.hatton@wanadoo.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$2ctE8TBLOLNUqFOs8RIuHf$KHKu5rICBtSuXKlsCRjTGdt4ypT/aCq7fHWsoFZJOxc=",
+    "last_login": "2026-03-11T21:53:47.854Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat1@gmail.com",
+    "first_name": "Formation 1",
+    "last_name": "AMCAT 1",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:29.524Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 219,
+    "ct_number": "CT06984",
+    "email": "alltrucksamcat1@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$fRCn2n2dszbnh4S8Qn2EXU$g6xJl965JvZLLYqF3mcZRVNdo5NgLEUKTiP24scDrdU=",
+    "last_login": "2025-11-25T17:52:55.490Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat2@gmail.com",
+    "first_name": "Formation 2",
+    "last_name": "AMCAT 2",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:30.090Z",
+    "user_type": "technician",
+    "language": "PL",
+    "company": 219,
+    "ct_number": "CT06985",
+    "email": "alltrucksamcat2@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$Agnj1gnKzX9s4TOoBxVZTq$sr6AVbGHIyG0jnosJ9waPOB4HYdeuvqRniuU06LyREE=",
+    "last_login": "2025-11-25T18:32:04.614Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat3@gmail.com",
+    "first_name": "Formation 3",
+    "last_name": "AMCAT 3",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:30.258Z",
+    "user_type": "technician",
+    "language": "PL",
+    "company": 219,
+    "ct_number": "CT06986",
+    "email": "alltrucksamcat3@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$ljbmpPI512aXm5nX6jRrEN$jQb3Xkvi3+2FyWOizsj5p2QFllpP7hYLnH5p3T5KaLM=",
+    "last_login": "2025-11-25T19:59:51.854Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat4@gmail.com",
+    "first_name": "Formation 4",
+    "last_name": "AMCAT 4",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:30.772Z",
+    "user_type": "technician",
+    "language": "PL",
+    "company": 219,
+    "ct_number": "CT06987",
+    "email": "alltrucksamcat4@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$djsgRfUrNWnYha4PQuzQl6$EIlF04Rjt9piqF7SvSu/Elpa1gD2VYSlgOZ1I4C2XvQ=",
+    "last_login": "2025-11-25T20:04:55.029Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat5@gmail.com",
+    "first_name": "Formation 5",
+    "last_name": "AMCAT 5",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:31.399Z",
+    "user_type": "technician",
+    "language": "PL",
+    "company": 219,
+    "ct_number": "CT06988",
+    "email": "alltrucksamcat5@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$FXlLYM3I8xnsAA63mbVmFg$H3r+rpQD/uFo3dLr1TzOUV8oD7ubTdZ6uBuvIxvHtmA=",
+    "last_login": "2025-09-10T12:25:07.403Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat6@gmail.com",
+    "first_name": "Formation 6",
+    "last_name": "AMCAT 6",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:31.470Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 219,
+    "ct_number": "CT06989",
+    "email": "alltrucksamcat6@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$Js8WonpvHZVUYjqa79hY7i$1jUjoiSXCDushHasu7FVj6SxyyN1XZKP0thawhD5JpE=",
+    "last_login": "2025-07-01T06:58:47.015Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat7@gmail.com",
+    "first_name": "Formation 7",
+    "last_name": "AMCAT 7",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:31.621Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 219,
+    "ct_number": "CT06990",
+    "email": "alltrucksamcat7@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$VWBKRjYoRGLdAGuKoes8SA$K3CI4yHFSwm90kn2zA49o/YEg6mKcK+9UgjXwn9EYgw=",
+    "last_login": "2025-07-01T06:59:38.463Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat8@gmail.com",
+    "first_name": "Formation 8",
+    "last_name": "AMCAT 8",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:31.698Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 219,
+    "ct_number": "CT06991",
+    "email": "alltrucksamcat8@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$EC2aq7lE18fLARwtSCXUW4$UapnxT1ZFIB91msial1q4AacGMCY7vv8rEJQQH0vq3M=",
+    "last_login": "2025-07-03T08:38:47.965Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat9@gmail.com",
+    "first_name": "Formation 9",
+    "last_name": "AMCAT 9",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:31.873Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 219,
+    "ct_number": "CT06992",
+    "email": "alltrucksamcat9@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$fhGCiPjZHXuUDofqF4JaGK$D7x7sC6lKIQispjncJvOzkrB+LMu1mSMCNrCPYHLIYg=",
+    "last_login": "2025-07-01T07:00:59.534Z",
+    "is_superuser": false,
+    "username": "alltrucksamcat10@gmail.com",
+    "first_name": "Formation 10",
+    "last_name": "AMCAT 10",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T06:50:31.962Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 219,
+    "ct_number": "CT06993",
+    "email": "alltrucksamcat10@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!aw5jCve7Q0bEuLFGibms0HFMz1m0OnoRy1EWUpsi",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "marc.leboucher@orange.fr",
+    "first_name": "Marc",
+    "last_name": "Leboucher",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:36:15.883Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 220,
+    "ct_number": "CT08822",
+    "email": "marc.leboucher@orange.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!ul8lSnRdomnKSOcR0nGNNaLKWD5NLKCJzUSRlQxf",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "atelier@servimat34.fr",
+    "first_name": "Tom",
+    "last_name": "Leboucher",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:36:16.877Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 220,
+    "ct_number": "CT07865",
+    "email": "atelier@servimat34.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!MrdAjt3ir3Eglo2srIOTeUsBRFionQlsR2Mo5Tmv",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "lmsbadis@gmail.com",
+    "first_name": "Badis",
+    "last_name": "Lamsiyeh",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:36:17.443Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 220,
+    "ct_number": "CT08825",
+    "email": "lmsbadis@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$SlznWGxscx52XkgFpum6r1$Sl4i/+rFRK+mvQ2VVgceZLddPpirtgbg0Xe8hpu2cv8=",
+    "last_login": "2025-07-01T08:54:19.590Z",
+    "is_superuser": false,
+    "username": "Mathisboudes3434@gmail.com",
+    "first_name": "Mathis",
+    "last_name": "Boudes",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-01T07:36:17.629Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 220,
+    "ct_number": "CT08823",
+    "email": "Mathisboudes3434@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!Mljfpx9UhYF2nEgcSN9P6lbdswHKqMJGR9ERbNyx",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "philoupinel@hotmail.fr",
+    "first_name": "Philippe",
+    "last_name": "Pinel",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:36:18.103Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 220,
+    "ct_number": "CT08821",
+    "email": "philoupinel@hotmail.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!KueUXANidK2EFDZErLHXNv454HHuNtiml9gBvpVP",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "pierremarchal.34@icloud.com",
+    "first_name": "Pierre",
+    "last_name": "Marchal",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:36:18.703Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 220,
+    "ct_number": "CT08824",
+    "email": "pierremarchal.34@icloud.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!BgHROiRHAuTHgJuZARNsVEkFM1W5xEb6EkRRLtM4",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Laurent.e@techno-poidslourds.com",
+    "first_name": "Laurent",
+    "last_name": "Esparch",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:38.799Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT07500",
+    "email": "Laurent.e@techno-poidslourds.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!5fWWbY7afz60uSXzsPiFKc5DAU4Q5jRCu7ratuwC",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "f.pollidoro@techno-poidslourds.com",
+    "first_name": "Franck",
+    "last_name": "Pollidoro",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:39.109Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT03717",
+    "email": "f.pollidoro@techno-poidslourds.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!KVx035EEKuFSxFh5mpsTPTD72csVgSAXhSBJWwib",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Battdu66@hotmail.fr",
+    "first_name": "Baptiste",
+    "last_name": "Demunck",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:39.748Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08931",
+    "email": "Battdu66@hotmail.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!52Zzk8eVkfYb9OAF9XeYQ3cA0AXpo7EiMDGAY4So",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Deodat66@hotmail.fr",
+    "first_name": "Laurent",
+    "last_name": "Deodat",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:39.922Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08930",
+    "email": "Deodat66@hotmail.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!dPLajksoITNozc64hsABkxQhv1uJH3txJipp2nQw",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "david.q@techno-poidslourds.com",
+    "first_name": "David",
+    "last_name": "Quintane",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:40.463Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT07512",
+    "email": "david.q@techno-poidslourds.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!XPIGrt0KuTGTuQYuCy68DErmcrjpWhMcsmnY7CPq",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Makiavel38@yahoo.fr",
+    "first_name": "Frédéric",
+    "last_name": "Ruiz",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:40.943Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08928",
+    "email": "Makiavel38@yahoo.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!TwUCLIq428vL6upB4I8InWyLdRDLshW49PmIfbod",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "josselynclavier@gmail.com",
+    "first_name": "Josselyn ",
+    "last_name": "Clavier",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:41.109Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08927",
+    "email": "josselynclavier@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!msMAnpHjnJx2A00CYOamX9JuAuyiQt6Vb1do0TL0",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Ludovic.garcies@gmail.com",
+    "first_name": "Ludovic",
+    "last_name": "Garcies",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:41.277Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08926",
+    "email": "Ludovic.garcies@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!cWn7HeIfU9TeAN81oP4DZIk1YVPVChgkcr21E96N",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Sandrine.c@techno-poidslourds.com",
+    "first_name": "Sandrine",
+    "last_name": "Cami",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:41.362Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08925",
+    "email": "Sandrine.c@techno-poidslourds.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!fQx8wwR8ZLoDYiy7M1EvdJeJys0CRfWkfmkRmGHR",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "enzogoncalves.pro66@gmail.com",
+    "first_name": "Enzo",
+    "last_name": "Goncalves",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:41.426Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08923",
+    "email": "enzogoncalves.pro66@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!rUSwKU4EvfR6TCyqNPBhOR210HpATx5T7DjEX2Rf",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "logangasselin@gmail.com",
+    "first_name": "Logan",
+    "last_name": "Gasselin",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:41.603Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08922",
+    "email": "logangasselin@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!U4RUOYQonWdznk8s1jD1peJH24WQOOzlkJ1acRKX",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "stevenrassemusse@gmail.com",
+    "first_name": "Steven",
+    "last_name": "Rassemusse",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:41.793Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08921",
+    "email": "stevenrassemusse@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!efHWBKwZO34MmbiIixlMSbjRLRX6yEH2vEMxiYBa",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "Sebastien14940@gmail.com",
+    "first_name": "Sébastien",
+    "last_name": "Dziesmiazkiewiez",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T07:53:41.861Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 221,
+    "ct_number": "CT08710",
+    "email": "Sebastien14940@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!Q1FY4mnMJuDZlJ05tQfs0ZHTftTrOuFv8x4EI9Yu",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "miguel.r@techno-poidslourds.com",
+    "first_name": "Miguel",
+    "last_name": "Rodrigues",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T08:01:09.652Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 222,
+    "ct_number": "CT06289",
+    "email": "miguel.r@techno-poidslourds.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!irVFkhwooKhxZHBu810eGTR6avIL9OH2m0qwTTYU",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "thomas.p@tecno-poidslours.com",
+    "first_name": "Thomas",
+    "last_name": "Prevel",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T08:01:09.939Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 222,
+    "ct_number": "CT06289",
+    "email": "thomas.p@tecno-poidslours.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!cIJaX0XSWHRpRnotdKj6G306C0httmdyj6pk6gc6",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "julien.g@techno-poidslourds.com",
+    "first_name": "Julien",
+    "last_name": "Auteza",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T08:01:10.441Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 222,
+    "ct_number": "CT08932",
+    "email": "julien.g@techno-poidslourds.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!KOmhFtzKweeIcXuITSL9ynW6BEL3JywPwE8MPA5M",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "viericfleury@gmail.com",
+    "first_name": "Eric",
+    "last_name": "Fleury",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T08:01:10.621Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 222,
+    "ct_number": "CT08933",
+    "email": "viericfleury@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!jCQ8gNdwc3MrkGqcKBIM5TOWabK0zXysME0yrNuY",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "ourothimo@hotmail.fr",
+    "first_name": "Thimoté",
+    "last_name": "Lemay",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T08:01:11.193Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 222,
+    "ct_number": "CT08934",
+    "email": "ourothimo@hotmail.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$6sOXopK6Usg2xLhkLQi0zr$bwsm0DAOynbn4tCu2/Zoe3RW3J/lDcw2QkutkGLuy9k=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "fckgouhier@gmail.com",
+    "first_name": "Franck",
+    "last_name": "Gouhier",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-01T08:01:11.515Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 222,
+    "ct_number": "CT08935",
+    "email": "fckgouhier@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!DsiEBqcaLW95joyZt8yFmSZjmUpdo7qGDp51O8ms",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "direction@aymetrucks.fr",
+    "first_name": "Laurence",
+    "last_name": "Palombo",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-02T06:59:44.596Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 223,
+    "ct_number": "CT02731",
+    "email": "direction@aymetrucks.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$mOcV5HY9e8W3WvQiO9axwt$rlcbASLzUljkTqFxA+MCRoHYz379iXvFaoPY6HR0ml0=",
+    "last_login": "2025-10-17T09:38:56.478Z",
+    "is_superuser": false,
+    "username": "atelier@aymetrucks.net",
+    "first_name": "Jérôme",
+    "last_name": "Esteves",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-02T06:59:45.546Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 223,
+    "ct_number": "CT02793",
+    "email": "atelier@aymetrucks.net",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!GW5sUFxldJWbVp4O2tlF3YdSEY9kcHwcsZ7BNgIn",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "pascal.renault@groupedecharenton.fr",
+    "first_name": "Pascal",
+    "last_name": "Renault",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-10T09:10:23.162Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 224,
+    "ct_number": "CT03338",
+    "email": "pascal.renault@groupedecharenton.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$s7InWvLQyeJrf2WutMUbYk$Z2u9970lSO4UnaBuf0gZVmuAXjDBuNHuBv3Uoglzii4=",
+    "last_login": "2025-07-10T09:12:08.560Z",
+    "is_superuser": false,
+    "username": "atelier.plsthilaire@sodiama.fr",
+    "first_name": "Lebourgeois ",
+    "last_name": "Frederic",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-10T09:10:24.109Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 224,
+    "ct_number": "CT03107",
+    "email": "atelier.plsthilaire@sodiama.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!0N2PNpbBaw0Rx2NCiOtwh5bR0sbXHp2gxp53fY1k",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "gwenael.lalonde@groupedecharenton.fr",
+    "first_name": "Gwenael",
+    "last_name": "LALONDE",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-10T14:36:13.963Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 225,
+    "ct_number": "CT09049",
+    "email": "gwenael.lalonde@groupedecharenton.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$aD4BZz4ZS9ntwxazabktks$Q0puopQUx3q0eU07ZVRDlnMLzb+mA9g5YigzJs3TYw0=",
+    "last_login": "2026-03-12T09:11:18.629Z",
+    "is_superuser": false,
+    "username": "fle-atepl2@decharenton.fr",
+    "first_name": "Ronan",
+    "last_name": "Thieulent",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-10T14:36:14.934Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 225,
+    "ct_number": "CT09054",
+    "email": "fle-atepl2@decharenton.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$mm09ufuGaxyOX10eUjVp5s$u3fM1EZPMcxlOhWsuhuhrxMtSvffvfp1Jhko3SyysQM=",
+    "last_login": "2026-03-12T09:14:33.883Z",
+    "is_superuser": false,
+    "username": "fle-atepl3@decharenton.fr",
+    "first_name": "Steve",
+    "last_name": "Lepeltier",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-10T14:36:15.842Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 225,
+    "ct_number": "CT09050",
+    "email": "fle-atepl3@decharenton.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$kmhryq1oj4dX7eYJDDELwC$g9Ku1we0Vu6U6LDlkzxM6WGsdmp04Bi3qorSmSebnxE=",
+    "last_login": "2026-03-12T09:05:41.800Z",
+    "is_superuser": false,
+    "username": "fle-atepl1@decharenton.fr",
+    "first_name": "Julien ",
+    "last_name": "LEVANNIER",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-10T14:36:16.019Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 225,
+    "ct_number": "CT07552",
+    "email": "fle-atepl1@decharenton.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$8cgj3I3DtcEHKH85c0a6Ii$J3QnT7agvPArvpX55jY4lueYOXQEBL/DgOHmN6JZ3Zg=",
+    "last_login": "2026-03-12T09:16:32.728Z",
+    "is_superuser": false,
+    "username": "fle-atepl5@decharenton.fr",
+    "first_name": "Anthony ",
+    "last_name": "Eudes",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-10T14:36:16.767Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 225,
+    "ct_number": "CT09052",
+    "email": "fle-atepl5@decharenton.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!EUdrRUMd944JNJO0g8nULfrSIPE9wtEIFl2pWasz",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "atelier.plagneaux2@sodiama.fr",
+    "first_name": "Jean-François",
+    "last_name": "Lord",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-11T09:09:37.080Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 226,
+    "ct_number": "CT08810",
+    "email": "atelier.plagneaux2@sodiama.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$yfOfxB28WoD8SaB6Zu3I56$KamH3R828sUcvpz3wLvWWfkJK5xO2YnSEX6AdICcW8I=",
+    "last_login": "2025-07-11T09:10:12.600Z",
+    "is_superuser": false,
+    "username": "deloryjonathan@gmail.com",
+    "first_name": "Jonathan",
+    "last_name": "Delory",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-11T09:09:37.934Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 226,
+    "ct_number": "CT07398",
+    "email": "deloryjonathan@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!Tnhh9N7MxwottQDIdsKCUrns0xRdo3Zq1LJcOt6l",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "cmaudet@rondeau.fr",
+    "first_name": "Christian",
+    "last_name": "Maudet",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-22T12:29:55.741Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 236,
+    "ct_number": "CT02792",
+    "email": "cmaudet@rondeau.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!1XFqH6RS5MeM8nCNldBMDZiX7N2TQj5xCJmxMU5P",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "elvis.mecanicien@hotmail.com",
+    "first_name": "Elvis ",
+    "last_name": "Granday",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-22T12:29:56.538Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 236,
+    "ct_number": "CT09026",
+    "email": "elvis.mecanicien@hotmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!6tYKyhKFGZcOniyTTkrUsgfPiHYS88DBoHM0yIBt",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "quentindumont85160@gmail.com",
+    "first_name": "Quentin",
+    "last_name": "Dumont",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-22T12:29:57.360Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 236,
+    "ct_number": "CT09027",
+    "email": "quentindumont85160@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!QVfk9rQStPoSuZT94PoSUTaRd73kVv9enQ7elxvp",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "bcaradec@rondeau.fr",
+    "first_name": "Bastien ",
+    "last_name": "Caradec",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-22T12:29:57.425Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 236,
+    "ct_number": "CT07829",
+    "email": "bcaradec@rondeau.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!DkWavyHJl9ImuF7EYIt32Sf7kqbyVb8BMtbqQacR",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "barbenoa23@gmail.com",
+    "first_name": "Noa",
+    "last_name": "Barbe",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-07-22T12:29:57.980Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 236,
+    "ct_number": "CT07830",
+    "email": "barbenoa23@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$3xd67pPgDnpEfyZQzoW4nd$JP7JOd008Z+n27WuD26hHPXHriQj/W/SLLIx4ir3+So=",
+    "last_login": "2025-07-24T07:53:00.132Z",
+    "is_superuser": false,
+    "username": "maelyscassant@gmail.com",
+    "first_name": "Maelys",
+    "last_name": "CASSANT",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2025-07-24T07:17:51.507Z",
+    "user_type": "technician",
+    "language": "FR",
+    "company": 237,
+    "ct_number": "CT03107",
+    "email": "maelyscassant@gmail.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$th26zAWd8wB4CskB1O1LzQ$5c+z8FW8PU1cTRCLD54P5crHAA1o3vaS7fT7MpnVnlE=",
+    "last_login": "2026-03-30T10:01:56.454Z",
+    "is_superuser": true,
+    "username": "piotr.rakowski@alltrucks.com",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-10-13T11:27:34.574Z",
+    "user_type": null,
+    "language": "FR",
+    "company": null,
+    "ct_number": null,
+    "email": "piotr.rakowski@alltrucks.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "pbkdf2_sha256$870000$BgQ7MKtBJzMzAXZU2TgeCq$JZ3Yrw2PmBDvC1E3d1X4Yd7pT8RlqLv5rGQnG9/IQnE=",
+    "last_login": "2026-02-19T10:23:53.277Z",
+    "is_superuser": true,
+    "username": "francisco.albarran@alltrucks.com",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-10-13T11:28:08.067Z",
+    "user_type": null,
+    "language": "FR",
+    "company": null,
+    "ct_number": null,
+    "email": "francisco.albarran@alltrucks.com",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "users.user",
+  "fields": {
+    "password": "!YZMloTDRrabT8uMR2UVXMORTjR4BltUFmAGYacQ3",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "david.ringle@groupe-plus.fr",
+    "first_name": "David",
+    "last_name": "RINGLE",
+    "is_staff": false,
+    "is_active": false,
+    "date_joined": "2025-10-23T07:26:51.868Z",
+    "user_type": "manager",
+    "language": "FR",
+    "company": 269,
+    "ct_number": "CT03033",
+    "email": "david.ringle@groupe-plus.fr",
+    "groups": [],
+    "user_permissions": []
+  }
+}

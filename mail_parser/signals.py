@@ -80,25 +80,76 @@ def _get_recipients(config, webhook):
     return recipients
 
 
+def _build_vehicle_section(webhook):
+    """Build the vehicle information HTML block for hotline emails."""
+    if webhook.category != 'hotline' or not webhook.vehicle_brand:
+        return ''
+
+    rows = ''
+    fields = [
+        ('Brand', webhook.vehicle_brand),
+        ('Model', webhook.vehicle_model),
+        ('VIN', webhook.vehicle_vin),
+        ('Year', webhook.vehicle_year),
+        ('Mileage', webhook.vehicle_mileage),
+        ('Axle config', webhook.vehicle_axle_config),
+    ]
+    for label, value in fields:
+        if value:
+            rows += f'''
+                <tr>
+                    <td style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #888; padding: 4px 12px 4px 0; white-space: nowrap;">{label}</td>
+                    <td style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #333; padding: 4px 0;">{value}</td>
+                </tr>'''
+
+    return f'''
+        <tr>
+            <td style="padding: 0 28px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 20px;">
+                    <tr>
+                        <td style="background-color: #f8f9fa; border-radius: 6px; padding: 16px;">
+                            <p style="font-family: Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin: 0 0 10px 0;">Vehicle Information</p>
+                            <table border="0" cellpadding="0" cellspacing="0">{rows}
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>'''
+
+
+def build_email_html(webhook, star_urls=None):
+    """Build the full email HTML from template. Reused by signal and admin preview."""
+    template = _load_auto_reply_template()
+
+    if star_urls is None:
+        review_base_url = _build_review_url(webhook)
+        star_urls = {f'star_{i}_url': f'{review_base_url}?rating={i}' for i in range(1, 6)}
+
+    date_str = webhook.received_at.strftime('%B %d, %Y - %H:%M') if webhook.received_at else ''
+    issue = webhook.parsed_issue or webhook.parsed_content[:500] or ''
+
+    return (
+        template
+        .replace('{{ case_id }}', str(webhook.id))
+        .replace('{{ date }}', date_str)
+        .replace('{{ vehicle_section }}', _build_vehicle_section(webhook))
+        .replace('{{ issue }}', issue.replace('\n', '<br>'))
+        .replace('{{ ai_response }}', webhook.ai_response.replace('\n', '<br>'))
+        .replace('{{ star_1_url }}', star_urls['star_1_url'])
+        .replace('{{ star_2_url }}', star_urls['star_2_url'])
+        .replace('{{ star_3_url }}', star_urls['star_3_url'])
+        .replace('{{ star_4_url }}', star_urls['star_4_url'])
+        .replace('{{ star_5_url }}', star_urls['star_5_url'])
+    )
+
+
 def _send_auto_reply(config, webhook):
     from common.useful.email import email as email_service
 
-    template = _load_auto_reply_template()
-    review_base_url = _build_review_url(webhook)
     # TODO Strapi: reply subject prefix (multilingual)
     subject = f'Re: {webhook.subject}'
-
-    html_content = (
-        template
-        .replace('{{ subject }}', subject)
-        .replace('{{ ai_response }}', webhook.ai_response.replace('\n', '<br>'))
-        .replace('{{ original_message }}', (webhook.parsed_content[:500] or '').replace('\n', '<br>'))
-        .replace('{{ star_1_url }}', f'{review_base_url}?rating=1')
-        .replace('{{ star_2_url }}', f'{review_base_url}?rating=2')
-        .replace('{{ star_3_url }}', f'{review_base_url}?rating=3')
-        .replace('{{ star_4_url }}', f'{review_base_url}?rating=4')
-        .replace('{{ star_5_url }}', f'{review_base_url}?rating=5')
-    )
+    html_content = build_email_html(webhook)
 
     recipients = _get_recipients(config, webhook)
     for recipient_email in recipients:

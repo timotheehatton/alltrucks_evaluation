@@ -10,189 +10,173 @@
 
 <body>
     <table border="0" cellpadding="0" cellspacing="0" width="100%"
-        style="table-layout: fixed; background-color: #f9f9f9;" id="bodyTable">
+        style="table-layout: fixed; background-color: #f4f6f9;" id="bodyTable">
         <tbody>
             <tr>
-                <td align="center" valign="top" style="padding-right: 10px; padding-left: 10px;" id="bodyCell">
+                <td align="center" valign="top" style="padding: 10px;" id="bodyCell">
+
                     <!-- Logo -->
-                    <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;" width="100%">
-                        <tbody>
-                            <tr>
-                                <td align="center" valign="top">
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                                        <tbody>
-                                            <tr>
-                                                <td align="center" valign="middle"
-                                                    style="padding-top: 40px; padding-bottom: 40px;">
-                                                    <img src="https://alltrucks-assets.s3.eu-west-3.amazonaws.com/logo.png"
-                                                        alt="Alltrucks AMCAT" width="300" border="0"
-                                                        style="width: 100%; max-width: 300px; height: auto; display: block;" />
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                        </tbody>
+                    <table border="0" cellpadding="0" cellspacing="0" style="max-width: 640px;" width="100%">
+                        <tr>
+                            <td align="center" style="padding: 30px 0;">
+                                <img src="https://alltrucks-assets.s3.eu-west-3.amazonaws.com/logo.png"
+                                    alt="Alltrucks" width="250" border="0"
+                                    style="width: 100%; max-width: 250px; height: auto; display: block;" />
+                            </td>
+                        </tr>
                     </table>
 
-                    <!-- Main content -->
-                    <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;" width="100%">
-                        <tbody>
-                            <tr>
-                                <td align="center" valign="top">
-                                    <table border="0" cellpadding="0" cellspacing="0"
-                                        style="background-color: #ffffff; border-color: #e5e5e5; border-style: solid; border-width: 0 1px 1px 1px;"
-                                        width="100%">
-                                        <tbody>
-                                            <!-- Accent bar -->
-                                            <tr>
-                                                <td height="3"
-                                                    style="background-color: rgb(1, 181, 226); font-size: 1px; line-height: 3px;">
-                                                    &nbsp;</td>
-                                            </tr>
-                                            <tr>
-                                                <td height="30">&nbsp;</td>
-                                            </tr>
+                    <!-- Main card -->
+                    <table border="0" cellpadding="0" cellspacing="0" style="max-width: 640px; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06);" width="100%">
 
-                                            <!-- Subject / Title -->
-                                            <tr>
-                                                <td align="center" valign="top"
-                                                    style="padding-bottom: 5px; padding-left: 20px; padding-right: 20px;">
-                                                    <h2
-                                                        style="color: #000000; font-family: Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 500; line-height: 30px; text-align: center; padding: 0; margin: 0;">
-                                                        {{ subject }}
-                                                    </h2>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td height="20">&nbsp;</td>
-                                            </tr>
+                        <!-- Blue accent bar -->
+                        <tr>
+                            <td style="background-color: #01B5E2; height: 4px; font-size: 1px; line-height: 4px;">&nbsp;</td>
+                        </tr>
 
-                                            <!-- AI Response -->
-                                            <tr>
-                                                <td align="left" valign="top"
-                                                    style="padding-left: 30px; padding-right: 30px; padding-bottom: 20px;">
-                                                    <p style="color: #444444; font-family: Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; line-height: 24px; text-align: left; padding: 0; margin: 0;">
-                                                        {{ ai_response }}
-                                                    </p>
-                                                </td>
-                                            </tr>
+                        <!-- Header: Case ID + date + badge -->
+                        <tr>
+                            <td style="padding: 20px 28px 12px;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td style="font-family: Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 600; color: #1a1a2e;">
+                                            <!-- TODO Strapi -->
+                                            Case #{{ case_id }}
+                                        </td>
+                                        <td align="right" style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #888;">
+                                            {{ date }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="padding-top: 8px;">
+                                            <!-- TODO Strapi -->
+                                            <span style="display: inline-block; background-color: #01B5E2; color: #ffffff; font-family: Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; padding: 4px 12px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;">AI Response</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
 
-                                            <!-- Separator -->
-                                            <tr>
-                                                <td style="padding-left: 30px; padding-right: 30px;">
-                                                    <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 10px 0;" />
-                                                </td>
-                                            </tr>
+                        <!-- Vehicle Information (hotline only) -->
+                        {{ vehicle_section }}
 
-                                            <!-- Original message quote -->
-                                            <tr>
-                                                <td align="left" valign="top"
-                                                    style="padding-left: 30px; padding-right: 30px; padding-top: 10px; padding-bottom: 10px;">
-                                                    <!-- TODO Strapi: heading text -->
-                                                    <p style="color: #999999; font-family: Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 8px 0;">
-                                                        Your original message
-                                                    </p>
-                                                    <p style="color: #999999; font-family: Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; line-height: 20px; text-align: left; padding: 10px 15px; margin: 0; border-left: 3px solid #e5e5e5;">
-                                                        {{ original_message }}
-                                                    </p>
-                                                </td>
-                                            </tr>
+                        <!-- Issue Reported -->
+                        <tr>
+                            <td style="padding: 0 28px;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 20px;">
+                                    <tr>
+                                        <td style="background-color: #f8f9fa; border-radius: 6px; padding: 16px;">
+                                            <!-- TODO Strapi -->
+                                            <p style="font-family: Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin: 0 0 8px 0;">Issue Reported</p>
+                                            <p style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #333; line-height: 22px; margin: 0;">{{ issue }}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
 
-                                            <!-- Separator -->
-                                            <tr>
-                                                <td style="padding-left: 30px; padding-right: 30px;">
-                                                    <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 10px 0;" />
-                                                </td>
-                                            </tr>
+                        <!-- AI Response -->
+                        <tr>
+                            <td style="padding: 0 28px;">
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 20px; border-radius: 6px; overflow: hidden;">
+                                    <!-- Dark header -->
+                                    <tr>
+                                        <td style="background-color: #1a1a2e; padding: 12px 16px;">
+                                            <!-- TODO Strapi -->
+                                            <p style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 600; color: #ffffff; margin: 0;">
+                                                &#9889; AI Response
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <!-- Content -->
+                                    <tr>
+                                        <td style="background-color: #f0f4ff; padding: 16px; border: 1px solid #e0e4ef; border-top: none; border-radius: 0 0 6px 6px;">
+                                            <p style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; color: #333; line-height: 22px; margin: 0;">{{ ai_response }}</p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
 
-                                            <!-- Star rating -->
-                                            <tr>
-                                                <td align="center" valign="top"
-                                                    style="padding-top: 15px; padding-bottom: 5px;">
-                                                    <!-- TODO Strapi: rating label text -->
-                                                    <p style="color: #666666; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; margin: 0 0 12px 0;">
-                                                        How would you rate this response?
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td align="center" valign="top" style="padding-bottom: 30px;">
-                                                    <table border="0" cellpadding="0" cellspacing="0">
-                                                        <tr>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_1_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
-                                                            </td>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_2_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
-                                                            </td>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_3_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
-                                                            </td>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_4_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
-                                                            </td>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_5_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_1_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">1</a>
-                                                            </td>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_2_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">2</a>
-                                                            </td>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_3_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">3</a>
-                                                            </td>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_4_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">4</a>
-                                                            </td>
-                                                            <td align="center" style="padding: 0 6px;">
-                                                                <a href="{{ star_5_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">5</a>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                        </tbody>
+                        <!-- Separator -->
+                        <tr>
+                            <td style="padding: 0 28px;">
+                                <hr style="border: none; border-top: 1px solid #e8e8e8; margin: 8px 0 16px;" />
+                            </td>
+                        </tr>
+
+                        <!-- Star rating -->
+                        <tr>
+                            <td align="center" style="padding: 0 28px 8px;">
+                                <!-- TODO Strapi -->
+                                <p style="font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #555; margin: 0 0 12px 0;">
+                                    How helpful was this response?
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding-bottom: 10px;">
+                                <!-- TODO Strapi -->
+                                <p style="font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #aaa; margin: 0 0 10px 0;">
+                                    Your feedback helps improve our AI suggestions
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding-bottom: 28px;">
+                                <table border="0" cellpadding="0" cellspacing="0">
+                                    <tr>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_1_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
+                                        </td>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_2_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
+                                        </td>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_3_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
+                                        </td>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_4_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
+                                        </td>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_5_url }}" style="text-decoration: none; font-size: 32px; color: #FFB300;">&#9733;</a>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_1_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">1</a>
+                                        </td>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_2_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">2</a>
+                                        </td>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_3_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">3</a>
+                                        </td>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_4_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">4</a>
+                                        </td>
+                                        <td align="center" style="padding: 0 6px;">
+                                            <a href="{{ star_5_url }}" style="text-decoration: none; font-family: Helvetica, Arial, sans-serif; font-size: 11px; color: #999;">5</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
                     </table>
 
                     <!-- Footer -->
-                    <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px;" width="100%">
-                        <tbody>
-                            <tr>
-                                <td align="center" valign="top">
-                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
-                                        <tbody>
-                                            <tr>
-                                                <td align="center" valign="top"
-                                                    style="padding-top: 20px; padding-bottom: 5px; padding-left: 10px; padding-right: 10px;">
-                                                    <!-- TODO Strapi: footer text -->
-                                                    <p style="color: #777777; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; line-height: 20px; text-align: center; padding: 0; margin: 0;">
-                                                        Alltrucks GmbH & Co. KG | Perchtinger Strasse 6 | 81379 Munich, Allemagne
-                                                    </p>
-                                                    <a href="mailto:info@alltrucks-amcat.com" style="color: #777777; text-decoration: underline; font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400;" target="_blank">info@alltrucks-amcat.com</a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td height="30" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td height="30" style="font-size: 1px; line-height: 1px;">&nbsp;</td>
-                            </tr>
-                        </tbody>
+                    <table border="0" cellpadding="0" cellspacing="0" style="max-width: 640px;" width="100%">
+                        <tr>
+                            <td align="center" style="padding: 20px 10px 30px;">
+                                <!-- TODO Strapi -->
+                                <p style="font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 12px; color: #999; line-height: 20px; margin: 0;">
+                                    Alltrucks GmbH & Co. KG | Perchtinger Strasse 6 | 81379 Munich, Allemagne
+                                </p>
+                                <a href="mailto:info@alltrucks-amcat.com" style="font-family: 'Open Sans', Helvetica, Arial, sans-serif; font-size: 12px; color: #999; text-decoration: underline;">info@alltrucks-amcat.com</a>
+                            </td>
+                        </tr>
                     </table>
+
                 </td>
             </tr>
         </tbody>

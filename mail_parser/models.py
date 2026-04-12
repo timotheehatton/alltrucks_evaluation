@@ -18,7 +18,17 @@ class InboundWebhook(models.Model):
         (STATUS_AI_ERROR, 'AI Error'),
     ]
 
+    CATEGORY_HOTLINE = 'hotline'
+    CATEGORY_FORUM = 'forum'
+    CATEGORY_UNKNOWN = 'unknown'
+    CATEGORY_CHOICES = [
+        (CATEGORY_HOTLINE, 'Hotline'),
+        (CATEGORY_FORUM, 'Forum'),
+        (CATEGORY_UNKNOWN, 'Unknown'),
+    ]
+
     # Webhook metadata
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default=CATEGORY_UNKNOWN, db_index=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_RECEIVED, db_index=True)
     source_ip = models.GenericIPAddressField(null=True, blank=True)
     headers = models.JSONField(default=dict)
@@ -39,6 +49,15 @@ class InboundWebhook(models.Model):
     # Parsed content (extracted from structured emails)
     parsed_user_email = models.EmailField(blank=True, default='')
     parsed_content = models.TextField(blank=True, default='')
+    parsed_issue = models.TextField(blank=True, default='')
+
+    # Vehicle information (hotline emails only)
+    vehicle_brand = models.CharField(max_length=100, blank=True, default='')
+    vehicle_model = models.CharField(max_length=100, blank=True, default='')
+    vehicle_vin = models.CharField(max_length=50, blank=True, default='')
+    vehicle_year = models.CharField(max_length=20, blank=True, default='')
+    vehicle_mileage = models.CharField(max_length=20, blank=True, default='')
+    vehicle_axle_config = models.CharField(max_length=100, blank=True, default='')
 
     # AI auto-responder fields
     ai_response = models.TextField(blank=True, default='')
