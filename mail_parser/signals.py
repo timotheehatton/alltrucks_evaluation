@@ -19,8 +19,8 @@ def generate_ai_response(webhook):
     """
     config = AutoResponderConfig.load()
 
-    # Step 1: Parse email if not already parsed
-    if not webhook.parsed_content:
+    # Step 1: Parse email if not already parsed (or if issue not extracted yet)
+    if not webhook.parsed_content or not webhook.parsed_issue:
         user_email, content, parse_error = parse_inbound_email(webhook)
 
         if parse_error:

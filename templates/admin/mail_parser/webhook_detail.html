@@ -104,7 +104,7 @@
                     {% if webhook.vehicle_vin %}<tr><td>VIN</td><td>{{ webhook.vehicle_vin }}</td></tr>{% endif %}
                     {% if webhook.vehicle_year %}<tr><td>Year</td><td>{{ webhook.vehicle_year }}</td></tr>{% endif %}
                     {% if webhook.vehicle_mileage %}<tr><td>Mileage</td><td>{{ webhook.vehicle_mileage }}</td></tr>{% endif %}
-                    {% if webhook.vehicle_axle_config %}<tr><td>Axle config</td><td>{{ webhook.vehicle_axle_config }}</td></tr>{% endif %}
+                    <tr><td>Axle config</td><td>{{ webhook.vehicle_axle_config|default:"-" }}</td></tr>
                 </tbody>
             </table>
         </div>
@@ -118,16 +118,15 @@
         {% endif %}
 
         <div class="card" style="height: auto;">
-            <div class="section-title">Content</div>
-            <div class="content-block">{{ webhook.body_text|default:"(empty)" }}</div>
+            <div class="section-title">Original Email</div>
+            {% if webhook.body_html %}
+                <iframe srcdoc="{{ webhook.body_html }}" sandbox=""></iframe>
+            {% elif webhook.body_text %}
+                <div class="content-block">{{ webhook.body_text }}</div>
+            {% else %}
+                <div style="text-align: center; padding: 16px; color: #9e9e9e; font-size: 13px;">(empty)</div>
+            {% endif %}
         </div>
-
-        {% if webhook.body_html %}
-        <div class="card" style="height: auto;">
-            <div class="section-title">HTML Preview</div>
-            <iframe srcdoc="{{ webhook.body_html }}" sandbox=""></iframe>
-        </div>
-        {% endif %}
 
         <div class="card" style="height: auto;">
             <div class="section-title"><i class="material-icons">smart_toy</i>AI Answer</div>
