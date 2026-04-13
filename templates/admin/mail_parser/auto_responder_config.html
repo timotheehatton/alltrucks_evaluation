@@ -4,13 +4,113 @@
 {% block stylesheets %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
     <style>
-        .config-form .card { padding: 20px; margin-bottom: 16px; }
-        .config-form .section-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; }
-        .config-form .section-title i { font-size: 20px; margin-right: 8px; }
-        .config-form .switch { margin: 12px 0; }
-        .config-form .switch label { font-size: 14px; }
-        .config-form textarea { min-height: 120px; }
-        .config-form .input-field { margin-top: 10px; margin-bottom: 10px; }
+        .config-form { max-width: 900px; padding-bottom: 40px; }
+        .config-form .page-title { font-size: 22px; margin: 8px 0 20px; }
+
+        .config-form .card {
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e8e8e8;
+        }
+        .config-form .card-header {
+            display: flex;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 16px;
+        }
+        .config-form .card-header i {
+            font-size: 22px;
+            margin-right: 10px;
+            color: #01B5E2;
+        }
+        .config-form .card-header .title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+
+        .config-form .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #f4f4f4;
+        }
+        .config-form .toggle-row:last-of-type { border-bottom: none; }
+        .config-form .toggle-row .label-block { flex: 1; padding-right: 16px; }
+        .config-form .toggle-row .label-block .name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            display: block;
+        }
+        .config-form .toggle-row .label-block .desc {
+            font-size: 12px;
+            color: #888;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .config-form .field-group { margin-top: 24px; }
+        .config-form .field-group .field-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .config-form .field-group .field-help {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;
+        }
+        .config-form .field-group input[type="text"],
+        .config-form .field-group input[type="email"],
+        .config-form .field-group select,
+        .config-form .field-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd !important;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+            box-sizing: border-box;
+            box-shadow: none !important;
+            margin: 0 !important;
+            height: auto !important;
+        }
+        .config-form .field-group textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: 'Consolas', 'Monaco', monospace;
+            line-height: 1.5;
+        }
+        .config-form .field-group input:focus,
+        .config-form .field-group textarea:focus,
+        .config-form .field-group select:focus {
+            border-color: #01B5E2 !important;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(1, 181, 226, 0.15) !important;
+        }
+
+        .config-form select { display: block; }
+
+        .config-form .save-bar {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 20px;
+        }
+
+        .config-form .messages li div {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
     </style>
 {% endblock %}
 
@@ -18,14 +118,12 @@
 
 {% block body %}
     <div class="content config-form">
-        <h1 class="page-title" style="font-size: 22px; margin-bottom: 16px;">AI Auto-Responder Configuration</h1>
+        <h1 class="page-title">AI Auto-Responder Configuration</h1>
 
         {% if messages %}
-            <ul class="messages">
+            <ul class="messages" style="list-style: none; padding: 0;">
                 {% for message in messages %}
-                    <li class="{{ message.tags }}">
-                        <div style="background-color: #e8f5e9; color: #2e7d32; border-radius: 4px;">{{ message }}</div>
-                    </li>
+                    <li class="{{ message.tags }}"><div>{{ message }}</div></li>
                 {% endfor %}
             </ul>
         {% endif %}
@@ -35,70 +133,102 @@
 
             <!-- AI Generation -->
             <div class="card">
-                <div class="section-title"><i class="material-icons">smart_toy</i>AI Generation</div>
-                <div class="switch">
-                    <label>
-                        Off
-                        <input type="checkbox" name="is_enabled" {% if config.is_enabled %}checked{% endif %}>
-                        <span class="lever"></span>
-                        On
-                    </label>
-                    <span style="margin-left: 12px; font-size: 13px; color: #757575;">Enable AI response generation for incoming emails</span>
+                <div class="card-header">
+                    <i class="material-icons">smart_toy</i>
+                    <span class="title">AI Generation</span>
                 </div>
 
-                <div class="input-field">
-                    <textarea id="system_prompt" name="system_prompt" class="materialize-textarea">{{ config.system_prompt }}</textarea>
-                    <label for="system_prompt" class="active">System Prompt</label>
+                <div class="toggle-row">
+                    <div class="label-block">
+                        <span class="name">Enable AI generation</span>
+                        <span class="desc">When ON, an AI response will be generated for every incoming email.</span>
+                    </div>
+                    <div class="switch">
+                        <label>
+                            Off
+                            <input type="checkbox" name="is_enabled" {% if config.is_enabled %}checked{% endif %}>
+                            <span class="lever"></span>
+                            On
+                        </label>
+                    </div>
                 </div>
 
-                <div class="input-field">
-                    <select id="openai_model" name="openai_model">
+                <div class="field-group">
+                    <label class="field-label" for="system_prompt">System Prompt</label>
+                    <p class="field-help">Instructions sent to the AI alongside each email.</p>
+                    <textarea id="system_prompt" name="system_prompt">{{ config.system_prompt }}</textarea>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="openai_model">OpenAI Model</label>
+                    <select id="openai_model" name="openai_model" class="browser-default">
                         <option value="gpt-4o-mini" {% if config.openai_model == 'gpt-4o-mini' %}selected{% endif %}>gpt-4o-mini (fast, cheap)</option>
                         <option value="gpt-4o" {% if config.openai_model == 'gpt-4o' %}selected{% endif %}>gpt-4o (most capable)</option>
                         <option value="gpt-3.5-turbo" {% if config.openai_model == 'gpt-3.5-turbo' %}selected{% endif %}>gpt-3.5-turbo (legacy)</option>
                     </select>
-                    <label>OpenAI Model</label>
+                </div>
+
+                <div class="save-bar">
+                    <button class="btn blue" type="submit">
+                        <i class="material-icons left">save</i>Save
+                    </button>
                 </div>
             </div>
 
             <!-- Email Sending -->
             <div class="card">
-                <div class="section-title"><i class="material-icons">email</i>Email Sending</div>
-                <div class="switch">
-                    <label>
-                        Off
-                        <input type="checkbox" name="is_email_enabled" {% if config.is_email_enabled %}checked{% endif %}>
-                        <span class="lever"></span>
-                        On
-                    </label>
-                    <span style="margin-left: 12px; font-size: 13px; color: #757575;">Enable sending the AI response by email</span>
+                <div class="card-header">
+                    <i class="material-icons">email</i>
+                    <span class="title">Email Sending</span>
                 </div>
 
-                <div class="switch">
-                    <label>
-                        Off
-                        <input type="checkbox" name="send_to_user" {% if config.send_to_user %}checked{% endif %}>
-                        <span class="lever"></span>
-                        On
-                    </label>
-                    <span style="margin-left: 12px; font-size: 13px; color: #757575;">Also send the response to the original sender</span>
+                <div class="toggle-row">
+                    <div class="label-block">
+                        <span class="name">Enable email sending</span>
+                        <span class="desc">When OFF, the AI response is generated and saved but no email is sent.</span>
+                    </div>
+                    <div class="switch">
+                        <label>
+                            Off
+                            <input type="checkbox" name="is_email_enabled" {% if config.is_email_enabled %}checked{% endif %}>
+                            <span class="lever"></span>
+                            On
+                        </label>
+                    </div>
                 </div>
 
-                <div class="input-field">
-                    <textarea id="test_emails" name="test_emails" class="materialize-textarea" style="min-height: 60px;">{{ config.test_emails }}</textarea>
-                    <label for="test_emails" class="active">Admin / Test Email List (comma-separated)</label>
+                <div class="toggle-row">
+                    <div class="label-block">
+                        <span class="name">Send to original sender</span>
+                        <span class="desc">When ON, the email is also sent to the user. When OFF, only the admin/test list receives it.</span>
+                    </div>
+                    <div class="switch">
+                        <label>
+                            Off
+                            <input type="checkbox" name="send_to_user" {% if config.send_to_user %}checked{% endif %}>
+                            <span class="lever"></span>
+                            On
+                        </label>
+                    </div>
                 </div>
 
-                <div class="input-field">
+                <div class="field-group">
+                    <label class="field-label" for="test_emails">Admin / Test Recipients</label>
+                    <p class="field-help">Comma-separated list of emails that will always receive the AI response when sending is enabled.</p>
+                    <textarea id="test_emails" name="test_emails" style="min-height: 70px;">{{ config.test_emails }}</textarea>
+                </div>
+
+                <div class="field-group">
+                    <label class="field-label" for="from_email">From Email Address</label>
                     <input id="from_email" name="from_email" type="email" value="{{ config.from_email }}">
-                    <label for="from_email" class="active">From Email Address</label>
+                </div>
+
+                <div class="save-bar">
+                    <button class="btn blue" type="submit">
+                        <i class="material-icons left">save</i>Save
+                    </button>
                 </div>
             </div>
-
-            <button class="btn blue" type="submit" style="margin-top: 8px;">
-                Save Configuration
-                <i class="material-icons right">save</i>
-            </button>
         </form>
     </div>
 {% endblock %}

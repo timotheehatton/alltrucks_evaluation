@@ -63,6 +63,7 @@ class InboundWebhook(models.Model):
     ai_response = models.TextField(blank=True, default='')
     ai_responded_at = models.DateTimeField(null=True, blank=True)
     ai_error = models.TextField(blank=True, default='')
+    email_sent_at = models.DateTimeField(null=True, blank=True)
     review_token = models.CharField(max_length=64, blank=True, default='', unique=True)
 
     # User review

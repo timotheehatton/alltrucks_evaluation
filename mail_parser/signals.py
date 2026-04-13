@@ -32,6 +32,39 @@ def parse_webhook(webhook):
     return True, content, None
 
 
+def build_ai_user_message(webhook):
+    """
+    Build the focused user message sent to OpenAI based on email category.
+    - Hotline: vehicle info + issue description
+    - Forum: subject + message
+    - Other: parsed content fallback
+    """
+    if webhook.category == 'hotline':
+        parts = []
+        vehicle_lines = []
+        if webhook.vehicle_brand: vehicle_lines.append(f'- Brand: {webhook.vehicle_brand}')
+        if webhook.vehicle_model: vehicle_lines.append(f'- Model: {webhook.vehicle_model}')
+        if webhook.vehicle_vin: vehicle_lines.append(f'- VIN: {webhook.vehicle_vin}')
+        if webhook.vehicle_year: vehicle_lines.append(f'- Year: {webhook.vehicle_year}')
+        if webhook.vehicle_mileage: vehicle_lines.append(f'- Mileage: {webhook.vehicle_mileage}')
+        if webhook.vehicle_axle_config: vehicle_lines.append(f'- Axle config: {webhook.vehicle_axle_config}')
+        if vehicle_lines:
+            parts.append('Vehicle information:\n' + '\n'.join(vehicle_lines))
+        if webhook.parsed_issue:
+            parts.append(f'Issue:\n{webhook.parsed_issue}')
+        return '\n\n'.join(parts) if parts else webhook.parsed_content
+
+    if webhook.category == 'forum':
+        parts = []
+        if webhook.subject:
+            parts.append(f'Subject: {webhook.subject}')
+        if webhook.parsed_issue:
+            parts.append(webhook.parsed_issue)
+        return '\n\n'.join(parts) if parts else webhook.parsed_content
+
+    return webhook.parsed_content
+
+
 def generate_ai_response(webhook):
     """
     Parse the email (if not parsed), call OpenAI, and save the AI response to DB.
@@ -41,11 +74,15 @@ def generate_ai_response(webhook):
 
     # Step 1: Parse email if not already parsed (or if issue not extracted yet)
     if not webhook.parsed_content or not webhook.parsed_issue:
-        success, content, parse_error = parse_webhook(webhook)
+        success, _, parse_error = parse_webhook(webhook)
         if not success:
             return False, parse_error
-    else:
-        content = webhook.parsed_content
+
+    # Refresh from DB to get the parsed fields
+    webhook.refresh_from_db()
+
+    # Build focused user message based on category
+    user_message = build_ai_user_message(webhook)
 
     # Step 2: Call OpenAI
     from common.useful.openai_service import ai_service
@@ -55,7 +92,7 @@ def generate_ai_response(webhook):
 
     response_text, error = ai_service.generate_response(
         system_prompt=config.system_prompt,
-        user_message=content,
+        user_message=user_message,
         model=config.openai_model,
     )
 
@@ -171,6 +208,11 @@ def _send_auto_reply(config, webhook):
             html_content=html_content,
             plain_text_content=webhook.ai_response,
         )
+
+    # Track email sent to end user only (not test/admin recipients)
+    if config.send_to_user and webhook.parsed_user_email and webhook.parsed_user_email in recipients:
+        webhook.email_sent_at = timezone.now()
+        webhook.save(update_fields=['email_sent_at'])
 
 
 @receiver(post_save, sender=InboundWebhook)

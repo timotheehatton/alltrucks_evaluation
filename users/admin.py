@@ -602,9 +602,16 @@ class MyAdminSite(admin.AdminSite):
         if webhook.ai_response:
             email_preview = self._build_email_preview(webhook)
 
+        config = AutoResponderConfig.load()
+
+        from mail_parser.signals import build_ai_user_message
+        ai_user_message = build_ai_user_message(webhook)
+
         return render(request, 'admin/mail_parser/webhook_detail.html', {
             'webhook': webhook,
             'email_preview': email_preview,
+            'config': config,
+            'ai_user_message': ai_user_message,
         })
 
     @staticmethod
