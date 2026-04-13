@@ -12,26 +12,38 @@ from .email_parser import parse_inbound_email
 logger = logging.getLogger(__name__)
 
 
+def parse_webhook(webhook):
+    """
+    Parse the email content (vehicle, issue, user_email).
+    Saves parsed fields and updates status to PARSE_ERROR on failure.
+    Returns (success: bool, content: str|None, error: str|None).
+    """
+    user_email, content, parse_error = parse_inbound_email(webhook)
+
+    if parse_error:
+        webhook.status = InboundWebhook.STATUS_PARSE_ERROR
+        webhook.error_message = parse_error
+        webhook.save(update_fields=['status', 'error_message'])
+        return False, None, parse_error
+
+    webhook.parsed_user_email = user_email or ''
+    webhook.parsed_content = content
+    webhook.save(update_fields=['parsed_user_email', 'parsed_content'])
+    return True, content, None
+
+
 def generate_ai_response(webhook):
     """
-    Parse the email, call OpenAI, and save the AI response to DB.
+    Parse the email (if not parsed), call OpenAI, and save the AI response to DB.
     Does NOT send any email. Returns (success: bool, error: str|None).
     """
     config = AutoResponderConfig.load()
 
     # Step 1: Parse email if not already parsed (or if issue not extracted yet)
     if not webhook.parsed_content or not webhook.parsed_issue:
-        user_email, content, parse_error = parse_inbound_email(webhook)
-
-        if parse_error:
-            webhook.status = InboundWebhook.STATUS_PARSE_ERROR
-            webhook.error_message = parse_error
-            webhook.save(update_fields=['status', 'error_message'])
+        success, content, parse_error = parse_webhook(webhook)
+        if not success:
             return False, parse_error
-
-        webhook.parsed_user_email = user_email or ''
-        webhook.parsed_content = content
-        webhook.save(update_fields=['parsed_user_email', 'parsed_content'])
     else:
         content = webhook.parsed_content
 
@@ -168,12 +180,16 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
     if not instance.sender:
         return
 
+    # Always parse the email on reception, regardless of AI config
+    success, _, _ = parse_webhook(instance)
+    if not success:
+        return
+
     config = AutoResponderConfig.load()
     if not config.is_enabled:
         return
 
     success, error = generate_ai_response(instance)
-
     if not success:
         return
 
