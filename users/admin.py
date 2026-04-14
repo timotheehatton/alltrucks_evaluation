@@ -628,8 +628,8 @@ class MyAdminSite(admin.AdminSite):
 
         # Disable star links in preview
         preview = preview.replace(
-            'text-decoration: none; font-size: 32px;',
-            'text-decoration: none; font-size: 32px; pointer-events: none; cursor: default;',
+            'text-decoration: none; font-size: 36px;',
+            'text-decoration: none; font-size: 36px; pointer-events: none; cursor: default;',
         )
 
         return preview

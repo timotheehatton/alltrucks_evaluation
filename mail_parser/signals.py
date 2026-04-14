@@ -130,11 +130,10 @@ def _get_recipients(config, webhook):
 
 
 def _build_vehicle_section(webhook):
-    """Build the vehicle information HTML block for hotline emails."""
+    """Build the vehicle information HTML block for hotline emails (3-column, label on top, value under)."""
     if webhook.category != 'hotline' or not webhook.vehicle_brand:
         return ''
 
-    rows = ''
     fields = [
         ('Brand', webhook.vehicle_brand),
         ('Model', webhook.vehicle_model),
@@ -143,25 +142,38 @@ def _build_vehicle_section(webhook):
         ('Mileage', webhook.vehicle_mileage),
         ('Axle config', webhook.vehicle_axle_config),
     ]
-    for label, value in fields:
-        if value:
-            rows += f'''
-                <tr>
-                    <td style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #888; padding: 4px 12px 4px 0; white-space: nowrap;">{label}</td>
-                    <td style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #333; padding: 4px 0;">{value}</td>
-                </tr>'''
+
+    label_style = 'font-family: Helvetica, Arial, sans-serif; font-size: 10px; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; padding: 0 8px 2px 0;'
+    value_style = 'font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #333; font-weight: 500; padding: 0 8px 10px 0;'
+
+    # Build 3-column rows (labels row + values row)
+    rows = ''
+    for i in range(0, len(fields), 3):
+        chunk = fields[i:i+3]
+        # Labels row
+        rows += '<tr>'
+        for label, _ in chunk:
+            rows += f'<td style="{label_style}" width="33%">{label}</td>'
+        for _ in range(3 - len(chunk)):
+            rows += '<td></td>'
+        rows += '</tr>'
+        # Values row
+        rows += '<tr>'
+        for _, value in chunk:
+            rows += f'<td style="{value_style}">{value or "-"}</td>'
+        for _ in range(3 - len(chunk)):
+            rows += '<td></td>'
+        rows += '</tr>'
 
     return f'''
         <tr>
-            <td style="padding: 0 28px;">
-                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 20px;">
-                    <tr>
-                        <td style="background-color: #f8f9fa; border-radius: 6px; padding: 16px;">
-                            <p style="font-family: Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.8px; margin: 0 0 10px 0;">Vehicle Information</p>
-                            <table border="0" cellpadding="0" cellspacing="0">{rows}
-                            </table>
-                        </td>
-                    </tr>
+            <td style="padding: 0 24px 25px;">
+                <p style="font-family: Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; color: #757575; text-transform: uppercase; letter-spacing: 0.8px; margin: 0 0 6px 0;">Vehicle Information</p>
+                <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8f9fa; padding: 12px; border-radius: 4px;">
+                    <tr><td style="padding: 12px 12px 0 12px;">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">{rows}
+                        </table>
+                    </td></tr>
                 </table>
             </td>
         </tr>'''
