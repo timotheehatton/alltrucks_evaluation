@@ -29,4 +29,4 @@ urllib3==2.2.2
 uvicorn==0.30.6
 whitenoise==6.7.0
 sendgrid==6.11.0
-openai
+openai==1.75.0
