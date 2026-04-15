@@ -105,7 +105,9 @@ def generate_ai_response(webhook):
     webhook.ai_response = response_text
     webhook.ai_responded_at = timezone.now()
     webhook.ai_error = ''
-    webhook.status = InboundWebhook.STATUS_ANSWERED
+    # Keep ANSWERED if email already sent to user, otherwise GENERATED
+    if not webhook.email_sent_at:
+        webhook.status = InboundWebhook.STATUS_GENERATED
     webhook.save(update_fields=['ai_response', 'ai_responded_at', 'ai_error', 'status', 'review_token'])
 
     return True, None
@@ -224,7 +226,8 @@ def _send_auto_reply(config, webhook):
     # Track email sent to end user only (not test/admin recipients)
     if config.send_to_user and webhook.parsed_user_email and webhook.parsed_user_email in recipients:
         webhook.email_sent_at = timezone.now()
-        webhook.save(update_fields=['email_sent_at'])
+        webhook.status = InboundWebhook.STATUS_ANSWERED
+        webhook.save(update_fields=['email_sent_at', 'status'])
 
 
 @receiver(post_save, sender=InboundWebhook)

@@ -25,6 +25,7 @@
                     <select name="status">
                         <option value="ALL" {% if request.GET.status == 'ALL' %}selected{% endif %}>ALL</option>
                         <option value="received" {% if request.GET.status == 'received' %}selected{% endif %}>Received</option>
+                        <option value="generated" {% if request.GET.status == 'generated' %}selected{% endif %}>AI Generated</option>
                         <option value="answered" {% if request.GET.status == 'answered' %}selected{% endif %}>Answered</option>
                         <option value="reviewed" {% if request.GET.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
                         <option value="ai_error" {% if request.GET.status == 'ai_error' %}selected{% endif %}>AI Error</option>
@@ -79,6 +80,8 @@
                         <td>
                             {% if wh.status == 'received' %}
                                 <span class="status-not-completed"><i class="material-icons">mail</i> Received</span>
+                            {% elif wh.status == 'generated' %}
+                                <span class="status-completed"><i class="material-icons">smart_toy</i> AI Generated</span>
                             {% elif wh.status == 'answered' %}
                                 <span class="status-completed"><i class="material-icons">reply</i> Answered</span>
                             {% elif wh.status == 'reviewed' %}

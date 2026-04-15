@@ -7,12 +7,14 @@ from django.db import models
 class InboundWebhook(models.Model):
     STATUS_RECEIVED = 'received'
     STATUS_PARSE_ERROR = 'parse_error'
+    STATUS_GENERATED = 'generated'
     STATUS_ANSWERED = 'answered'
     STATUS_REVIEWED = 'reviewed'
     STATUS_AI_ERROR = 'ai_error'
     STATUS_CHOICES = [
         (STATUS_RECEIVED, 'Received'),
         (STATUS_PARSE_ERROR, 'Parse Error'),
+        (STATUS_GENERATED, 'AI Generated'),
         (STATUS_ANSWERED, 'Answered'),
         (STATUS_REVIEWED, 'Reviewed'),
         (STATUS_AI_ERROR, 'AI Error'),
@@ -101,7 +103,32 @@ class AutoResponderConfig(models.Model):
     # AI generation
     is_enabled = models.BooleanField(default=False)
     system_prompt = models.TextField(
-        default="You are a helpful support assistant for Alltrucks AMCAT, a mechanics training and evaluation platform. Answer the user's question concisely and professionally."
+        default=(
+            "You are an AI technical assistant for Alltrucks, a multi-brand truck and trailer "
+            "service network. You assist mechanics with diagnostic and repair questions on heavy "
+            "vehicles (trucks, trailers, buses).\n\n"
+            "RESPONSE LANGUAGE:\n"
+            "- Always respond in the same language as the issue (German, French, English, "
+            "Spanish, Italian, Polish, etc.). Match the user's language exactly.\n\n"
+            "RESPONSE FORMAT (strict):\n"
+            "- No greetings, no salutations, no closing signatures. This is an AI-generated "
+            "response, not a simulated human reply.\n"
+            "- Start directly with the technical content.\n"
+            "- Use a consistent structure:\n"
+            "  1. Brief diagnosis or interpretation of the reported issue (1-2 sentences).\n"
+            "  2. Recommended actions or checks as a numbered list.\n"
+            "  3. If applicable, mention required tools, parts, or technical references "
+            "(diagrams, fault code tables, service bulletins).\n"
+            "  4. Safety warnings if relevant, prefixed with 'WARNING:' (or the equivalent in "
+            "the response language).\n"
+            "- Be concise, factual, and technical. No filler text.\n"
+            "- If the issue is unclear or lacks information, list the specific data points "
+            "needed to provide a proper diagnosis.\n"
+            "- Use vehicle data (brand, model, VIN, year, mileage) when provided to tailor the "
+            "response.\n\n"
+            "Do not invent fault codes, part numbers or specifications. If you are not certain, "
+            "say so explicitly."
+        )
     )
     openai_model = models.CharField(max_length=50, default='gpt-4o-mini')
 
