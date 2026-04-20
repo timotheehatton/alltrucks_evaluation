@@ -1,4 +1,6 @@
 import os
+import re
+import html
 import logging
 
 from django.conf import settings
@@ -181,6 +183,12 @@ def _build_vehicle_section(webhook):
         </tr>'''
 
 
+def _render_ai_response_html(text):
+    escaped = html.escape(text)
+    escaped = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', escaped)
+    return escaped.replace('\n', '<br>')
+
+
 def build_email_html(webhook, star_urls=None):
     """Build the full email HTML from template. Reused by signal and admin preview."""
     template = _load_auto_reply_template()
@@ -198,7 +206,7 @@ def build_email_html(webhook, star_urls=None):
         .replace('{{ date }}', date_str)
         .replace('{{ vehicle_section }}', _build_vehicle_section(webhook))
         .replace('{{ issue }}', issue.replace('\n', '<br>'))
-        .replace('{{ ai_response }}', webhook.ai_response.replace('\n', '<br>'))
+        .replace('{{ ai_response }}', _render_ai_response_html(webhook.ai_response))
         .replace('{{ star_1_url }}', star_urls['star_1_url'])
         .replace('{{ star_2_url }}', star_urls['star_2_url'])
         .replace('{{ star_3_url }}', star_urls['star_3_url'])
