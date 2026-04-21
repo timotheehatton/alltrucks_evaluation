@@ -482,6 +482,12 @@
                                 </div>
                                 <div style="font-size: 14px; color: #555; font-weight: 500;">{{ webhook.user_rating }}/5</div>
                             </div>
+                            {% if webhook.user_comment %}
+                                <div style="margin-top: 10px; padding: 12px 14px; background: #fafafa; border-radius: 6px; font-size: 13px; color: #444; line-height: 1.5; border-left: 3px solid #01B5E2;">
+                                    <div style="font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px;">Comment</div>
+                                    {{ webhook.user_comment|linebreaksbr }}
+                                </div>
+                            {% endif %}
                         {% else %}
                             <div class="empty-state">
                                 <div class="stars-row">

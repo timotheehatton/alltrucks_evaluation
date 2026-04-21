@@ -40,15 +40,15 @@ class Email:
             print(f"Error sending email: {str(e)}")
             return False
 
-    def send_auto_reply(self, to_email, subject, html_content, plain_text_content):
+    def send_auto_reply(self, to_email, subject, html_content, plain_text_content, from_email="support@alltrucks-fleet-platform.com"):
         message = Mail(
-            from_email="info@alltrucks-amcat.com",
+            from_email=from_email,
             to_emails=to_email,
             subject=subject,
             plain_text_content=plain_text_content,
             html_content=html_content,
         )
-        message.reply_to = "info@alltrucks-amcat.com"
+        message.reply_to = from_email
 
         try:
             response = self.sg.send(message)

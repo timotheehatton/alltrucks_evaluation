@@ -99,20 +99,29 @@ def review_email(request, review_token):
 
     already_reviewed = webhook.user_rating is not None
     just_submitted = False
+    preselected_rating = None
 
-    if not already_reviewed:
-        rating = request.GET.get('rating')
+    if request.method == 'POST' and not already_reviewed:
+        rating = request.POST.get('rating')
+        comment = request.POST.get('comment', '').strip()
         if rating and rating.isdigit() and 1 <= int(rating) <= 5:
             webhook.user_rating = int(rating)
+            webhook.user_comment = comment
             webhook.user_rated_at = timezone.now()
             webhook.status = InboundWebhook.STATUS_REVIEWED
-            webhook.save(update_fields=['user_rating', 'user_rated_at', 'status'])
+            webhook.save(update_fields=['user_rating', 'user_comment', 'user_rated_at', 'status'])
             just_submitted = True
             already_reviewed = True
+
+    if not already_reviewed:
+        rating_param = request.GET.get('rating')
+        if rating_param and rating_param.isdigit() and 1 <= int(rating_param) <= 5:
+            preselected_rating = int(rating_param)
 
     return render(request, 'mail_parser/review.html', {
         'webhook': webhook,
         'already_reviewed': already_reviewed,
         'just_submitted': just_submitted,
+        'preselected_rating': preselected_rating,
         'rating_range': range(1, 6),
     })

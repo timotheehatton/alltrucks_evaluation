@@ -172,7 +172,7 @@ def _build_vehicle_section(webhook):
     return f'''
         <tr>
             <td style="padding: 0 24px 25px;">
-                <p style="font-family: Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 700; color: #757575; text-transform: uppercase; letter-spacing: 0.8px; margin: 0 0 6px 0;">Vehicle Information</p>
+                <p style="font-family: Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 700; color: #757575; text-transform: uppercase; letter-spacing: 0.8px; margin: 0 0 6px 0;">Vehicle Information</p>
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8f9fa; padding: 12px; border-radius: 4px;">
                     <tr><td style="padding: 12px 12px 0 12px;">
                         <table border="0" cellpadding="0" cellspacing="0" width="100%">{rows}
@@ -229,6 +229,7 @@ def _send_auto_reply(config, webhook):
             subject=subject,
             html_content=html_content,
             plain_text_content=webhook.ai_response,
+            from_email=config.from_email,
         )
 
     # Track email sent to end user only (not test/admin recipients)

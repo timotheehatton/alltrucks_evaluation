@@ -3,87 +3,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rate this response - Alltrucks AMCAT</title>
+    <title>Rate this response - Alltrucks</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Helvetica, Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-color: #f4f6f9;
             color: #333;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px 0;
         }
         .container {
-            max-width: 480px;
+            max-width: 520px;
             width: 100%;
             padding: 20px;
         }
         .card {
             background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             overflow: hidden;
         }
-        .accent-bar {
-            height: 3px;
-            background-color: rgb(1, 181, 226);
-        }
-        .card-body {
-            padding: 40px 30px;
-            text-align: center;
-        }
-        .logo {
-            max-width: 200px;
-            height: auto;
-            margin-bottom: 30px;
-        }
-        /* TODO Strapi: all text below is hardcoded */
+        .accent-bar { height: 4px; background-color: #01B5E2; }
+        .card-body { padding: 36px 30px; text-align: center; }
+        .logo { max-width: 200px; height: auto; margin-bottom: 24px; }
+
+        /* TODO Strapi: all text is hardcoded */
         h1 {
             font-size: 20px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 6px;
         }
         .subtitle {
             font-size: 14px;
-            color: #777;
-            margin-bottom: 30px;
+            color: #888;
+            margin-bottom: 28px;
         }
+
+        /* Star row with emojis */
+        .rating-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 10px;
+        }
+        .emoji { font-size: 28px; line-height: 1; }
         .stars {
             display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-bottom: 24px;
+            gap: 6px;
         }
-        .stars a {
-            text-decoration: none;
+        .star {
             font-size: 40px;
             color: #e0e0e0;
-            transition: color 0.15s;
+            cursor: pointer;
+            transition: transform 0.15s, color 0.15s;
+            user-select: none;
+            line-height: 1;
         }
-        .stars a:hover { color: #FFB300; }
-        .stars a.filled { color: #FFB300; }
-        .stars span {
-            font-size: 40px;
-            color: #e0e0e0;
-        }
-        .stars span.filled { color: #FFB300; }
-        .rating-text {
-            font-size: 15px;
+        .star.filled { color: #FFB300; }
+        .star:hover { transform: scale(1.15); }
+
+        .rating-label {
+            font-size: 13px;
             color: #555;
-            margin-bottom: 6px;
+            margin-bottom: 24px;
+            min-height: 18px;
         }
-        .rating-date {
+
+        .comment-wrap {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+        .comment-wrap label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .comment-wrap textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            min-height: 90px;
+            resize: vertical;
+            box-sizing: border-box;
+        }
+        .comment-wrap textarea:focus {
+            border-color: #01B5E2;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(1, 181, 226, 0.15);
+        }
+
+        .btn-submit {
+            display: inline-block;
+            background: #01B5E2;
+            color: #fff;
+            border: none;
+            padding: 12px 32px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-family: inherit;
+        }
+        .btn-submit:hover { background: #0196BD; }
+        .btn-submit:disabled {
+            background: #bbb;
+            cursor: not-allowed;
+        }
+
+        .success-icon {
+            font-size: 56px;
+            margin-bottom: 10px;
+        }
+
+        .readonly-stars {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .readonly-stars .star { cursor: default; }
+        .readonly-stars .star:hover { transform: none; }
+
+        .review-meta {
             font-size: 12px;
             color: #aaa;
+            margin-top: 10px;
         }
-        .success-icon {
-            font-size: 48px;
-            color: #4CAF50;
-            margin-bottom: 12px;
+        .review-comment {
+            margin-top: 16px;
+            padding: 14px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #444;
+            text-align: left;
+            line-height: 1.5;
+            border-left: 3px solid #01B5E2;
         }
+
         .footer {
             text-align: center;
             padding: 20px;
@@ -99,52 +170,132 @@
             <div class="accent-bar"></div>
             <div class="card-body">
                 <img src="https://alltrucks-assets.s3.eu-west-3.amazonaws.com/logo.png"
-                     alt="Alltrucks AMCAT" class="logo" />
+                     alt="Alltrucks" class="logo" />
 
                 {% if just_submitted %}
-                    <div class="success-icon">&#10003;</div>
+                    <div class="success-icon">✅</div>
                     <h1>Thank you for your feedback!</h1>
-                    <p class="subtitle">You rated this response {{ webhook.user_rating }}/5</p>
-                    <div class="stars">
+                    <p class="subtitle">Your review has been saved.</p>
+                    <div class="readonly-stars">
                         {% for i in rating_range %}
                             {% if i <= webhook.user_rating %}
-                                <span class="filled">&#9733;</span>
+                                <span class="star filled">★</span>
                             {% else %}
-                                <span>&#9733;</span>
+                                <span class="star">★</span>
                             {% endif %}
                         {% endfor %}
                     </div>
+                    {% if webhook.user_comment %}
+                    <div class="review-comment">{{ webhook.user_comment }}</div>
+                    {% endif %}
 
                 {% elif already_reviewed %}
                     <h1>You already rated this response</h1>
                     <p class="subtitle">Thank you for your feedback</p>
-                    <div class="stars">
+                    <div class="readonly-stars">
                         {% for i in rating_range %}
                             {% if i <= webhook.user_rating %}
-                                <span class="filled">&#9733;</span>
+                                <span class="star filled">★</span>
                             {% else %}
-                                <span>&#9733;</span>
+                                <span class="star">★</span>
                             {% endif %}
                         {% endfor %}
                     </div>
-                    <p class="rating-text">{{ webhook.user_rating }}/5</p>
-                    <p class="rating-date">Rated on {{ webhook.user_rated_at|date:"F j, Y \a\t H:i" }}</p>
+                    <p class="review-meta">Rated {{ webhook.user_rating }}/5 on {{ webhook.user_rated_at|date:"F j, Y \a\t H:i" }}</p>
+                    {% if webhook.user_comment %}
+                    <div class="review-comment">{{ webhook.user_comment }}</div>
+                    {% endif %}
 
                 {% else %}
-                    <h1>How would you rate this response?</h1>
-                    <p class="subtitle">Your feedback helps us improve</p>
-                    <div class="stars">
-                        {% for i in rating_range %}
-                            <a href="?rating={{ i }}">&#9733;</a>
-                        {% endfor %}
-                    </div>
+                    <h1>How helpful was this response?</h1>
+                    <p class="subtitle">Adjust the rating if needed, then submit.</p>
+
+                    <form method="POST" id="review-form">
+                        {% csrf_token %}
+                        <div class="rating-row">
+                            <span class="emoji" title="Not helpful">😞</span>
+                            <div class="stars" id="stars">
+                                {% for i in rating_range %}
+                                    <span class="star" data-value="{{ i }}">★</span>
+                                {% endfor %}
+                            </div>
+                            <span class="emoji" title="Very helpful">😊</span>
+                        </div>
+                        <div class="rating-label" id="rating-label"></div>
+
+                        <input type="hidden" name="rating" id="rating-input" value="{{ preselected_rating|default:'' }}">
+
+                        <div class="comment-wrap">
+                            <label for="comment">Comment (optional)</label>
+                            <textarea id="comment" name="comment" placeholder="Tell us why..."></textarea>
+                        </div>
+
+                        <button type="submit" class="btn-submit" id="submit-btn" {% if not preselected_rating %}disabled{% endif %}>
+                            Submit feedback
+                        </button>
+                    </form>
                 {% endif %}
             </div>
         </div>
         <div class="footer">
             <p>Alltrucks GmbH & Co. KG | Perchtinger Strasse 6 | 81379 Munich</p>
-            <a href="mailto:info@alltrucks-amcat.com">info@alltrucks-amcat.com</a>
+            <a href="mailto:support@alltrucks-fleet-platform.com">support@alltrucks-fleet-platform.com</a>
         </div>
     </div>
+
+    {% if not already_reviewed and not just_submitted %}
+    <script>
+        (function() {
+            const stars = document.querySelectorAll('#stars .star');
+            const ratingInput = document.getElementById('rating-input');
+            const ratingLabel = document.getElementById('rating-label');
+            const submitBtn = document.getElementById('submit-btn');
+
+            const labels = {
+                1: 'Not helpful',
+                2: 'Slightly helpful',
+                3: 'Helpful',
+                4: 'Very helpful',
+                5: 'Excellent',
+            };
+
+            function paint(value) {
+                stars.forEach(s => {
+                    const v = parseInt(s.dataset.value, 10);
+                    s.classList.toggle('filled', v <= value);
+                });
+                ratingLabel.textContent = labels[value] || '';
+            }
+
+            // Pre-fill from URL
+            const initial = parseInt(ratingInput.value, 10);
+            if (!isNaN(initial) && initial >= 1 && initial <= 5) {
+                paint(initial);
+            }
+
+            stars.forEach(star => {
+                star.addEventListener('mouseenter', () => {
+                    paint(parseInt(star.dataset.value, 10));
+                });
+                star.addEventListener('click', () => {
+                    const value = parseInt(star.dataset.value, 10);
+                    ratingInput.value = value;
+                    paint(value);
+                    submitBtn.disabled = false;
+                });
+            });
+
+            const starsContainer = document.getElementById('stars');
+            starsContainer.addEventListener('mouseleave', () => {
+                const current = parseInt(ratingInput.value, 10);
+                if (!isNaN(current)) paint(current);
+                else {
+                    stars.forEach(s => s.classList.remove('filled'));
+                    ratingLabel.textContent = '';
+                }
+            });
+        })();
+    </script>
+    {% endif %}
 </body>
 </html>
