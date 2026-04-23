@@ -4,8 +4,21 @@
 {% block stylesheets %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
     <style>
-        .config-form { max-width: 900px; padding-bottom: 40px; }
+        .config-form { max-width: 1400px; padding-bottom: 120px; }
         .config-form .page-title { font-size: 22px; margin: 8px 0 20px; }
+
+        .config-form .cards-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+        .config-form .cards-row > .card {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        @media (max-width: 1100px) {
+            .config-form .cards-row { flex-direction: column; }
+        }
 
         .config-form .card {
             padding: 20px 24px;
@@ -131,6 +144,8 @@
         <form method="POST">
             {% csrf_token %}
 
+            <div class="cards-row">
+
             <!-- AI Generation -->
             <div class="card">
                 <div class="card-header">
@@ -228,6 +243,8 @@
                         <i class="material-icons left">save</i>Save
                     </button>
                 </div>
+            </div>
+
             </div>
         </form>
     </div>
