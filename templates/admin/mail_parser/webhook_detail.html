@@ -321,6 +321,18 @@
                             </div>
                         {% endif %}
                         <div class="content-block">{{ webhook.parsed_issue }}</div>
+                        {% if webhook.default_code %}
+                            <p style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px;">Default code</p>
+                            <div style="font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; background: #f5f5f5; padding: 6px 10px; border-radius: 4px; display: inline-block;">{{ webhook.default_code }}</div>
+                        {% endif %}
+                        {% if webhook.request_nature %}
+                            <p style="margin: 14px 0 6px 0; font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px;">Nature of request</p>
+                            <ul style="margin: 0; padding-left: 18px;">
+                                {% for item in webhook.request_nature %}
+                                    <li>{{ item }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
                     </div>
                 </div>
                 {% endif %}

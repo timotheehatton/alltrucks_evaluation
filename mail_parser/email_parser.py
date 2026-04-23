@@ -87,6 +87,7 @@ def parse_portal_email(webhook):
     # Extract the full problem section between "3 - The problem" and "4 - Request"
     problem_match = re.search(r'3 - The problem(.*?)(?:4 - Request|$)', text, re.DOTALL)
     issue = ''
+    default_code = ''
     if problem_match:
         problem_block = problem_match.group(1)
 
@@ -96,20 +97,41 @@ def parse_portal_email(webhook):
             problem_block,
             re.DOTALL,
         )
-        description = desc_match.group(1).strip() if desc_match else ''
+        issue = desc_match.group(1).strip() if desc_match else ''
 
         # Extract default code if present
         code_match = re.search(r'Default code:\s*(.+)', problem_block)
         default_code = code_match.group(1).strip() if code_match else ''
 
-        parts = []
-        if description:
-            parts.append(description)
-        if default_code:
-            parts.append(f'Default code: {default_code}')
-        issue = '\n\n'.join(parts)
+    # Extract "4 - Request" checked items
+    request_nature = _extract_request_nature(text)
 
-    return user_email, text, vehicle_data, issue, None
+    return user_email, text, vehicle_data, issue, default_code, request_nature, None
+
+
+_CHECKED_MARKERS = ('☑', '☒', '✓', '✔', '[x]', '[X]')
+
+
+def _extract_request_nature(text):
+    """Return the labels of checked items in the '4 - Request' section."""
+    request_match = re.search(r'4\s*-\s*Request[^\n]*\n(.*?)(?:\n\s*\d+\s*-\s*|\Z)', text, re.DOTALL)
+    if not request_match:
+        return []
+
+    checked = []
+    for line in request_match.group(1).splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if any(stripped.startswith(m) for m in _CHECKED_MARKERS):
+            label = stripped
+            for m in _CHECKED_MARKERS:
+                if label.startswith(m):
+                    label = label[len(m):].strip()
+                    break
+            if label:
+                checked.append(label)
+    return checked
 
 
 def parse_forum_email(webhook):
@@ -164,7 +186,7 @@ def parse_inbound_email(webhook):
 
     if sender_email == 'portal@alltrucks.com':
         webhook.category = InboundWebhook.CATEGORY_HOTLINE
-        user_email, content, vehicle_data, issue, error = parse_portal_email(webhook)
+        user_email, content, vehicle_data, issue, default_code, request_nature, error = parse_portal_email(webhook)
 
         if error:
             webhook.save(update_fields=['category'])
@@ -180,9 +202,12 @@ def parse_inbound_email(webhook):
             webhook.vehicle_axle_config = vehicle_data.get('axle_config', '')
 
         webhook.parsed_issue = issue or ''
+        webhook.default_code = default_code or ''
+        webhook.request_nature = request_nature or []
         webhook.save(update_fields=[
             'category', 'vehicle_brand', 'vehicle_model', 'vehicle_vin',
-            'vehicle_year', 'vehicle_mileage', 'vehicle_axle_config', 'parsed_issue',
+            'vehicle_year', 'vehicle_mileage', 'vehicle_axle_config',
+            'parsed_issue', 'default_code', 'request_nature',
         ])
 
         return user_email, content, None

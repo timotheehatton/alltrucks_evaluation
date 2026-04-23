@@ -52,6 +52,8 @@ def build_ai_user_message(webhook):
         if webhook.vehicle_axle_config: vehicle_lines.append(f'- Axle config: {webhook.vehicle_axle_config}')
         if vehicle_lines:
             parts.append('Vehicle information:\n' + '\n'.join(vehicle_lines))
+        if webhook.default_code:
+            parts.append(f'Default code: {webhook.default_code}')
         if webhook.parsed_issue:
             parts.append(f'Issue:\n{webhook.parsed_issue}')
         return '\n\n'.join(parts) if parts else webhook.parsed_content

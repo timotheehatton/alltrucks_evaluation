@@ -70,6 +70,8 @@ class InboundWebhook(models.Model):
     vehicle_year = models.CharField(max_length=20, blank=True, default='')
     vehicle_mileage = models.CharField(max_length=20, blank=True, default='')
     vehicle_axle_config = models.CharField(max_length=100, blank=True, default='')
+    default_code = models.CharField(max_length=100, blank=True, default='')
+    request_nature = models.JSONField(default=list, blank=True)
 
     # AI auto-responder fields
     ai_response = models.TextField(blank=True, default='')
