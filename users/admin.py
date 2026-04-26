@@ -604,14 +604,16 @@ class MyAdminSite(admin.AdminSite):
 
         config = AutoResponderConfig.load()
 
-        from mail_parser.signals import build_ai_user_message
+        from mail_parser.signals import build_ai_user_message, is_documentation_only_request
         ai_user_message = build_ai_user_message(webhook)
+        documentation_only = is_documentation_only_request(webhook)
 
         return render(request, 'admin/mail_parser/webhook_detail.html', {
             'webhook': webhook,
             'email_preview': email_preview,
             'config': config,
             'ai_user_message': ai_user_message,
+            'documentation_only': documentation_only,
         })
 
     @staticmethod

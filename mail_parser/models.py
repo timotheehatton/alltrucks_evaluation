@@ -17,6 +17,7 @@ def _load_default_system_prompt():
 class InboundWebhook(models.Model):
     STATUS_RECEIVED = 'received'
     STATUS_PARSE_ERROR = 'parse_error'
+    STATUS_STOPPED = 'stopped'
     STATUS_GENERATED = 'generated'
     STATUS_ANSWERED = 'answered'
     STATUS_REVIEWED = 'reviewed'
@@ -24,6 +25,7 @@ class InboundWebhook(models.Model):
     STATUS_CHOICES = [
         (STATUS_RECEIVED, 'Received'),
         (STATUS_PARSE_ERROR, 'Parse Error'),
+        (STATUS_STOPPED, 'Stopped'),
         (STATUS_GENERATED, 'AI Generated'),
         (STATUS_ANSWERED, 'Answered'),
         (STATUS_REVIEWED, 'Reviewed'),
@@ -77,6 +79,8 @@ class InboundWebhook(models.Model):
     ai_response = models.TextField(blank=True, default='')
     ai_responded_at = models.DateTimeField(null=True, blank=True)
     ai_error = models.TextField(blank=True, default='')
+    ai_search_queries = models.JSONField(default=list, blank=True)
+    ai_citations = models.JSONField(default=list, blank=True)
     email_sent_at = models.DateTimeField(null=True, blank=True)
     review_token = models.CharField(max_length=64, blank=True, default='', unique=True)
 

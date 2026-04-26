@@ -13,6 +13,15 @@ from .email_parser import parse_inbound_email
 
 logger = logging.getLogger(__name__)
 
+DOCUMENTATION_REQUEST_LABEL = 'To send the technical data / documentation'
+
+
+def is_documentation_only_request(webhook):
+    """True when the only checked request-nature item is the documentation request."""
+    if not webhook.request_nature:
+        return False
+    return all(item == DOCUMENTATION_REQUEST_LABEL for item in webhook.request_nature)
+
 
 def parse_webhook(webhook):
     """
@@ -94,7 +103,7 @@ def generate_ai_response(webhook):
     if not webhook.review_token:
         webhook.generate_review_token()
 
-    response_text, error = ai_service.generate_response(
+    response_text, error, metadata = ai_service.generate_response(
         system_prompt=config.system_prompt,
         user_message=user_message,
         model=config.openai_model,
@@ -109,10 +118,15 @@ def generate_ai_response(webhook):
     webhook.ai_response = response_text
     webhook.ai_responded_at = timezone.now()
     webhook.ai_error = ''
+    webhook.ai_search_queries = metadata.get('search_queries', [])
+    webhook.ai_citations = metadata.get('citations', [])
     # Keep ANSWERED if email already sent to user, otherwise GENERATED
     if not webhook.email_sent_at:
         webhook.status = InboundWebhook.STATUS_GENERATED
-    webhook.save(update_fields=['ai_response', 'ai_responded_at', 'ai_error', 'status', 'review_token'])
+    webhook.save(update_fields=[
+        'ai_response', 'ai_responded_at', 'ai_error', 'status', 'review_token',
+        'ai_search_queries', 'ai_citations',
+    ])
 
     return True, None
 
@@ -255,6 +269,13 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
 
     config = AutoResponderConfig.load()
     if not config.is_enabled:
+        return
+
+    # Skip AI generation when the mechanic only asked for documentation
+    instance.refresh_from_db()
+    if is_documentation_only_request(instance):
+        instance.status = InboundWebhook.STATUS_STOPPED
+        instance.save(update_fields=['status'])
         return
 
     success, error = generate_ai_response(instance)

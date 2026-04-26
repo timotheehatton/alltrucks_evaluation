@@ -262,6 +262,8 @@
                                             <span class="status-not-completed"><i class="material-icons">error</i> AI Error</span>
                                         {% elif webhook.status == 'parse_error' %}
                                             <span class="status-not-completed"><i class="material-icons">warning</i> Parse Error</span>
+                                        {% elif webhook.status == 'stopped' %}
+                                            <span style="display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 12px; background: #e8f5e9; color: #2e7d32; font-size: 12px; font-weight: 600;"><i class="material-icons" style="font-size: 16px; margin-right: 4px;">pause_circle</i> Stopped</span>
                                         {% endif %}
                                     </td>
                                 </tr>
@@ -369,11 +371,25 @@
         </div>
 
         <!-- ============= STEP 3: AI ANSWER ============= -->
-        <div class="step">
+        <div class="step"{% if documentation_only %} style="padding-bottom: 80px;"{% endif %}>
             <div class="step-title">
                 <span class="step-number">3</span>
                 <span class="name">AI Answer</span>
             </div>
+
+            {% if documentation_only %}
+                <div class="card" style="background: #fff8e1; border-left: 4px solid #f9a825;">
+                    <div style="display: flex; align-items: flex-start;">
+                        <i class="material-icons" style="font-size: 26px; color: #f57f17; margin-right: 12px;">pause_circle</i>
+                        <div>
+                            <div style="font-size: 15px; font-weight: 600; color: #5d4037; margin-bottom: 4px;">Process stopped after parsing</div>
+                            <div style="font-size: 13px; color: #6d4c41; line-height: 19px;">
+                                The mechanic only requested <em>"To send the technical data / documentation"</em>. AI generation and email sending have been skipped — this case requires a manual response with the relevant documentation.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
 
             <details class="card" style="padding: 0;">
                 <summary style="padding: 16px 24px; cursor: pointer; display: flex; align-items: center; list-style: none; user-select: none;">
@@ -388,6 +404,33 @@
                     <div class="content-block">{{ ai_user_message|default:"(empty)" }}</div>
                 </div>
             </details>
+
+            {% if webhook.ai_search_queries or webhook.ai_citations %}
+            <div class="card">
+                <div class="card-header">
+                    <i class="material-icons icon-purple">manage_search</i>
+                    <span class="title">Knowledge Base Usage</span>
+                </div>
+                {% if webhook.ai_search_queries %}
+                    <p style="font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px 0;">Search queries issued by the AI ({{ webhook.ai_search_queries|length }})</p>
+                    <ul style="margin: 0 0 16px 0; padding-left: 18px;">
+                        {% for q in webhook.ai_search_queries %}
+                            <li style="font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; color: #333;">{{ q }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if webhook.ai_citations %}
+                    <p style="font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px 0;">Citations from KB ({{ webhook.ai_citations|length }})</p>
+                    <ul style="margin: 0; padding-left: 18px;">
+                        {% for c in webhook.ai_citations %}
+                            <li style="font-size: 13px; color: #333;">{{ c.filename|default:"file" }} <span style="color: #888;">@ index {{ c.index }}</span></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p style="font-size: 13px; color: #888; margin: 0;">No KB citations were attached to this answer.</p>
+                {% endif %}
+            </div>
+            {% endif %}
 
             <div class="card">
                 <div class="card-header">
@@ -438,8 +481,11 @@
                     </div>
                 {% endif %}
             </div>
+
+            {% endif %}
         </div>
 
+        {% if not documentation_only %}
         <!-- ============= STEP 4: EMAIL SENT & REVIEW ============= -->
         <div class="step" style="margin-bottom: 40px;">
             <div class="step-title">
@@ -515,6 +561,7 @@
             </div>
             <div style="height:20px"></div>
         </div>
+        {% endif %}
 
         {% endif %}
     </div>

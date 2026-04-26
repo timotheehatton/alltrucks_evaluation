@@ -30,6 +30,7 @@
                         <option value="reviewed" {% if request.GET.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
                         <option value="ai_error" {% if request.GET.status == 'ai_error' %}selected{% endif %}>AI Error</option>
                         <option value="parse_error" {% if request.GET.status == 'parse_error' %}selected{% endif %}>Parse Error</option>
+                        <option value="stopped" {% if request.GET.status == 'stopped' %}selected{% endif %}>Stopped</option>
                     </select>
                     <label>Status</label>
                 </div>
@@ -90,6 +91,8 @@
                                 <span class="status-not-completed"><i class="material-icons">error</i> AI Error</span>
                             {% elif wh.status == 'parse_error' %}
                                 <span class="status-not-completed"><i class="material-icons">warning</i> Parse Error</span>
+                            {% elif wh.status == 'stopped' %}
+                                <span style="display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 12px; background: #e8f5e9; color: #2e7d32; font-size: 12px; font-weight: 600;"><i class="material-icons" style="font-size: 16px; margin-right: 4px;">pause_circle</i> Stopped</span>
                             {% endif %}
                         </td>
                     </tr>
