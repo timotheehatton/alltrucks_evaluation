@@ -96,18 +96,20 @@
             margin-bottom: 8px;
         }
 
-        .kb-page .content-pre {
-            white-space: pre-wrap;
+        .kb-page .content-textarea {
+            width: 100%;
+            height: 420px;
             font-family: 'Consolas','Monaco',monospace;
             font-size: 11px;
             line-height: 1.5;
-            max-height: 420px;
-            overflow-y: auto;
             background: #fafafa;
             padding: 12px;
             border-radius: 6px;
             border: 1px solid #eee;
-            margin: 0;
+            box-sizing: border-box;
+            resize: vertical;
+            white-space: pre;
+            overflow-wrap: normal;
         }
 
         .kb-page .spinner {
@@ -168,7 +170,14 @@
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
-    <div class="content kb-page">
+    <script>
+        // Show the global loader immediately while the browser parses the large content blob.
+        (function () {
+            var l = document.getElementById('global-loader');
+            if (l) l.style.setProperty('display', 'flex', 'important');
+        })();
+    </script>
+    <div class="content kb-page" id="kb-page-root" style="visibility: hidden;">
         <h1 class="page-title">Knowledge Base</h1>
 
         {% if messages %}
@@ -237,7 +246,8 @@
                     {% if kb.content %}
                         <div style="margin-top: 14px;">
                             <p style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.3px; margin: 0 0 6px 0;">File content</p>
-                            <pre class="content-pre">{{ kb.content }}</pre>
+                            <textarea class="content-textarea" id="kb-content-textarea" readonly>Loading content…</textarea>
+                            {{ kb.content|json_script:"kb-content-source" }}
                         </div>
                     {% endif %}
 
@@ -280,7 +290,26 @@
     </div>
 
     <script>
+        function hideLoader() {
+            var l = document.getElementById('global-loader');
+            if (l) l.style.setProperty('display', 'none', 'important');
+        }
+
+        function injectKbContent() {
+            var src = document.getElementById('kb-content-source');
+            var ta = document.getElementById('kb-content-textarea');
+            if (!src || !ta) return;
+            try {
+                ta.value = JSON.parse(src.textContent);
+            } catch (e) {
+                ta.value = '(could not load content)';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
+            var root = document.getElementById('kb-page-root');
+            if (root) root.style.visibility = '';
+
             // Sync button: show inline spinner + disable while submitting
             var form = document.getElementById('kb-sync-form');
             var btn = document.getElementById('kb-sync-btn');
@@ -291,6 +320,16 @@
                     label.innerHTML = '<span class="spinner"></span>Syncing… (~30s)';
                 });
             }
+        });
+
+        // Inject the heavy content only AFTER the window has fully loaded
+        // (page shell painted), then wait one more frame to let it lay out
+        // before hiding the loader.
+        window.addEventListener('load', function () {
+            requestAnimationFrame(function () {
+                injectKbContent();
+                requestAnimationFrame(hideLoader);
+            });
         });
     </script>
 {% endblock %}
