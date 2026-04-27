@@ -1,0 +1,296 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <style>
+        .kb-page { max-width: 1400px; padding-bottom: 120px; }
+        .kb-page .page-title { font-size: 22px; margin: 8px 0 20px; }
+
+        .kb-page .top-row {
+            display: flex;
+            gap: 16px;
+            align-items: stretch;
+        }
+        .kb-page .top-row .card { margin-bottom: 16px; }
+        .kb-page .top-row .col-main { flex: 2; min-width: 0; }
+        .kb-page .top-row .col-side { flex: 1; min-width: 0; }
+        @media (max-width: 1000px) {
+            .kb-page .top-row { flex-direction: column; }
+        }
+
+        .kb-page .card {
+            padding: 20px 24px;
+            margin-bottom: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            border: 1px solid #e8e8e8;
+            background: #fff;
+        }
+        .kb-page .card-header {
+            display: flex;
+            align-items: center;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 16px;
+        }
+        .kb-page .card-header i {
+            font-size: 22px;
+            margin-right: 10px;
+            color: #01B5E2;
+        }
+        .kb-page .card-header .title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1a1a2e;
+        }
+        .kb-page .meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px 16px;
+        }
+        @media (max-width: 800px) {
+            .kb-page .meta-grid { grid-template-columns: 1fr; }
+        }
+        .kb-page .meta-grid .label {
+            font-size: 10px;
+            font-weight: 700;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            margin-bottom: 2px;
+        }
+        .kb-page .meta-grid .value {
+            font-size: 12px;
+            color: #1a1a2e;
+            word-break: break-all;
+        }
+        .kb-page .meta-grid .value.empty { color: #aaa; font-style: italic; }
+        .kb-page .meta-grid .value code {
+            font-family: 'Consolas','Monaco',monospace;
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .kb-page .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid #f4f4f4;
+        }
+
+        .kb-page .actions .last-sync { color: #888; font-size: 12px; margin-left: auto; }
+
+        .kb-page .upload-form input[type="file"] {
+            display: block;
+            margin: 12px 0 16px 0;
+            font-size: 14px;
+        }
+        .kb-page .upload-form .field-help {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .kb-page .content-pre {
+            white-space: pre-wrap;
+            font-family: 'Consolas','Monaco',monospace;
+            font-size: 11px;
+            line-height: 1.5;
+            max-height: 420px;
+            overflow-y: auto;
+            background: #fafafa;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #eee;
+            margin: 0;
+        }
+
+        .kb-page .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: kb-spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 6px;
+        }
+        .kb-page .content-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            color: #888;
+            font-size: 13px;
+        }
+        .kb-page .content-spinner .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid #e0e0e0;
+            border-top-color: #01B5E2;
+            margin-right: 8px;
+        }
+        @keyframes kb-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .kb-page .badge-status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        .kb-page .badge-idle { background: #e8f5e9; color: #2e7d32; }
+        .kb-page .badge-failed { background: #ffebee; color: #c62828; }
+        .kb-page .badge-empty { background: #f5f5f5; color: #757575; }
+
+        .kb-page .messages li div {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+        .kb-page .messages li.error div {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+{% endblock %}
+
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content kb-page">
+        <h1 class="page-title">Knowledge Base</h1>
+
+        {% if messages %}
+            <ul class="messages" style="list-style: none; padding: 0;">
+                {% for message in messages %}
+                    <li class="{{ message.tags }}"><div>{{ message }}</div></li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+
+        <div class="top-row">
+            <!-- Current file (left) -->
+            <div class="col-main">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="material-icons">menu_book</i>
+                        <span class="title">Current file</span>
+                        <span style="margin-left: auto;">
+                            {% if kb.sync_status == 'failed' %}
+                                <span class="badge-status badge-failed">Sync failed</span>
+                            {% elif kb.last_synced_at %}
+                                <span class="badge-status badge-idle">Synced</span>
+                            {% else %}
+                                <span class="badge-status badge-empty">Not synced</span>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="meta-grid">
+                        <div>
+                            <div class="label">Filename</div>
+                            <div class="value {% if not kb.filename %}empty{% endif %}">{{ kb.filename|default:"—" }}</div>
+                        </div>
+                        <div>
+                            <div class="label">Size · cases</div>
+                            <div class="value">{{ kb.byte_size }} B · {{ kb.case_count }} cases</div>
+                        </div>
+                        <div>
+                            <div class="label">Uploaded at</div>
+                            <div class="value {% if not kb.uploaded_at %}empty{% endif %}">{{ kb.uploaded_at|date:"Y-m-d H:i:s"|default:"—" }}</div>
+                        </div>
+                        <div>
+                            <div class="label">Last sync</div>
+                            <div class="value {% if not kb.last_synced_at %}empty{% endif %}">{{ kb.last_synced_at|date:"Y-m-d H:i:s"|default:"never" }}</div>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <div class="label">OpenAI file id</div>
+                            <div class="value {% if not kb.openai_file_id %}empty{% endif %}">
+                                {% if kb.openai_file_id %}<code>{{ kb.openai_file_id }}</code>{% else %}—{% endif %}
+                            </div>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <div class="label">Vector store id</div>
+                            <div class="value {% if not kb.vector_store_id %}empty{% endif %}">
+                                {% if kb.vector_store_id %}<code>{{ kb.vector_store_id }}</code>{% else %}—{% endif %}
+                            </div>
+                        </div>
+                        {% if kb.sync_error %}
+                        <div style="grid-column: 1 / -1;">
+                            <div class="label" style="color: #c62828;">Last sync error</div>
+                            <div class="value" style="color: #c62828;"><code>{{ kb.sync_error }}</code></div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {% if kb.content %}
+                        <div style="margin-top: 14px;">
+                            <p style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.3px; margin: 0 0 6px 0;">File content</p>
+                            <pre class="content-pre">{{ kb.content }}</pre>
+                        </div>
+                    {% endif %}
+
+                    <div class="actions">
+                        <form method="POST" action="{% url 'admin:knowledge_base_sync' %}" id="kb-sync-form" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn blue" id="kb-sync-btn" {% if not kb.content %}disabled{% endif %}>
+                                <i class="material-icons left">sync</i><span id="kb-sync-label">Sync to OpenAI</span>
+                            </button>
+                        </form>
+                        {% if not kb.content %}
+                            <span style="color: #999; font-size: 12px;">Upload a file first</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload (right) -->
+            <div class="col-side">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="material-icons">upload_file</i>
+                        <span class="title">Upload a new file</span>
+                    </div>
+                    <p class="field-help" style="font-size: 12px; color: #888; margin-bottom: 12px;">
+                        Replace the current Knowledge Base by uploading a new <code>.md</code> file. The new file is stored in the database — you must click <strong>Sync to OpenAI</strong> afterwards to update the vector store.
+                    </p>
+                    <form method="POST" action="{% url 'admin:knowledge_base' %}" enctype="multipart/form-data" class="upload-form">
+                        {% csrf_token %}
+                        <input type="file" name="kb_file" accept=".md,.markdown,text/markdown,text/plain" required>
+                        <button type="submit" class="btn blue">
+                            <i class="material-icons left">save</i>Upload
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div style="height: 80px;"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Sync button: show inline spinner + disable while submitting
+            var form = document.getElementById('kb-sync-form');
+            var btn = document.getElementById('kb-sync-btn');
+            var label = document.getElementById('kb-sync-label');
+            if (form && btn && label) {
+                form.addEventListener('submit', function () {
+                    btn.disabled = true;
+                    label.innerHTML = '<span class="spinner"></span>Syncing… (~30s)';
+                });
+            }
+        });
+    </script>
+{% endblock %}

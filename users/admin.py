@@ -15,7 +15,8 @@ from django.utils.http import urlsafe_base64_encode
 from common.useful.email import email
 from common.useful.strapi import strapi_content
 from common.views.forms import AdminUserForm, CompanyUserForm
-from mail_parser.models import AutoResponderConfig, InboundWebhook
+from mail_parser.models import AutoResponderConfig, InboundWebhook, KnowledgeBaseFile
+from mail_parser.services.knowledge_base import count_cases, sync_to_openai
 from .models import Company, Score, User
 
 
@@ -41,6 +42,8 @@ class MyAdminSite(admin.AdminSite):
             path('webhooks/<int:webhook_id>/', self.admin_view(self.webhook_detail_view), name='webhook_detail'),
             path('webhooks/<int:webhook_id>/generate/', self.admin_view(self.webhook_generate_view), name='webhook_generate'),
             path('auto-responder-config/', self.admin_view(self.auto_responder_config_view), name='auto_responder_config'),
+            path('knowledge-base/', self.admin_view(self.knowledge_base_view), name='knowledge_base'),
+            path('knowledge-base/sync/', self.admin_view(self.knowledge_base_sync_view), name='knowledge_base_sync'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -608,12 +611,21 @@ class MyAdminSite(admin.AdminSite):
         ai_user_message = build_ai_user_message(webhook)
         documentation_only = is_documentation_only_request(webhook)
 
+        kb = KnowledgeBaseFile.load()
+        citations = []
+        for c in (webhook.ai_citations or []):
+            citations.append({
+                **c,
+                'content': kb.get_case_at_offset(c.get('index')),
+            })
+
         return render(request, 'admin/mail_parser/webhook_detail.html', {
             'webhook': webhook,
             'email_preview': email_preview,
             'config': config,
             'ai_user_message': ai_user_message,
             'documentation_only': documentation_only,
+            'citations_with_content': citations,
         })
 
     @staticmethod
@@ -652,6 +664,47 @@ class MyAdminSite(admin.AdminSite):
         return render(request, 'admin/mail_parser/auto_responder_config.html', {
             'config': config,
         })
+
+    def knowledge_base_view(self, request):
+        from django.utils import timezone
+        kb = KnowledgeBaseFile.load()
+        if request.method == 'POST':
+            uploaded = request.FILES.get('kb_file')
+            if not uploaded:
+                messages.error(request, 'No file selected.')
+                return redirect('admin:knowledge_base')
+            try:
+                raw = uploaded.read()
+                content = raw.decode('utf-8')
+            except UnicodeDecodeError:
+                messages.error(request, 'File is not valid UTF-8.')
+                return redirect('admin:knowledge_base')
+            kb.content = content
+            kb.filename = uploaded.name
+            kb.byte_size = len(raw)
+            kb.case_count = count_cases(content)
+            kb.uploaded_at = timezone.now()
+            kb.save()
+            messages.success(
+                request,
+                f'Uploaded "{uploaded.name}" — {kb.case_count} cases, '
+                f'{kb.byte_size} bytes. Click "Sync to OpenAI" to push it.',
+            )
+            return redirect('admin:knowledge_base')
+        return render(request, 'admin/mail_parser/knowledge_base.html', {
+            'kb': kb,
+        })
+
+    def knowledge_base_sync_view(self, request):
+        if request.method != 'POST':
+            return redirect('admin:knowledge_base')
+        kb = KnowledgeBaseFile.load()
+        success, error = sync_to_openai(kb)
+        if success:
+            messages.success(request, 'Knowledge Base successfully synced to OpenAI.')
+        else:
+            messages.error(request, f'Sync failed: {error}')
+        return redirect('admin:knowledge_base')
 
     def _flatten_dict(self, d, parent_key='', sep='_'):
         """Flatten nested dictionary for CSV export"""

@@ -1,8 +1,11 @@
-"""Upload the Markdown knowledge base to an OpenAI vector store with custom chunking.
+"""Bootstrap script — kept for reference only.
 
-Each case in the MD file is short (~150-300 tokens), so the default chunking of
-800/400 would group several cases together. We use 400/50 instead so each chunk
-stays close to one case = sharper retrieval.
+The ongoing source of truth for the knowledge base is now the admin page at
+`/admin/knowledge-base/`. The chunking constants below are duplicated from
+`mail_parser/services/knowledge_base.py` (CHUNK_MAX_TOKENS / CHUNK_OVERLAP_TOKENS).
+
+Use this script only to create a brand-new vector store. To re-sync the
+existing one, use the admin UI.
 
 Requires OPENAI_API_KEY environment variable.
 

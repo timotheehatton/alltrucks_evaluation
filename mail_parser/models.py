@@ -149,3 +149,58 @@ class AutoResponderConfig(models.Model):
 
     def get_test_email_list(self):
         return [e.strip() for e in self.test_emails.split(',') if e.strip()]
+
+
+class KnowledgeBaseFile(models.Model):
+    SYNC_IDLE = 'idle'
+    SYNC_FAILED = 'failed'
+
+    content = models.TextField(blank=True, default='')
+    filename = models.CharField(max_length=255, blank=True, default='')
+    byte_size = models.IntegerField(default=0)
+    case_count = models.IntegerField(default=0)
+    uploaded_at = models.DateTimeField(null=True, blank=True)
+
+    vector_store_id = models.CharField(max_length=64, blank=True, default='')
+    openai_file_id = models.CharField(max_length=64, blank=True, default='')
+    last_synced_at = models.DateTimeField(null=True, blank=True)
+    sync_status = models.CharField(max_length=32, blank=True, default='')
+    sync_error = models.TextField(blank=True, default='')
+
+    class Meta:
+        verbose_name = 'Knowledge Base File'
+        verbose_name_plural = 'Knowledge Base File'
+
+    def __str__(self):
+        return f'KnowledgeBaseFile({self.filename or "empty"}, {self.byte_size} B, {self.case_count} cases)'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def get_case_at_offset(self, offset):
+        """Return the markdown of the case containing the given character offset, or ''."""
+        if not self.content or offset is None:
+            return ''
+        text = self.content
+        if offset >= len(text):
+            offset = len(text) - 1
+        start = text.rfind('\n## Case ', 0, offset)
+        if start == -1:
+            start = text.rfind('## Case ', 0, offset)
+        if start == -1:
+            return ''
+        if start > 0 and text[start] == '\n':
+            start += 1
+        end = text.find('\n## Case ', start + 1)
+        if end == -1:
+            end = len(text)
+        return text[start:end].strip()

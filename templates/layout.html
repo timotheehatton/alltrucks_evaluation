@@ -68,6 +68,9 @@
                         <a class="{% if request.resolver_match.url_name == "webhooks" or request.resolver_match.url_name == "webhook_detail" %}active{% endif %}"
                            href="{% url 'admin:webhooks' %}"><i class="material-icons">email</i>Support Emails</a></li>
                     <li>
+                        <a class="{% if request.resolver_match.url_name == "knowledge_base" %}active{% endif %}"
+                           href="{% url 'admin:knowledge_base' %}"><i class="material-icons">menu_book</i>Knowledge Base</a></li>
+                    <li>
                         <a class="{% if request.resolver_match.url_name == "auto_responder_config" %}active{% endif %}"
                            href="{% url 'admin:auto_responder_config' %}"><i class="material-icons">settings</i>Settings</a></li>
                     <form method="post" action="{% url 'logout' %}" style="display: inline;">
