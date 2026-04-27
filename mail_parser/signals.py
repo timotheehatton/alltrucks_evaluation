@@ -164,7 +164,7 @@ def _build_vehicle_section(webhook):
     ]
 
     label_style = 'font-family: Helvetica, Arial, sans-serif; font-size: 10px; color: #999; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; padding: 0 8px 2px 0;'
-    value_style = 'font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #333; font-weight: 500; padding: 0 8px 10px 0;'
+    value_style = 'font-family: Helvetica, Arial, sans-serif; font-size: 13px; color: #333; font-weight: 700; padding: 0 8px 10px 0;'
 
     # Build 3-column rows (labels row + values row)
     rows = ''
