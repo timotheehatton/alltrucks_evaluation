@@ -26,7 +26,7 @@ class OpenAIService:
                     tools=[{
                         'type': 'file_search',
                         'vector_store_ids': [vector_store_id],
-                        'max_num_results': 3,
+                        'max_num_results': 5,
                         'ranking_options': {
                             'score_threshold': 0.50,
                         },
