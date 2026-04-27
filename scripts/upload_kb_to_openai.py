@@ -28,7 +28,7 @@ CHUNK_OVERLAP_TOKENS = 50
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--name', default=DEFAULT_NAME, help='Vector store display name.')
-    parser.add_argument('--file', default=str(KB_PATH), help='Path to the markdown KB file.')
+    parser.add_argument('--file', default=str(KB_PATH), help='Path to the markdown Knowledge Base file.')
     args = parser.parse_args()
 
     kb_path = Path(args.file)

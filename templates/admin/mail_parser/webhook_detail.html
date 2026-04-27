@@ -420,14 +420,14 @@
                     </ul>
                 {% endif %}
                 {% if webhook.ai_citations %}
-                    <p style="font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px 0;">Citations from KB ({{ webhook.ai_citations|length }})</p>
+                    <p style="font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 6px 0;">Citations from Knowledge Base ({{ webhook.ai_citations|length }})</p>
                     <ul style="margin: 0; padding-left: 18px;">
                         {% for c in webhook.ai_citations %}
                             <li style="font-size: 13px; color: #333;">{{ c.filename|default:"file" }} <span style="color: #888;">@ index {{ c.index }}</span></li>
                         {% endfor %}
                     </ul>
                 {% else %}
-                    <p style="font-size: 13px; color: #888; margin: 0;">No KB citations were attached to this answer.</p>
+                    <p style="font-size: 13px; color: #888; margin: 0;">No Knowledge Base citations were attached to this answer.</p>
                 {% endif %}
             </div>
             {% endif %}
