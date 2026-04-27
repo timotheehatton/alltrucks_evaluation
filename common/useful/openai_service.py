@@ -27,6 +27,9 @@ class OpenAIService:
                         'type': 'file_search',
                         'vector_store_ids': [vector_store_id],
                         'max_num_results': 5,
+                        'ranking_options': {
+                            'score_threshold': 0.45,
+                        },
                     }],
                     max_output_tokens=1024,
                     temperature=0.7,

@@ -19,18 +19,15 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 INPUT_PATH = SCRIPT_DIR / 'alltrucks_hoteline_data.csv'
 OUTPUT_PATH = SCRIPT_DIR / 'alltrucks_hotline_kb.md'
 
-MIN_RESOLUTION_LEN = 50
+# Drop only truly empty resolutions. Production traffic is heavy on
+# documentation requests, and those historical cases (with short answers like
+# "Document envoyé" or "siehe Anhang") still carry useful question-side
+# content that we want to retrieve on. Filtering them out misses the bulk of
+# what mechanics actually ask.
+MIN_RESOLUTION_LEN = 5
 
-# Trivial-resolution patterns — case-insensitive, multilingual
+# Patterns that indicate the case is administrative noise (not a real Q&A).
 TRIVIAL_PATTERNS = [
-    r'^\s*document(s)? envoy[ée](s)?\.?\s*$',
-    r'^\s*siehe anhang\.?\s*$',
-    r'^\s*siehe anlage\.?\s*$',
-    r'^\s*anbei\b',
-    r'^\s*see attachment\.?\s*$',
-    r'^\s*pi[eè]ce(s)? jointe(s)?\.?\s*$',
-    r'^\s*allegato\.?\s*$',
-    r'^\s*adjunto\.?\s*$',
     r'^\s*nicht zust[äa]ndig\.?\s*$',
     r'^\s*kein fall f[üu]r\s+',
     r'^\s*ok\.?\s*$',
