@@ -1,0 +1,287 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <style>
+        .stats-page { max-width: 1400px; padding-bottom: 80px; }
+        .stats-page .page-title { font-size: 22px; margin: 8px 0 20px; color: #1a1a2e; }
+
+        .stats-page .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+        @media (max-width: 1100px) { .stats-page .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+        .stats-page .kpi {
+            background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
+            padding: 18px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            border-left: 4px solid #01B5E2;
+        }
+        .stats-page .kpi .label {
+            font-size: 11px; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.4px; margin: 0 0 6px 0;
+        }
+        .stats-page .kpi .value { font-size: 30px; font-weight: 700; color: #00193E; }
+        .stats-page .kpi .value small { font-size: 14px; color: #888; font-weight: 500; margin-left: 4px; }
+
+        .stats-page .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+        @media (max-width: 900px) { .stats-page .charts-grid { grid-template-columns: 1fr; } }
+        .stats-page .charts-grid.full { grid-template-columns: 1fr; }
+
+        .stats-page .card {
+            background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
+            padding: 18px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .stats-page .card-title {
+            font-size: 13px; font-weight: 700; color: #00193E;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid #eee;
+        }
+        .stats-page canvas { max-height: 280px; }
+        .stats-page canvas.tall { max-height: 360px; }
+
+        .stats-page table.simple { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .stats-page table.simple td { padding: 6px 10px; border-bottom: 1px solid #f4f4f4; color: #1a1a2e; }
+        .stats-page table.simple td.num { text-align: right; font-family: 'Consolas','Monaco',monospace; color: #00193E; font-weight: 700; }
+        .stats-page tr.cited-row { cursor: pointer; transition: background 0.15s; }
+        .stats-page tr.cited-row:hover { background: #f4fafd; }
+        .stats-page tr.cited-row td:first-child::before {
+            content: '▸ '; color: #01B5E2; font-weight: 700;
+            display: inline-block; width: 14px; transition: transform 0.15s;
+        }
+        .stats-page tr.cited-row.open td:first-child::before { content: '▾ '; }
+        .stats-page tr.cited-content td {
+            padding: 0; border-bottom: 1px solid #f4f4f4;
+        }
+        .stats-page tr.cited-content pre {
+            margin: 0; padding: 12px 16px; background: #fafafa;
+            border-left: 3px solid #01B5E2; white-space: pre-wrap;
+            font-family: 'Consolas','Monaco',monospace; font-size: 11px;
+            line-height: 1.5; max-height: 320px; overflow-y: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content stats-page">
+        <h1 class="page-title">Statistics · Hotline AI</h1>
+
+        <!-- KPI tiles -->
+        <div class="kpi-row">
+            <div class="kpi">
+                <p class="label">Inbound demands</p>
+                <div class="value">{{ total }}</div>
+            </div>
+            <div class="kpi">
+                <p class="label">Mentioning the Knowledge Base</p>
+                <div class="value">{{ citation_rate }}<small>%</small></div>
+                <div style="font-size: 11px; color: #888; margin-top: 4px;">{{ with_citations }} / {{ total }} demands</div>
+            </div>
+            <div class="kpi">
+                <p class="label">Languages detected</p>
+                <div class="value">{{ languages_count }}</div>
+            </div>
+            <div class="kpi">
+                <p class="label">Average rating</p>
+                <div class="value">{{ avg_rating }}<small>/5</small></div>
+                <div style="font-size: 11px; color: #888; margin-top: 4px;">{{ rated_count }} review(s)</div>
+            </div>
+        </div>
+
+        <!-- Volume + Languages -->
+        <div class="charts-grid">
+            <div class="card">
+                <h3 class="card-title">Volume over the last 30 days</h3>
+                <canvas id="chart-volume" class="tall"></canvas>
+            </div>
+            <div class="card">
+                <h3 class="card-title">Demands by language</h3>
+                <canvas id="chart-language" class="tall"></canvas>
+            </div>
+        </div>
+
+        <!-- Categories + Nature of request -->
+        <div class="charts-grid">
+            <div class="card">
+                <h3 class="card-title">Demand category</h3>
+                <canvas id="chart-category"></canvas>
+            </div>
+            <div class="card">
+                <h3 class="card-title">Nature of request (hotline)</h3>
+                <canvas id="chart-nature"></canvas>
+            </div>
+        </div>
+
+        <!-- Most cited cases (full width) -->
+        <div class="charts-grid full">
+            <div class="card">
+                <h3 class="card-title">Most-cited Knowledge Base cases (top 10)</h3>
+                {% if top_cases %}
+                    <table class="simple">
+                        {% for c in top_cases %}
+                            <tr class="cited-row" data-idx="{{ forloop.counter0 }}">
+                                <td>{{ c.label }}</td>
+                                <td class="num">{{ c.count }}</td>
+                            </tr>
+                            <tr class="cited-content" data-idx="{{ forloop.counter0 }}" style="display: none;">
+                                <td colspan="2">
+                                    {% if c.content %}
+                                        <pre>{{ c.content }}</pre>
+                                    {% else %}
+                                        <pre style="color: #888; font-style: italic;">(case no longer in the Knowledge Base)</pre>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% else %}
+                    <p style="color: #888; font-size: 13px; margin: 0;">No citations recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Rating over time -->
+        <div class="charts-grid full">
+            <div class="card">
+                <h3 class="card-title">Average rating over the last 30 days</h3>
+                {% if rating_over_time %}
+                    <canvas id="chart-rating" class="tall"></canvas>
+                {% else %}
+                    <p style="color: #888; font-size: 13px; margin: 0;">No user ratings recorded over this period yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="height: 60px;"></div>
+    </div>
+
+    {{ daily_volume|json_script:"data-volume" }}
+    {{ by_language|json_script:"data-language" }}
+    {{ by_category|json_script:"data-category" }}
+    {{ nature_breakdown|json_script:"data-nature" }}
+    {{ rating_over_time|json_script:"data-rating" }}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const palette = ['#01B5E2', '#00193E', '#1976d2', '#26a69a', '#7e57c2', '#f57c00', '#c62828', '#558b2f'];
+        const get = id => JSON.parse(document.getElementById(id).textContent);
+
+        // Click-to-expand for top-cited cases
+        document.querySelectorAll('tr.cited-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const idx = row.dataset.idx;
+                const content = document.querySelector(`tr.cited-content[data-idx="${idx}"]`);
+                if (!content) return;
+                const open = content.style.display !== 'none';
+                content.style.display = open ? 'none' : '';
+                row.classList.toggle('open', !open);
+            });
+        });
+
+        // Volume over the last 30 days (line chart with baseline)
+        const volume = get('data-volume');
+        if (volume.length) {
+            const counts = volume.map(r => r.count);
+            const avg = counts.reduce((a, b) => a + b, 0) / counts.length;
+            new Chart(document.getElementById('chart-volume'), {
+                type: 'line',
+                data: {
+                    labels: volume.map(r => r.date),
+                    datasets: [
+                        {
+                            label: 'Demands per day',
+                            data: counts,
+                            borderColor: '#01B5E2',
+                            backgroundColor: 'rgba(1,181,226,0.15)',
+                            fill: true, tension: 0.3, pointRadius: 3,
+                            order: 2,
+                        },
+                        {
+                            label: `Baseline (avg ${avg.toFixed(1)})`,
+                            data: counts.map(() => avg),
+                            borderColor: '#00193E',
+                            borderWidth: 2,
+                            borderDash: [6, 4],
+                            pointRadius: 0,
+                            fill: false,
+                            order: 1,
+                        },
+                    ],
+                },
+                options: {
+                    plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 18, font: { size: 11 } } } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                },
+            });
+        }
+
+        // Languages (horizontal bar chart)
+        const langs = get('data-language');
+        if (langs.length) {
+            new Chart(document.getElementById('chart-language'), {
+                type: 'bar',
+                data: {
+                    labels: langs.map(r => r.language.toUpperCase()),
+                    datasets: [{
+                        label: 'Demands',
+                        data: langs.map(r => r.c),
+                        backgroundColor: palette,
+                    }],
+                },
+                options: {
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                },
+            });
+        }
+
+        // Catégorie (donut)
+        const cats = get('data-category');
+        if (cats.length) {
+            new Chart(document.getElementById('chart-category'), {
+                type: 'doughnut',
+                data: {
+                    labels: cats.map(r => r.category || '(unknown)'),
+                    datasets: [{ data: cats.map(r => r.c), backgroundColor: palette }],
+                },
+                options: { plugins: { legend: { position: 'bottom' } } },
+            });
+        }
+
+        // Nature of request (donut, hotline only)
+        const natures = get('data-nature');
+        if (natures.length) {
+            new Chart(document.getElementById('chart-nature'), {
+                type: 'doughnut',
+                data: {
+                    labels: natures.map(r => r.label),
+                    datasets: [{ data: natures.map(r => r.count), backgroundColor: palette }],
+                },
+                options: { plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } } },
+            });
+        }
+
+        // Note moyenne sur 30 jours
+        const rating = get('data-rating');
+        if (rating.length) {
+            new Chart(document.getElementById('chart-rating'), {
+                type: 'line',
+                data: {
+                    labels: rating.map(r => r.date),
+                    datasets: [{
+                        label: 'Average rating',
+                        data: rating.map(r => r.avg),
+                        borderColor: '#00193E',
+                        backgroundColor: 'rgba(0,25,62,0.10)',
+                        fill: true, tension: 0.3, pointRadius: 4,
+                    }],
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min: 0, max: 5, ticks: { stepSize: 1 } } },
+                },
+            });
+        }
+    });
+    </script>
+{% endblock %}

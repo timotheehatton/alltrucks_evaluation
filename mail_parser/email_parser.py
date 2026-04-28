@@ -2,15 +2,18 @@ import re
 from html.parser import HTMLParser
 
 # Languages we ship localized email content for. Anything detected outside
-# this set is collapsed to 'en' as the safe default.
+# this set returns '' (empty); the email layer falls back to the EN code-side
+# defaults at render time, but we keep the DB value empty so we can audit
+# coverage.
 SUPPORTED_LANGUAGES = {'en', 'fr', 'de', 'it', 'es', 'pl'}
 
 
 def detect_language(text):
     """Return a 2-letter language code from `text` (one of SUPPORTED_LANGUAGES) or ''.
 
-    Uses langdetect for short prose. Returns '' if the text is too short
-    or detection fails — callers should fall back to a default.
+    Returns '' for any unsupported language, for too-short text, or on
+    detection failure. Callers should treat empty as "use EN fallback at
+    render time" rather than overwriting it with 'en' at parse time.
     """
     if not text or len(text.strip()) < 20:
         return ''
@@ -21,7 +24,7 @@ def detect_language(text):
     except Exception:
         return ''
     if code not in SUPPORTED_LANGUAGES:
-        return 'en'
+        return ''
     return code
 
 
@@ -227,7 +230,7 @@ def parse_inbound_email(webhook):
         webhook.parsed_issue = issue or ''
         webhook.default_code = default_code or ''
         webhook.request_nature = request_nature or []
-        webhook.language = detect_language(issue or '') or 'en'
+        webhook.language = detect_language(issue or '')
         webhook.save(update_fields=[
             'category', 'vehicle_brand', 'vehicle_model', 'vehicle_vin',
             'vehicle_year', 'vehicle_mileage', 'vehicle_axle_config',
@@ -245,7 +248,7 @@ def parse_inbound_email(webhook):
             return None, None, error
 
         webhook.parsed_issue = issue or ''
-        webhook.language = detect_language(issue or '') or 'en'
+        webhook.language = detect_language(issue or '')
         webhook.save(update_fields=['category', 'parsed_issue', 'language'])
 
         return user_email, content, None

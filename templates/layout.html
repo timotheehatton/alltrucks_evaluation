@@ -65,6 +65,9 @@
                            href="{% url 'admin:download_content' %}"><i class="material-icons">download</i>Content</a></li>
                     <li class="header spaced-row-top-big">AI Support</li>
                     <li>
+                        <a class="{% if request.resolver_match.url_name == "amcat_stats" %}active{% endif %}"
+                           href="{% url 'admin:amcat_stats' %}"><i class="material-icons">insights</i>Stats</a></li>
+                    <li>
                         <a class="{% if request.resolver_match.url_name == "webhooks" or request.resolver_match.url_name == "webhook_detail" %}active{% endif %}"
                            href="{% url 'admin:webhooks' %}"><i class="material-icons">email</i>Support Emails</a></li>
                     <li>

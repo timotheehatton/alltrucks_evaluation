@@ -58,6 +58,7 @@ class MyAdminSite(admin.AdminSite):
             path('knowledge-base/cases/<int:case_id>/', self.admin_view(self.kb_case_detail_view), name='kb_case_detail'),
             path('knowledge-base/cases/<int:case_id>/edit/', self.admin_view(self.kb_case_edit_view), name='kb_case_edit'),
             path('knowledge-base/cases/<int:case_id>/delete/', self.admin_view(self.kb_case_delete_view), name='kb_case_delete'),
+            path('stats/', self.admin_view(self.amcat_stats_view), name='amcat_stats'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -815,6 +816,111 @@ class MyAdminSite(admin.AdminSite):
             'case_number': case_number,
             'openai_removed': had_openai_file,
         })
+
+    # =========================================================================
+    # Stats — global dashboard
+    # =========================================================================
+
+    def amcat_stats_view(self, request):
+        from collections import Counter
+        from datetime import timedelta
+        from django.db.models import Avg, Count
+        from django.db.models.functions import TruncDate
+        from django.utils import timezone
+
+        webhooks = InboundWebhook.objects.all()
+        total = webhooks.count()
+        with_citations = webhooks.exclude(ai_citations=[]).count()
+        with_rating = webhooks.exclude(user_rating__isnull=True)
+        avg_rating = with_rating.aggregate(a=Avg('user_rating'))['a'] or 0
+
+        # Distribution par catégorie
+        by_category = list(
+            webhooks.values('category').annotate(c=Count('id')).order_by('-c')
+        )
+
+        # Distribution par langue (chaîne vide = "non détectée")
+        by_language = list(
+            webhooks.values('language').annotate(c=Count('id')).order_by('-c')
+        )
+        # Replace empty string with explicit label
+        for row in by_language:
+            if not row['language']:
+                row['language'] = 'unknown'
+
+        # Distribution de la nature de demande (hotline only)
+        nature_counter = Counter()
+        for nature in webhooks.filter(category='hotline').values_list('request_nature', flat=True):
+            if not nature:
+                nature_counter['(non précisée)'] += 1
+                continue
+            for item in nature:
+                nature_counter[item] += 1
+
+        # Volume par jour (derniers 30 jours)
+        thirty_days_ago = timezone.now() - timedelta(days=30)
+        daily_qs = (
+            webhooks.filter(received_at__gte=thirty_days_ago)
+            .annotate(d=TruncDate('received_at'))
+            .values('d')
+            .annotate(c=Count('id'))
+            .order_by('d')
+        )
+        daily_volume = [
+            {'date': row['d'].isoformat(), 'count': row['c']}
+            for row in daily_qs
+        ]
+
+        # Top cas cités (toutes générations confondues)
+        cited_counter = Counter()
+        for citations in webhooks.exclude(ai_citations=[]).values_list('ai_citations', flat=True):
+            for c in (citations or []):
+                fn = c.get('filename', '')
+                if fn:
+                    cited_counter[fn] += 1
+        top_cases = []
+        for fn, n in cited_counter.most_common(10):
+            label = fn
+            content = ''
+            m = re.search(r'case_0*(\d+)', fn)
+            if m:
+                kb_case = KnowledgeBaseCase.objects.filter(case_number=int(m.group(1))).first()
+                if kb_case:
+                    label = f'#{kb_case.case_number} · {kb_case.manufacturer or "—"} · {kb_case.subject[:50]}'
+                    content = kb_case.to_markdown()
+            top_cases.append({'label': label, 'count': n, 'content': content})
+
+        # Note moyenne par jour (derniers 30 jours)
+        rating_qs = (
+            with_rating.filter(user_rated_at__gte=thirty_days_ago)
+            .annotate(d=TruncDate('user_rated_at'))
+            .values('d')
+            .annotate(avg=Avg('user_rating'), c=Count('id'))
+            .order_by('d')
+        )
+        rating_over_time = [
+            {'date': row['d'].isoformat(), 'avg': float(row['avg']), 'count': row['c']}
+            for row in rating_qs
+        ]
+
+        context = {
+            'total': total,
+            'with_citations': with_citations,
+            'citation_rate': round(100 * with_citations / total, 1) if total else 0,
+            'rated_count': with_rating.count(),
+            'avg_rating': round(avg_rating, 2),
+            'languages_count': sum(1 for r in by_language if r['language'] not in ('unknown', '')),
+            'by_category': by_category,
+            'by_language': by_language,
+            'nature_breakdown': sorted(
+                ({'label': k, 'count': v} for k, v in nature_counter.items()),
+                key=lambda x: -x['count'],
+            ),
+            'daily_volume': daily_volume,
+            'top_cases': top_cases,
+            'rating_over_time': rating_over_time,
+        }
+        return render(request, 'admin/mail_parser/stats.html', context)
 
     def _kb_serialize(self, case, include_full=False):
         out = {
