@@ -28,7 +28,7 @@ class OpenAIService:
                         'vector_store_ids': [vector_store_id],
                         'max_num_results': 5,
                         'ranking_options': {
-                            'score_threshold': 0.60,
+                            'score_threshold': 0.80,
                         },
                     }],
                     max_output_tokens=1024,
