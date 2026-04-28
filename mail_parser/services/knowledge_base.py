@@ -191,3 +191,110 @@ def _list_existing_filenames(client, vector_store_id):
             break
         after = page.data[-1].id
     return names
+
+
+# ---------------------------------------------------------------------------
+# Per-case CRUD helpers (used by the new admin page)
+# ---------------------------------------------------------------------------
+
+
+def _get_client():
+    return openai.OpenAI(api_key=settings.OPENAI_API_KEY, timeout=120.0)
+
+
+def upload_case_to_openai(case):
+    """Upload `case.to_markdown()` as a single file and attach it to the vector store.
+
+    If the case already had an `openai_file_id`, the previous file is detached
+    and deleted after the new one is indexed. Persists `openai_file_id`,
+    `synced_at`, `sync_error` on the case.
+
+    Returns (success: bool, error: str | None).
+    """
+    vector_store_id = getattr(settings, 'OPENAI_VECTOR_STORE_ID', None)
+    if not vector_store_id:
+        return False, 'OPENAI_VECTOR_STORE_ID is not configured.'
+
+    client = _get_client()
+    old_file_id = case.openai_file_id
+
+    try:
+        new_file = client.files.create(
+            file=(case.filename, case.to_markdown().encode('utf-8')),
+            purpose='assistants',
+        )
+        vs_file = client.vector_stores.files.create_and_poll(
+            vector_store_id=vector_store_id,
+            file_id=new_file.id,
+            chunking_strategy=CHUNKING_STRATEGY,
+        )
+        if vs_file.status != 'completed':
+            err = f'Indexing did not complete: status={vs_file.status}'
+            case.sync_error = err
+            case.save(update_fields=['sync_error'])
+            try:
+                client.files.delete(new_file.id)
+            except Exception:
+                pass
+            return False, err
+
+        if old_file_id and old_file_id != new_file.id:
+            try:
+                client.vector_stores.files.delete(file_id=old_file_id, vector_store_id=vector_store_id)
+            except Exception:
+                pass
+            try:
+                client.files.delete(old_file_id)
+            except Exception:
+                pass
+
+        case.openai_file_id = new_file.id
+        case.synced_at = timezone.now()
+        case.sync_error = ''
+        case.save(update_fields=['openai_file_id', 'synced_at', 'sync_error'])
+        return True, None
+
+    except Exception as e:
+        case.sync_error = f'{type(e).__name__}: {e}'
+        case.save(update_fields=['sync_error'])
+        return False, case.sync_error
+
+
+def delete_case_from_openai(case):
+    """Detach + delete the case's OpenAI file. Idempotent."""
+    if not case.openai_file_id:
+        return True, None
+    vector_store_id = getattr(settings, 'OPENAI_VECTOR_STORE_ID', None)
+    if not vector_store_id:
+        return False, 'OPENAI_VECTOR_STORE_ID is not configured.'
+    client = _get_client()
+    try:
+        client.vector_stores.files.delete(file_id=case.openai_file_id, vector_store_id=vector_store_id)
+    except Exception:
+        pass
+    try:
+        client.files.delete(case.openai_file_id)
+    except Exception:
+        pass
+    case.openai_file_id = ''
+    case.save(update_fields=['openai_file_id'])
+    return True, None
+
+
+def bulk_resync_cases(queryset, on_progress=None):
+    """Re-upload each case in `queryset` to OpenAI.
+
+    Used by the bulk_resync_kb_cases command after a fresh DB load. Returns
+    a `(uploaded, failed)` tuple.
+    """
+    uploaded = failed = 0
+    total = queryset.count()
+    for i, case in enumerate(queryset.order_by('case_number'), 1):
+        ok, _ = upload_case_to_openai(case)
+        if ok:
+            uploaded += 1
+        else:
+            failed += 1
+        if on_progress:
+            on_progress({'done': i, 'total': total, 'uploaded': uploaded, 'failed': failed})
+    return uploaded, failed

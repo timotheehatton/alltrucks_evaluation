@@ -1,5 +1,7 @@
 import collections
 import csv
+import re
+
 import requests
 from django.conf import settings
 from django.contrib import admin, messages
@@ -15,8 +17,18 @@ from django.utils.http import urlsafe_base64_encode
 from common.useful.email import email
 from common.useful.strapi import strapi_content
 from common.views.forms import AdminUserForm, CompanyUserForm
-from mail_parser.models import AutoResponderConfig, InboundWebhook, KnowledgeBaseFile
-from mail_parser.services.knowledge_base import count_cases, sync_to_openai
+from mail_parser.models import (
+    AutoResponderConfig,
+    InboundWebhook,
+    KnowledgeBaseCase,
+    KnowledgeBaseFile,
+)
+from mail_parser.services.knowledge_base import (
+    count_cases,
+    delete_case_from_openai,
+    sync_to_openai,
+    upload_case_to_openai,
+)
 from .models import Company, Score, User
 
 
@@ -42,8 +54,12 @@ class MyAdminSite(admin.AdminSite):
             path('webhooks/<int:webhook_id>/', self.admin_view(self.webhook_detail_view), name='webhook_detail'),
             path('webhooks/<int:webhook_id>/generate/', self.admin_view(self.webhook_generate_view), name='webhook_generate'),
             path('auto-responder-config/', self.admin_view(self.auto_responder_config_view), name='auto_responder_config'),
-            path('knowledge-base/', self.admin_view(self.knowledge_base_view), name='knowledge_base'),
-            path('knowledge-base/sync/', self.admin_view(self.knowledge_base_sync_view), name='knowledge_base_sync'),
+            path('knowledge-base/', self.admin_view(self.kb_page_view), name='knowledge_base'),
+            path('knowledge-base/cases/', self.admin_view(self.kb_cases_json_view), name='kb_cases_json'),
+            path('knowledge-base/cases/create/', self.admin_view(self.kb_case_create_view), name='kb_case_create'),
+            path('knowledge-base/cases/<int:case_id>/', self.admin_view(self.kb_case_detail_view), name='kb_case_detail'),
+            path('knowledge-base/cases/<int:case_id>/edit/', self.admin_view(self.kb_case_edit_view), name='kb_case_edit'),
+            path('knowledge-base/cases/<int:case_id>/delete/', self.admin_view(self.kb_case_delete_view), name='kb_case_delete'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -616,10 +632,19 @@ class MyAdminSite(admin.AdminSite):
         for c in (webhook.ai_citations or []):
             content = ''
             filename = c.get('filename') or ''
+            # Prefer the new per-case row lookup
             if filename.startswith('case_'):
-                content = kb.get_case_by_filename(filename)
+                m = re.search(r'case_0*(\d+)', filename)
+                if m:
+                    case = KnowledgeBaseCase.objects.filter(case_number=int(m.group(1))).first()
+                    if case:
+                        content = case.to_markdown()
+            # Fall back to legacy MD blob lookup if the case row doesn't exist
             if not content:
-                content = kb.get_case_at_offset(c.get('index'))
+                if filename.startswith('case_'):
+                    content = kb.get_case_by_filename(filename)
+                if not content:
+                    content = kb.get_case_at_offset(c.get('index'))
             citations.append({**c, 'content': content})
 
         return render(request, 'admin/mail_parser/webhook_detail.html', {
@@ -668,46 +693,152 @@ class MyAdminSite(admin.AdminSite):
             'config': config,
         })
 
-    def knowledge_base_view(self, request):
-        from django.utils import timezone
+    # =========================================================================
+    # Knowledge Base — per-case CRUD
+    # =========================================================================
+
+    KB_LIST_FIELDS = (
+        'id', 'case_number', 'manufacturer', 'series', 'subject',
+        'country', 'system', 'synced_at', 'openai_file_id',
+    )
+    KB_FORM_FIELDS = (
+        'manufacturer', 'series', 'subject', 'country', 'system',
+        'request_type', 'engine', 'registration_date', 'vin', 'mileage',
+        'axle_configuration', 'abs_configuration', 'installed_system',
+        'resolution_summary', 'issue', 'resolution',
+    )
+
+    def kb_page_view(self, request):
         kb = KnowledgeBaseFile.load()
-        if request.method == 'POST':
-            uploaded = request.FILES.get('kb_file')
-            if not uploaded:
-                messages.error(request, 'No file selected.')
-                return redirect('admin:knowledge_base')
-            try:
-                raw = uploaded.read()
-                content = raw.decode('utf-8')
-            except UnicodeDecodeError:
-                messages.error(request, 'File is not valid UTF-8.')
-                return redirect('admin:knowledge_base')
-            kb.content = content
-            kb.filename = uploaded.name
-            kb.byte_size = len(raw)
-            kb.case_count = count_cases(content)
-            kb.uploaded_at = timezone.now()
-            kb.save()
-            messages.success(
-                request,
-                f'Uploaded "{uploaded.name}" — {kb.case_count} cases, '
-                f'{kb.byte_size} bytes. Click "Sync to OpenAI" to push it.',
-            )
-            return redirect('admin:knowledge_base')
+        total = KnowledgeBaseCase.objects.count()
+        synced = KnowledgeBaseCase.objects.exclude(openai_file_id='').count()
         return render(request, 'admin/mail_parser/knowledge_base.html', {
             'kb': kb,
+            'total_cases': total,
+            'synced_cases': synced,
         })
 
-    def knowledge_base_sync_view(self, request):
+    def kb_cases_json_view(self, request):
+        from django.http import JsonResponse
+        try:
+            offset = max(0, int(request.GET.get('offset', 0)))
+        except ValueError:
+            offset = 0
+        try:
+            limit = max(1, min(500, int(request.GET.get('limit', 100))))
+        except ValueError:
+            limit = 100
+        search = (request.GET.get('search') or '').strip()
+
+        qs = KnowledgeBaseCase.objects.all()
+        if search:
+            filters = (
+                Q(subject__icontains=search) |
+                Q(manufacturer__icontains=search) |
+                Q(series__icontains=search) |
+                Q(country__iexact=search) |
+                Q(system__icontains=search)
+            )
+            if search.isdigit():
+                filters |= Q(case_number=int(search))
+            qs = qs.filter(filters)
+
+        total = qs.count()
+        rows = list(qs.order_by('case_number')[offset:offset + limit].values(*self.KB_LIST_FIELDS))
+        for row in rows:
+            row['synced_at'] = row['synced_at'].isoformat() if row['synced_at'] else None
+            row['synced'] = bool(row['openai_file_id'])
+        return JsonResponse({
+            'cases': rows,
+            'total': total,
+            'has_more': offset + len(rows) < total,
+            'next_offset': offset + len(rows),
+        })
+
+    def _kb_extract_form(self, request):
+        data = {f: (request.POST.get(f) or '').strip() for f in self.KB_FORM_FIELDS}
+        # Default request_type if not provided
+        if not data.get('request_type'):
+            data['request_type'] = 'Fehlersuche am Fahrzeug'
+        return data
+
+    def kb_case_create_view(self, request):
+        from django.http import JsonResponse
         if request.method != 'POST':
-            return redirect('admin:knowledge_base')
-        kb = KnowledgeBaseFile.load()
-        success, error = sync_to_openai(kb)
-        if success:
-            messages.success(request, 'Knowledge Base successfully synced to OpenAI.')
-        else:
-            messages.error(request, f'Sync failed: {error}')
-        return redirect('admin:knowledge_base')
+            return JsonResponse({'error': 'POST required'}, status=405)
+
+        data = self._kb_extract_form(request)
+        if not data.get('subject'):
+            return JsonResponse({'error': 'Subject is required.'}, status=400)
+        if len(data.get('resolution', '')) < 50:
+            return JsonResponse({'error': 'Resolution must be at least 50 characters.'}, status=400)
+
+        next_no = (KnowledgeBaseCase.objects.aggregate(m=Max('case_number'))['m'] or 0) + 1
+        case = KnowledgeBaseCase.objects.create(case_number=next_no, **data)
+
+        ok, err = upload_case_to_openai(case)
+        case.refresh_from_db()
+        return JsonResponse({
+            'case': self._kb_serialize(case),
+            'sync_ok': ok,
+            'sync_error': err,
+        })
+
+    def kb_case_detail_view(self, request, case_id):
+        from django.http import JsonResponse
+        case = get_object_or_404(KnowledgeBaseCase, id=case_id)
+        return JsonResponse({'case': self._kb_serialize(case, include_full=True)})
+
+    def kb_case_edit_view(self, request, case_id):
+        from django.http import JsonResponse
+        case = get_object_or_404(KnowledgeBaseCase, id=case_id)
+        if request.method == 'GET':
+            return JsonResponse({'case': self._kb_serialize(case, include_full=True)})
+        if request.method != 'POST':
+            return JsonResponse({'error': 'POST required'}, status=405)
+
+        data = self._kb_extract_form(request)
+        for field, value in data.items():
+            setattr(case, field, value)
+        case.save()
+
+        ok, err = upload_case_to_openai(case)
+        case.refresh_from_db()
+        return JsonResponse({
+            'case': self._kb_serialize(case, include_full=True),
+            'sync_ok': ok,
+            'sync_error': err,
+        })
+
+    def kb_case_delete_view(self, request, case_id):
+        from django.http import JsonResponse
+        if request.method != 'POST':
+            return JsonResponse({'error': 'POST required'}, status=405)
+        case = get_object_or_404(KnowledgeBaseCase, id=case_id)
+        delete_case_from_openai(case)
+        case.delete()
+        return JsonResponse({'ok': True})
+
+    def _kb_serialize(self, case, include_full=False):
+        out = {
+            'id': case.id,
+            'case_number': case.case_number,
+            'manufacturer': case.manufacturer,
+            'series': case.series,
+            'subject': case.subject,
+            'country': case.country,
+            'system': case.system,
+            'synced_at': case.synced_at.isoformat() if case.synced_at else None,
+            'synced': bool(case.openai_file_id),
+        }
+        if include_full:
+            for f in self.KB_FORM_FIELDS:
+                out[f] = getattr(case, f)
+            out['markdown'] = case.to_markdown()
+            out['filename'] = case.filename
+            out['openai_file_id'] = case.openai_file_id
+            out['sync_error'] = case.sync_error
+        return out
 
     def _flatten_dict(self, d, parent_key='', sep='_'):
         """Flatten nested dictionary for CSV export"""

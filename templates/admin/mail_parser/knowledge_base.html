@@ -7,17 +7,10 @@
         .kb-page { max-width: 1400px; padding-bottom: 120px; }
         .kb-page .page-title { font-size: 22px; margin: 8px 0 20px; }
 
-        .kb-page .top-row {
-            display: flex;
-            gap: 16px;
-            align-items: stretch;
-        }
-        .kb-page .top-row .card { margin-bottom: 16px; }
+        .kb-page .top-row { display: flex; gap: 16px; align-items: stretch; }
         .kb-page .top-row .col-main { flex: 2; min-width: 0; }
         .kb-page .top-row .col-side { flex: 1; min-width: 0; }
-        @media (max-width: 1000px) {
-            .kb-page .top-row { flex-direction: column; }
-        }
+        @media (max-width: 1000px) { .kb-page .top-row { flex-direction: column; } }
 
         .kb-page .card {
             padding: 20px 24px;
@@ -28,308 +21,474 @@
             background: #fff;
         }
         .kb-page .card-header {
-            display: flex;
-            align-items: center;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
-            margin-bottom: 16px;
+            display: flex; align-items: center; padding-bottom: 8px;
+            border-bottom: 1px solid #eee; margin-bottom: 16px;
         }
-        .kb-page .card-header i {
-            font-size: 22px;
-            margin-right: 10px;
-            color: #01B5E2;
-        }
-        .kb-page .card-header .title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #1a1a2e;
-        }
-        .kb-page .meta-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px 16px;
-        }
-        @media (max-width: 800px) {
-            .kb-page .meta-grid { grid-template-columns: 1fr; }
-        }
-        .kb-page .meta-grid .label {
-            font-size: 10px;
-            font-weight: 700;
-            color: #888;
-            text-transform: uppercase;
-            letter-spacing: 0.3px;
-            margin-bottom: 2px;
-        }
-        .kb-page .meta-grid .value {
-            font-size: 12px;
-            color: #1a1a2e;
-            word-break: break-all;
-        }
-        .kb-page .meta-grid .value.empty { color: #aaa; font-style: italic; }
-        .kb-page .meta-grid .value code {
-            font-family: 'Consolas','Monaco',monospace;
-            background: #f5f5f5;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 11px;
-        }
+        .kb-page .card-header i { font-size: 22px; margin-right: 10px; color: #01B5E2; }
+        .kb-page .card-header .title { font-size: 16px; font-weight: 600; color: #1a1a2e; }
 
-        .kb-page .actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 18px;
-            padding-top: 14px;
-            border-top: 1px solid #f4f4f4;
-        }
+        .kb-page .meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px 24px; }
+        .kb-page .meta-grid .label { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
+        .kb-page .meta-grid .value { font-size: 13px; color: #1a1a2e; word-break: break-all; }
+        .kb-page .meta-grid .value code { font-family: 'Consolas','Monaco',monospace; background: #f5f5f5; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
 
-        .kb-page .actions .last-sync { color: #888; font-size: 12px; margin-left: auto; }
-
-        .kb-page .upload-form input[type="file"] {
-            display: block;
-            margin: 12px 0 16px 0;
-            font-size: 14px;
+        .kb-page .field-group { margin-bottom: 12px; }
+        .kb-page .field-group label.field-label {
+            font-size: 11px; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.3px;
+            margin-bottom: 4px; display: block;
         }
-        .kb-page .upload-form .field-help {
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 8px;
+        .kb-page .field-group input[type="text"],
+        .kb-page .field-group select,
+        .kb-page .field-group textarea {
+            width: 100%; padding: 8px 10px; font-size: 13px;
+            border: 1px solid #ddd !important; border-radius: 5px;
+            box-sizing: border-box; background: #fff; box-shadow: none !important;
+            margin: 0 !important; height: auto !important;
         }
+        .kb-page .field-group textarea { min-height: 80px; resize: vertical; font-family: inherit; line-height: 1.5; }
+        .kb-page .field-group input:focus, .kb-page .field-group select:focus, .kb-page .field-group textarea:focus {
+            border-color: #01B5E2 !important; outline: none;
+            box-shadow: 0 0 0 3px rgba(1,181,226,0.15) !important;
+        }
+        .kb-page .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+        .kb-page .form-grid .full { grid-column: 1 / -1; }
+        @media (max-width: 700px) { .kb-page .form-grid { grid-template-columns: 1fr; } }
 
-        .kb-page .content-textarea {
-            width: 100%;
-            height: 420px;
-            font-family: 'Consolas','Monaco',monospace;
-            font-size: 11px;
-            line-height: 1.5;
-            background: #fafafa;
-            padding: 12px;
-            border-radius: 6px;
-            border: 1px solid #eee;
+        .kb-page details.advanced summary {
+            cursor: pointer; font-size: 12px; color: #555;
+            padding: 6px 0; user-select: none; margin-bottom: 8px;
+        }
+        .kb-page details.advanced[open] summary { margin-bottom: 12px; }
+
+        .kb-page .search-row { margin-bottom: 12px; }
+        .kb-page .search-row input {
+            width: 100%; padding: 10px 12px; font-size: 14px;
+            border: 1px solid #ddd; border-radius: 6px;
             box-sizing: border-box;
-            resize: vertical;
-            white-space: pre;
-            overflow-wrap: normal;
         }
 
-        .kb-page .spinner {
-            display: inline-block;
-            width: 14px;
-            height: 14px;
-            border: 2px solid rgba(255,255,255,0.4);
-            border-top-color: #fff;
-            border-radius: 50%;
-            animation: kb-spin 0.7s linear infinite;
-            vertical-align: middle;
-            margin-right: 6px;
-        }
-        .kb-page .content-spinner {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-            color: #888;
+        .kb-page .case-list { display: flex; flex-direction: column; gap: 6px; }
+        .kb-page .case-row {
+            border: 1px solid #e8e8e8; border-radius: 6px;
+            background: #fff; padding: 10px 14px;
+            display: flex; align-items: center; gap: 12px;
             font-size: 13px;
         }
-        .kb-page .content-spinner .spinner {
-            width: 16px; height: 16px;
-            border: 2px solid #e0e0e0;
-            border-top-color: #01B5E2;
-            margin-right: 8px;
+        .kb-page .case-row .num {
+            font-family: 'Consolas','Monaco',monospace; color: #888;
+            min-width: 60px; font-size: 12px;
         }
-        @keyframes kb-spin {
-            to { transform: rotate(360deg); }
+        .kb-page .case-row .brand { font-weight: 600; min-width: 110px; }
+        .kb-page .case-row .subject { flex: 1; color: #333; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .kb-page .case-row .country { color: #888; font-size: 11px; min-width: 30px; }
+        .kb-page .case-row .system { color: #888; font-size: 11px; min-width: 110px; }
+        .kb-page .case-row .actions { display: flex; gap: 4px; }
+        .kb-page .case-row .actions button {
+            background: transparent; border: 1px solid transparent;
+            padding: 4px; border-radius: 4px; cursor: pointer;
+            color: #888;
+        }
+        .kb-page .case-row .actions button:hover { background: #f5f5f5; color: #01B5E2; border-color: #ddd; }
+        .kb-page .case-row .actions button.danger:hover { color: #c62828; }
+        .kb-page .case-row .sync-dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #4caf50; flex-shrink: 0;
+        }
+        .kb-page .case-row .sync-dot.unsynced { background: #f9a825; }
+
+        .kb-page .case-row.expanded { display: flex; flex-direction: column; align-items: stretch; }
+        .kb-page .case-row .expanded-content {
+            margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee;
+            white-space: pre-wrap;
+            font-family: 'Consolas','Monaco',monospace; font-size: 12px;
+            line-height: 1.5; color: #333; max-height: 360px; overflow-y: auto;
+            background: #fafafa; padding: 12px; border-radius: 4px;
         }
 
-        .kb-page .badge-status {
-            display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
+        .kb-page .list-status { font-size: 12px; color: #888; padding: 8px 0; text-align: center; }
+
+        .kb-page .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+            border-radius: 50%; animation: kb-spin 0.7s linear infinite;
+            vertical-align: middle; margin-right: 6px;
         }
-        .kb-page .badge-idle { background: #e8f5e9; color: #2e7d32; }
-        .kb-page .badge-failed { background: #ffebee; color: #c62828; }
-        .kb-page .badge-empty { background: #f5f5f5; color: #757575; }
+        @keyframes kb-spin { to { transform: rotate(360deg); } }
 
         .kb-page .messages li div {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border-radius: 4px;
-            padding: 12px;
-            margin-bottom: 16px;
+            background-color: #e8f5e9; color: #2e7d32;
+            border-radius: 4px; padding: 12px; margin-bottom: 16px;
         }
-        .kb-page .messages li.error div {
-            background-color: #ffebee;
-            color: #c62828;
-        }
+        .kb-page .messages li.error div { background-color: #ffebee; color: #c62828; }
+        .kb-page .form-error { color: #c62828; font-size: 12px; margin: 8px 0; min-height: 14px; }
     </style>
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
-    <script>
-        // Show the global loader immediately while the browser parses the large content blob.
-        (function () {
-            var l = document.getElementById('global-loader');
-            if (l) l.style.setProperty('display', 'flex', 'important');
-        })();
-    </script>
-    <div class="content kb-page" id="kb-page-root" style="visibility: hidden;">
+    <div class="content kb-page" data-csrf="{{ csrf_token }}">
         <h1 class="page-title">Knowledge Base</h1>
 
         {% if messages %}
             <ul class="messages" style="list-style: none; padding: 0;">
-                {% for message in messages %}
-                    <li class="{{ message.tags }}"><div>{{ message }}</div></li>
-                {% endfor %}
+                {% for message in messages %}<li class="{{ message.tags }}"><div>{{ message }}</div></li>{% endfor %}
             </ul>
         {% endif %}
 
         <div class="top-row">
-            <!-- Current file (left) -->
             <div class="col-main">
+                <!-- Header card: aggregate stats -->
                 <div class="card">
                     <div class="card-header">
                         <i class="material-icons">menu_book</i>
-                        <span class="title">Current file</span>
-                        <span style="margin-left: auto;">
-                            {% if kb.sync_status == 'failed' %}
-                                <span class="badge-status badge-failed">Sync failed</span>
-                            {% elif kb.last_synced_at %}
-                                <span class="badge-status badge-idle">Synced</span>
-                            {% else %}
-                                <span class="badge-status badge-empty">Not synced</span>
-                            {% endif %}
-                        </span>
+                        <span class="title">Overview</span>
                     </div>
-
                     <div class="meta-grid">
                         <div>
-                            <div class="label">Filename</div>
-                            <div class="value {% if not kb.filename %}empty{% endif %}">{{ kb.filename|default:"—" }}</div>
+                            <div class="label">Total cases</div>
+                            <div class="value" id="kb-total-count">{{ total_cases }}</div>
                         </div>
                         <div>
-                            <div class="label">Size · cases</div>
-                            <div class="value">{{ kb.byte_size }} B · {{ kb.case_count }} cases</div>
+                            <div class="label">Synced to OpenAI</div>
+                            <div class="value">{{ synced_cases }} / {{ total_cases }}</div>
                         </div>
                         <div>
-                            <div class="label">Uploaded at</div>
-                            <div class="value {% if not kb.uploaded_at %}empty{% endif %}">{{ kb.uploaded_at|date:"Y-m-d H:i:s"|default:"—" }}</div>
+                            <div class="label">Vector store</div>
+                            <div class="value">{% if kb.vector_store_id %}<code>{{ kb.vector_store_id }}</code>{% else %}<em>not set</em>{% endif %}</div>
                         </div>
-                        <div>
-                            <div class="label">Last sync</div>
-                            <div class="value {% if not kb.last_synced_at %}empty{% endif %}">{{ kb.last_synced_at|date:"Y-m-d H:i:s"|default:"never" }}</div>
-                        </div>
-                        <div style="grid-column: 1 / -1;">
-                            <div class="label">OpenAI file id</div>
-                            <div class="value {% if not kb.openai_file_id %}empty{% endif %}">
-                                {% if kb.openai_file_id %}<code>{{ kb.openai_file_id }}</code>{% else %}—{% endif %}
-                            </div>
-                        </div>
-                        <div style="grid-column: 1 / -1;">
-                            <div class="label">Vector store id</div>
-                            <div class="value {% if not kb.vector_store_id %}empty{% endif %}">
-                                {% if kb.vector_store_id %}<code>{{ kb.vector_store_id }}</code>{% else %}—{% endif %}
-                            </div>
-                        </div>
-                        {% if kb.sync_error %}
-                        <div style="grid-column: 1 / -1;">
-                            <div class="label" style="color: #c62828;">Last sync error</div>
-                            <div class="value" style="color: #c62828;"><code>{{ kb.sync_error }}</code></div>
-                        </div>
-                        {% endif %}
                     </div>
+                </div>
 
-                    {% if kb.content %}
-                        <div style="margin-top: 14px;">
-                            <p style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.3px; margin: 0 0 6px 0;">File content</p>
-                            <textarea class="content-textarea" id="kb-content-textarea" readonly>Loading content…</textarea>
-                            {{ kb.content|json_script:"kb-content-source" }}
-                        </div>
-                    {% endif %}
-
-                    <div class="actions">
-                        <form method="POST" action="{% url 'admin:knowledge_base_sync' %}" id="kb-sync-form" style="margin: 0;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn blue" id="kb-sync-btn" {% if not kb.content %}disabled{% endif %}>
-                                <i class="material-icons left">sync</i><span id="kb-sync-label">Sync to OpenAI</span>
-                            </button>
-                        </form>
-                        {% if not kb.content %}
-                            <span style="color: #999; font-size: 12px;">Upload a file first</span>
-                        {% endif %}
+                <!-- Search + list -->
+                <div class="card">
+                    <div class="card-header">
+                        <i class="material-icons">list_alt</i>
+                        <span class="title">Cases</span>
                     </div>
+                    <div class="search-row">
+                        <input type="text" id="kb-search" placeholder="Search by manufacturer, subject, country, system, or case #…">
+                    </div>
+                    <div id="kb-case-list" class="case-list"></div>
+                    <div id="kb-list-status" class="list-status">Loading…</div>
+                    <div id="kb-list-sentinel" style="height: 1px;"></div>
                 </div>
             </div>
 
-            <!-- Upload (right) -->
             <div class="col-side">
-                <div class="card">
+                <!-- Create case -->
+                <div class="card" style="position: sticky; top: 16px;">
                     <div class="card-header">
-                        <i class="material-icons">upload_file</i>
-                        <span class="title">Upload a new file</span>
+                        <i class="material-icons">add_circle</i>
+                        <span class="title">Add a new case</span>
                     </div>
-                    <p class="field-help" style="font-size: 12px; color: #888; margin-bottom: 12px;">
-                        Replace the current Knowledge Base by uploading a new <code>.md</code> file. The new file is stored in the database — you must click <strong>Sync to OpenAI</strong> afterwards to update the vector store.
-                    </p>
-                    <form method="POST" action="{% url 'admin:knowledge_base' %}" enctype="multipart/form-data" class="upload-form">
-                        {% csrf_token %}
-                        <input type="file" name="kb_file" accept=".md,.markdown,text/markdown,text/plain" required>
-                        <button type="submit" class="btn blue">
-                            <i class="material-icons left">save</i>Upload
+                    <form id="kb-create-form">
+                        <div class="form-grid">
+                            <div class="field-group">
+                                <label class="field-label">Manufacturer</label>
+                                <input type="text" name="manufacturer" placeholder="MAN, Mercedes-Benz, Iveco…">
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label">Series</label>
+                                <input type="text" name="series" placeholder="TGX 18.500">
+                            </div>
+                            <div class="field-group full">
+                                <label class="field-label">Subject *</label>
+                                <input type="text" name="subject" required placeholder="Short headline of the issue">
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label">Country</label>
+                                <select name="country">
+                                    <option value=""></option>
+                                    <option value="FR">FR</option>
+                                    <option value="DE">DE</option>
+                                    <option value="IT">IT</option>
+                                    <option value="ES">ES</option>
+                                    <option value="GB">GB</option>
+                                    <option value="NL">NL</option>
+                                    <option value="BE">BE</option>
+                                    <option value="PL">PL</option>
+                                    <option value="AT">AT</option>
+                                    <option value="CH">CH</option>
+                                    <option value="NO">NO</option>
+                                    <option value="SE">SE</option>
+                                </select>
+                            </div>
+                            <div class="field-group">
+                                <label class="field-label">System</label>
+                                <input type="text" name="system" placeholder="Motorsteuerungen, EBS…">
+                            </div>
+                            <div class="field-group full">
+                                <label class="field-label">Issue</label>
+                                <textarea name="issue" rows="4" placeholder="What the mechanic reported…"></textarea>
+                            </div>
+                            <div class="field-group full">
+                                <label class="field-label">Resolution * (≥ 50 chars)</label>
+                                <textarea name="resolution" rows="5" required placeholder="What fixed the problem…"></textarea>
+                            </div>
+                            <div class="field-group full">
+                                <details class="advanced">
+                                    <summary>Advanced fields</summary>
+                                    <div class="form-grid">
+                                        <div class="field-group">
+                                            <label class="field-label">Engine</label>
+                                            <input type="text" name="engine">
+                                        </div>
+                                        <div class="field-group">
+                                            <label class="field-label">Registration date</label>
+                                            <input type="text" name="registration_date">
+                                        </div>
+                                        <div class="field-group">
+                                            <label class="field-label">VIN</label>
+                                            <input type="text" name="vin">
+                                        </div>
+                                        <div class="field-group">
+                                            <label class="field-label">Mileage</label>
+                                            <input type="text" name="mileage">
+                                        </div>
+                                        <div class="field-group">
+                                            <label class="field-label">Axle configuration</label>
+                                            <input type="text" name="axle_configuration">
+                                        </div>
+                                        <div class="field-group">
+                                            <label class="field-label">ABS configuration</label>
+                                            <input type="text" name="abs_configuration">
+                                        </div>
+                                        <div class="field-group full">
+                                            <label class="field-label">Installed system</label>
+                                            <input type="text" name="installed_system">
+                                        </div>
+                                        <div class="field-group full">
+                                            <label class="field-label">Resolution summary</label>
+                                            <input type="text" name="resolution_summary">
+                                        </div>
+                                        <div class="field-group full">
+                                            <label class="field-label">Request type</label>
+                                            <input type="text" name="request_type" value="Fehlersuche am Fahrzeug">
+                                        </div>
+                                    </div>
+                                </details>
+                            </div>
+                        </div>
+                        <div id="kb-create-error" class="form-error"></div>
+                        <button type="submit" class="btn blue" id="kb-create-submit">
+                            <i class="material-icons left">save</i><span>Add to Knowledge Base</span>
                         </button>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div style="height: 80px;"></div>
+        <div style="height: 60px;"></div>
     </div>
 
     <script>
-        function hideLoader() {
-            var l = document.getElementById('global-loader');
-            if (l) l.style.setProperty('display', 'none', 'important');
+    (function () {
+        const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+        const list = document.getElementById('kb-case-list');
+        const status = document.getElementById('kb-list-status');
+        const sentinel = document.getElementById('kb-list-sentinel');
+        const search = document.getElementById('kb-search');
+        const totalEl = document.getElementById('kb-total-count');
+
+        const urls = {
+            list: "{% url 'admin:kb_cases_json' %}",
+            create: "{% url 'admin:kb_case_create' %}",
+            edit: id => "{% url 'admin:kb_case_edit' 0 %}".replace('/0/', '/' + id + '/'),
+            del: id => "{% url 'admin:kb_case_delete' 0 %}".replace('/0/', '/' + id + '/'),
+        };
+
+        let offset = 0;
+        let loading = false;
+        let hasMore = true;
+        let currentSearch = '';
+
+        function rowHtml(c) {
+            const synced = c.synced ? '' : 'unsynced';
+            return `
+                <div class="case-row" data-id="${c.id}" data-num="${c.case_number}">
+                    <span class="sync-dot ${synced}" title="${c.synced ? 'Synced' : 'Not synced'}"></span>
+                    <span class="num">#${c.case_number}</span>
+                    <span class="brand">${escape(c.manufacturer || '—')}</span>
+                    <span class="subject">${escape(c.subject || '(no subject)')}</span>
+                    <span class="country">${escape(c.country || '')}</span>
+                    <span class="system">${escape(c.system || '')}</span>
+                    <span class="actions">
+                        <button type="button" class="expand" title="Expand"><i class="material-icons" style="font-size:18px;">expand_more</i></button>
+                        <button type="button" class="edit" title="Edit"><i class="material-icons" style="font-size:18px;">edit</i></button>
+                        <button type="button" class="danger del" title="Delete"><i class="material-icons" style="font-size:18px;">delete</i></button>
+                    </span>
+                </div>`;
         }
 
-        function injectKbContent() {
-            var src = document.getElementById('kb-content-source');
-            var ta = document.getElementById('kb-content-textarea');
-            if (!src || !ta) return;
+        function escape(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        async function loadMore() {
+            if (loading || !hasMore) return;
+            loading = true;
+            status.textContent = 'Loading…';
+            const url = `${urls.list}?offset=${offset}&limit=100&search=${encodeURIComponent(currentSearch)}`;
             try {
-                ta.value = JSON.parse(src.textContent);
+                const r = await fetch(url);
+                const data = await r.json();
+                data.cases.forEach(c => {
+                    list.insertAdjacentHTML('beforeend', rowHtml(c));
+                });
+                offset = data.next_offset;
+                hasMore = data.has_more;
+                totalEl.textContent = data.total;
+                status.textContent = hasMore ? `Showing ${offset} of ${data.total}…` : `${data.total} case(s) shown`;
             } catch (e) {
-                ta.value = '(could not load content)';
+                status.textContent = 'Failed to load. ' + e;
+            } finally {
+                loading = false;
             }
         }
 
-        document.addEventListener('DOMContentLoaded', function () {
-            var root = document.getElementById('kb-page-root');
-            if (root) root.style.visibility = '';
+        function resetList() {
+            list.innerHTML = '';
+            offset = 0;
+            hasMore = true;
+            loadMore();
+        }
 
-            // Sync button: show inline spinner + disable while submitting
-            var form = document.getElementById('kb-sync-form');
-            var btn = document.getElementById('kb-sync-btn');
-            var label = document.getElementById('kb-sync-label');
-            if (form && btn && label) {
-                form.addEventListener('submit', function () {
-                    btn.disabled = true;
-                    label.innerHTML = '<span class="spinner"></span>Syncing… (~30s)';
+        const observer = new IntersectionObserver(entries => {
+            for (const entry of entries) {
+                if (entry.isIntersecting) loadMore();
+            }
+        }, { rootMargin: '300px' });
+        observer.observe(sentinel);
+
+        // Search debounce
+        let searchTimer = null;
+        search.addEventListener('input', () => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => {
+                currentSearch = search.value.trim();
+                resetList();
+            }, 250);
+        });
+
+        // List delegated actions: expand, edit, delete
+        list.addEventListener('click', async (ev) => {
+            const row = ev.target.closest('.case-row');
+            if (!row) return;
+            const id = row.dataset.id;
+            if (ev.target.closest('.expand')) {
+                if (row.classList.contains('expanded')) {
+                    row.classList.remove('expanded');
+                    const block = row.querySelector('.expanded-content');
+                    if (block) block.remove();
+                    return;
+                }
+                row.classList.add('expanded');
+                row.insertAdjacentHTML('beforeend', '<div class="expanded-content">Loading…</div>');
+                const r = await fetch(urls.edit(id));
+                const data = await r.json();
+                row.querySelector('.expanded-content').textContent = data.case.markdown;
+                return;
+            }
+            if (ev.target.closest('.del')) {
+                if (!confirm('Delete this case? This also removes it from OpenAI.')) return;
+                const r = await fetch(urls.del(id), {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
                 });
+                if (r.ok) {
+                    row.remove();
+                    totalEl.textContent = parseInt(totalEl.textContent || '0', 10) - 1;
+                } else {
+                    alert('Delete failed.');
+                }
+                return;
+            }
+            if (ev.target.closest('.edit')) {
+                openEdit(id, row);
+                return;
             }
         });
 
-        // Inject the heavy content only AFTER the window has fully loaded
-        // (page shell painted), then wait one more frame to let it lay out
-        // before hiding the loader.
-        window.addEventListener('load', function () {
-            requestAnimationFrame(function () {
-                injectKbContent();
-                requestAnimationFrame(hideLoader);
-            });
+        async function openEdit(id, row) {
+            const r = await fetch(urls.edit(id));
+            const { case: c } = await r.json();
+            // Populate the create form with this case's data, change submit handler to update
+            const form = document.getElementById('kb-create-form');
+            for (const f of Object.keys(c)) {
+                const input = form.querySelector(`[name="${f}"]`);
+                if (input) input.value = c[f] || '';
+            }
+            form.dataset.editId = id;
+            const submit = document.getElementById('kb-create-submit');
+            submit.querySelector('span').textContent = `Update Case #${c.case_number}`;
+            const errBox = document.getElementById('kb-create-error');
+            errBox.textContent = '';
+            // Smooth-scroll the form into view
+            form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Create / update form submit
+        const form = document.getElementById('kb-create-form');
+        form.addEventListener('submit', async (ev) => {
+            ev.preventDefault();
+            const submit = document.getElementById('kb-create-submit');
+            const errBox = document.getElementById('kb-create-error');
+            errBox.textContent = '';
+
+            const editId = form.dataset.editId;
+            const url = editId ? urls.edit(editId) : urls.create;
+            const fd = new FormData(form);
+
+            submit.disabled = true;
+            const labelSpan = submit.querySelector('span');
+            const originalLabel = labelSpan.textContent;
+            labelSpan.innerHTML = '<span class="spinner"></span>Saving + syncing…';
+
+            try {
+                const r = await fetch(url, {
+                    method: 'POST',
+                    body: fd,
+                    headers: { 'X-CSRFToken': csrfToken },
+                });
+                const data = await r.json();
+                if (!r.ok) {
+                    errBox.textContent = data.error || 'Save failed.';
+                    return;
+                }
+                if (data.sync_ok === false) {
+                    errBox.textContent = `Saved but OpenAI sync failed: ${data.sync_error}`;
+                }
+                // Reset form
+                form.reset();
+                form.querySelector('[name="request_type"]').value = 'Fehlersuche am Fahrzeug';
+                form.removeAttribute('data-edit-id');
+
+                if (editId) {
+                    // Update the existing row in place
+                    const row = list.querySelector(`.case-row[data-id="${editId}"]`);
+                    if (row) {
+                        row.outerHTML = rowHtml(data.case);
+                    }
+                } else {
+                    // Prepend new row
+                    list.insertAdjacentHTML('afterbegin', rowHtml(data.case));
+                    totalEl.textContent = parseInt(totalEl.textContent || '0', 10) + 1;
+                }
+            } catch (e) {
+                errBox.textContent = 'Network error: ' + e;
+            } finally {
+                submit.disabled = false;
+                labelSpan.innerHTML = '';
+                labelSpan.textContent = form.dataset.editId ? originalLabel : 'Add to Knowledge Base';
+            }
         });
+
+        // Render hidden CSRF input for the form (Django's csrf_token tag)
+    })();
     </script>
+    {% csrf_token %}
 {% endblock %}
