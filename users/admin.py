@@ -614,10 +614,13 @@ class MyAdminSite(admin.AdminSite):
         kb = KnowledgeBaseFile.load()
         citations = []
         for c in (webhook.ai_citations or []):
-            citations.append({
-                **c,
-                'content': kb.get_case_at_offset(c.get('index')),
-            })
+            content = ''
+            filename = c.get('filename') or ''
+            if filename.startswith('case_'):
+                content = kb.get_case_by_filename(filename)
+            if not content:
+                content = kb.get_case_at_offset(c.get('index'))
+            citations.append({**c, 'content': content})
 
         return render(request, 'admin/mail_parser/webhook_detail.html', {
             'webhook': webhook,

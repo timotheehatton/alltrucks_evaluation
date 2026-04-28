@@ -186,6 +186,26 @@ class KnowledgeBaseFile(models.Model):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
 
+    def get_case_by_filename(self, filename):
+        """Resolve a per-case filename like `case_00042.md` to the case markdown."""
+        if not filename or not self.content:
+            return ''
+        m = re.search(r'case_0*(\d+)', filename)
+        if not m:
+            return ''
+        case_no = m.group(1)
+        marker = f'## Case {case_no}:'
+        start = self.content.find(marker)
+        if start == -1:
+            return ''
+        end = self.content.find('\n## Case ', start + 1)
+        if end == -1:
+            end = len(self.content)
+        text = self.content[start:end].rstrip()
+        if text.endswith('---'):
+            text = text[:-3].rstrip()
+        return text
+
     def get_case_at_offset(self, offset):
         """Return the markdown of the case containing the given character offset, or ''."""
         if not self.content or offset is None:
