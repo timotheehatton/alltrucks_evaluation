@@ -19,12 +19,15 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 INPUT_PATH = SCRIPT_DIR / 'alltrucks_hoteline_data.csv'
 OUTPUT_PATH = SCRIPT_DIR / 'alltrucks_hotline_kb.md'
 
-# Drop only truly empty resolutions. Production traffic is heavy on
-# documentation requests, and those historical cases (with short answers like
-# "Document envoyé" or "siehe Anhang") still carry useful question-side
-# content that we want to retrieve on. Filtering them out misses the bulk of
-# what mechanics actually ask.
-MIN_RESOLUTION_LEN = 5
+MIN_RESOLUTION_LEN = 15
+
+# We mirror the production-side rule that documentation-only requests don't
+# get an AI answer, so they shouldn't pollute the retrieval space either.
+# Their resolutions are typically "Document envoyé" / "siehe Anhang" — short,
+# generic, and produce embedding outliers that match unrelated queries.
+EXCLUDED_REQUEST_TYPES = {
+    'Technische Dokumentation',
+}
 
 # Patterns that indicate the case is administrative noise (not a real Q&A).
 TRIVIAL_PATTERNS = [
@@ -178,7 +181,7 @@ def main():
         rows = list(reader)
 
     total = len(rows)
-    written = dropped_short = dropped_trivial = 0
+    written = dropped_short = dropped_trivial = dropped_doc = 0
 
     with OUTPUT_PATH.open('w', encoding='utf-8') as dst:
         dst.write('# Alltrucks Hotline Knowledge Base\n\n')
@@ -186,6 +189,10 @@ def main():
         dst.write('---\n\n')
 
         for row in rows:
+            request_type = clean(row['Type of Request '])
+            if request_type in EXCLUDED_REQUEST_TYPES:
+                dropped_doc += 1
+                continue
             resolution = clean(row['Resolution Details'])
             if len(resolution) < MIN_RESOLUTION_LEN:
                 dropped_short += 1
@@ -199,6 +206,7 @@ def main():
             dst.write('\n\n---\n\n')
 
     print(f'Total rows:            {total}')
+    print(f'Dropped (doc request): {dropped_doc}')
     print(f'Dropped (short):       {dropped_short}')
     print(f'Dropped (boilerplate): {dropped_trivial}')
     print(f'Written:               {written}')
