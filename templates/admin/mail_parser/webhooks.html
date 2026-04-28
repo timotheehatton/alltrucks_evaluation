@@ -55,7 +55,7 @@
                     <th>FROM</th>
                     <th>SUBJECT</th>
                     <th>RECEIVED AT</th>
-                    <th>ANSWERED AT</th>
+                    <th>LANGUAGE</th>
                     <th>REVIEWED AT</th>
                     <th>STATUS</th>
                 </tr>
@@ -76,7 +76,7 @@
                         <td>{{ wh.sender_email|truncatechars:35|default:"-" }}</td>
                         <td>{{ wh.subject|truncatechars:40|default:"-" }}</td>
                         <td>{{ wh.received_at|date:"Y-m-d H:i" }}</td>
-                        <td>{{ wh.ai_responded_at|date:"Y-m-d H:i"|default:"--" }}</td>
+                        <td>{{ wh.language|upper|default:"--" }}</td>
                         <td>{{ wh.user_rated_at|date:"Y-m-d H:i"|default:"--" }}</td>
                         <td>
                             {% if wh.status == 'received' %}

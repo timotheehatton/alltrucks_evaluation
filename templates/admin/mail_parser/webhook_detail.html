@@ -316,6 +316,12 @@
                         <div class="card-header">
                             <i class="material-icons icon-orange">report_problem</i>
                             <span class="title">Issue Reported</span>
+                            {% if webhook.language %}
+                                <span style="margin-left: auto; display: inline-flex; align-items: center; gap: 8px;" title="Detected language">
+                                    <span style="font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.5px;">Language</span>
+                                    <span style="font-family: 'Consolas','Monaco',monospace; font-size: 14px; background: #f5f5f5; color: #333; padding: 4px 10px; border-radius: 4px; font-weight: 700; letter-spacing: 0.6px;">{{ webhook.language|upper }}</span>
+                                </span>
+                            {% endif %}
                         </div>
                         {% if webhook.parsed_user_email %}
                             <div class="user-pill">
