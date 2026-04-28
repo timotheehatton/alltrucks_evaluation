@@ -74,6 +74,22 @@ def parse_case(case_no, text):
     }
 
 
+def _truncate(values, model_cls):
+    """Defensive: clip values to each field's max_length so Postgres won't reject."""
+    out = {}
+    for k, v in values.items():
+        if not isinstance(v, str):
+            out[k] = v
+            continue
+        try:
+            field = model_cls._meta.get_field(k)
+            max_len = getattr(field, 'max_length', None)
+        except Exception:
+            max_len = None
+        out[k] = v[:max_len] if max_len else v
+    return out
+
+
 def populate_cases(apps, schema_editor):
     KnowledgeBaseFile = apps.get_model('mail_parser', 'KnowledgeBaseFile')
     KnowledgeBaseCase = apps.get_model('mail_parser', 'KnowledgeBaseCase')
@@ -87,7 +103,7 @@ def populate_cases(apps, schema_editor):
         return
 
     objects = [
-        KnowledgeBaseCase(**parse_case(no, text))
+        KnowledgeBaseCase(**_truncate(parse_case(no, text), KnowledgeBaseCase))
         for no, text in _split_into_cases(kb.content)
     ]
     KnowledgeBaseCase.objects.bulk_create(objects, batch_size=500)
@@ -100,7 +116,7 @@ def reverse_populate(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('mail_parser', '0022_knowledgebasecase'),
+        ('mail_parser', '0023_widen_kbcase_charfields'),
     ]
     operations = [
         migrations.RunPython(populate_cases, reverse_populate),

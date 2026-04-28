@@ -152,27 +152,22 @@ class AutoResponderConfig(models.Model):
 
 
 class KnowledgeBaseFile(models.Model):
-    SYNC_IDLE = 'idle'
-    SYNC_FAILED = 'failed'
+    """Singleton holding aggregate sync state for the Knowledge Base.
 
-    content = models.TextField(blank=True, default='')
-    filename = models.CharField(max_length=255, blank=True, default='')
-    byte_size = models.IntegerField(default=0)
-    case_count = models.IntegerField(default=0)
-    uploaded_at = models.DateTimeField(null=True, blank=True)
+    The actual case content lives in `KnowledgeBaseCase` rows. This model is
+    kept only for the global vector-store id and last-sync timestamp shown
+    on the admin overview.
+    """
 
     vector_store_id = models.CharField(max_length=64, blank=True, default='')
-    openai_file_id = models.CharField(max_length=64, blank=True, default='')
     last_synced_at = models.DateTimeField(null=True, blank=True)
-    sync_status = models.CharField(max_length=32, blank=True, default='')
-    sync_error = models.TextField(blank=True, default='')
 
     class Meta:
-        verbose_name = 'Knowledge Base File'
-        verbose_name_plural = 'Knowledge Base File'
+        verbose_name = 'Knowledge Base'
+        verbose_name_plural = 'Knowledge Base'
 
     def __str__(self):
-        return f'KnowledgeBaseFile({self.filename or "empty"}, {self.byte_size} B, {self.case_count} cases)'
+        return f'KnowledgeBase(vector_store={self.vector_store_id or "—"})'
 
     def save(self, *args, **kwargs):
         self.pk = 1
@@ -186,45 +181,6 @@ class KnowledgeBaseFile(models.Model):
         obj, _ = cls.objects.get_or_create(pk=1)
         return obj
 
-    def get_case_by_filename(self, filename):
-        """Resolve a per-case filename like `case_00042.md` to the case markdown."""
-        if not filename or not self.content:
-            return ''
-        m = re.search(r'case_0*(\d+)', filename)
-        if not m:
-            return ''
-        case_no = m.group(1)
-        marker = f'## Case {case_no}:'
-        start = self.content.find(marker)
-        if start == -1:
-            return ''
-        end = self.content.find('\n## Case ', start + 1)
-        if end == -1:
-            end = len(self.content)
-        text = self.content[start:end].rstrip()
-        if text.endswith('---'):
-            text = text[:-3].rstrip()
-        return text
-
-    def get_case_at_offset(self, offset):
-        """Return the markdown of the case containing the given character offset, or ''."""
-        if not self.content or offset is None:
-            return ''
-        text = self.content
-        if offset >= len(text):
-            offset = len(text) - 1
-        start = text.rfind('\n## Case ', 0, offset)
-        if start == -1:
-            start = text.rfind('## Case ', 0, offset)
-        if start == -1:
-            return ''
-        if start > 0 and text[start] == '\n':
-            start += 1
-        end = text.find('\n## Case ', start + 1)
-        if end == -1:
-            end = len(text)
-        return text[start:end].strip()
-
 
 class KnowledgeBaseCase(models.Model):
     """One row per case in the Knowledge Base.
@@ -236,17 +192,19 @@ class KnowledgeBaseCase(models.Model):
 
     case_number = models.IntegerField(unique=True, db_index=True)
 
-    # Header / metadata (all optional)
+    # Header / metadata (all optional). Sizes are padded ~2× the observed max
+    # in the historical CSV to leave room for legacy edge cases and future
+    # entries.
     manufacturer = models.CharField(max_length=100, blank=True, default='', db_index=True)
     series = models.CharField(max_length=200, blank=True, default='')
-    engine = models.CharField(max_length=255, blank=True, default='')
-    registration_date = models.CharField(max_length=50, blank=True, default='')
-    vin = models.CharField(max_length=50, blank=True, default='')
-    mileage = models.CharField(max_length=50, blank=True, default='')
-    axle_configuration = models.CharField(max_length=100, blank=True, default='')
-    abs_configuration = models.CharField(max_length=100, blank=True, default='')
-    installed_system = models.CharField(max_length=255, blank=True, default='')
-    system = models.CharField(max_length=100, blank=True, default='', db_index=True)
+    engine = models.CharField(max_length=500, blank=True, default='')
+    registration_date = models.CharField(max_length=100, blank=True, default='')
+    vin = models.CharField(max_length=100, blank=True, default='')
+    mileage = models.CharField(max_length=100, blank=True, default='')
+    axle_configuration = models.CharField(max_length=200, blank=True, default='')
+    abs_configuration = models.CharField(max_length=200, blank=True, default='')
+    installed_system = models.CharField(max_length=500, blank=True, default='')
+    system = models.CharField(max_length=200, blank=True, default='', db_index=True)
     country = models.CharField(max_length=10, blank=True, default='', db_index=True)
     request_type = models.CharField(max_length=100, blank=True, default='Fehlersuche am Fahrzeug')
 

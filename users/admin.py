@@ -24,9 +24,7 @@ from mail_parser.models import (
     KnowledgeBaseFile,
 )
 from mail_parser.services.knowledge_base import (
-    count_cases,
     delete_case_from_openai,
-    sync_to_openai,
     upload_case_to_openai,
 )
 from .models import Company, Score, User
@@ -627,24 +625,15 @@ class MyAdminSite(admin.AdminSite):
         ai_user_message = build_ai_user_message(webhook)
         documentation_only = is_documentation_only_request(webhook)
 
-        kb = KnowledgeBaseFile.load()
         citations = []
         for c in (webhook.ai_citations or []):
             content = ''
             filename = c.get('filename') or ''
-            # Prefer the new per-case row lookup
-            if filename.startswith('case_'):
-                m = re.search(r'case_0*(\d+)', filename)
-                if m:
-                    case = KnowledgeBaseCase.objects.filter(case_number=int(m.group(1))).first()
-                    if case:
-                        content = case.to_markdown()
-            # Fall back to legacy MD blob lookup if the case row doesn't exist
-            if not content:
-                if filename.startswith('case_'):
-                    content = kb.get_case_by_filename(filename)
-                if not content:
-                    content = kb.get_case_at_offset(c.get('index'))
+            m = re.search(r'case_0*(\d+)', filename)
+            if m:
+                case = KnowledgeBaseCase.objects.filter(case_number=int(m.group(1))).first()
+                if case:
+                    content = case.to_markdown()
             citations.append({**c, 'content': content})
 
         return render(request, 'admin/mail_parser/webhook_detail.html', {
@@ -709,11 +698,10 @@ class MyAdminSite(admin.AdminSite):
     )
 
     def kb_page_view(self, request):
-        kb = KnowledgeBaseFile.load()
         total = KnowledgeBaseCase.objects.count()
         synced = KnowledgeBaseCase.objects.exclude(openai_file_id='').count()
         return render(request, 'admin/mail_parser/knowledge_base.html', {
-            'kb': kb,
+            'vector_store_id': getattr(settings, 'OPENAI_VECTOR_STORE_ID', '') or '',
             'total_cases': total,
             'synced_cases': synced,
         })
@@ -757,8 +745,11 @@ class MyAdminSite(admin.AdminSite):
 
     def _kb_extract_form(self, request):
         data = {f: (request.POST.get(f) or '').strip() for f in self.KB_FORM_FIELDS}
-        # Default request_type if not provided
-        if not data.get('request_type'):
+        # request_type comes from one or more checkboxes; join with " / "
+        rt_values = [v.strip() for v in request.POST.getlist('request_type') if v.strip()]
+        if rt_values:
+            data['request_type'] = ' / '.join(rt_values)
+        else:
             data['request_type'] = 'Fehlersuche am Fahrzeug'
         return data
 
@@ -815,9 +806,15 @@ class MyAdminSite(admin.AdminSite):
         if request.method != 'POST':
             return JsonResponse({'error': 'POST required'}, status=405)
         case = get_object_or_404(KnowledgeBaseCase, id=case_id)
+        had_openai_file = bool(case.openai_file_id)
+        case_number = case.case_number
         delete_case_from_openai(case)
         case.delete()
-        return JsonResponse({'ok': True})
+        return JsonResponse({
+            'ok': True,
+            'case_number': case_number,
+            'openai_removed': had_openai_file,
+        })
 
     def _kb_serialize(self, case, include_full=False):
         out = {

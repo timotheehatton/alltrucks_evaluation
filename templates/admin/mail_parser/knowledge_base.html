@@ -46,6 +46,25 @@
             box-sizing: border-box; background: #fff; box-shadow: none !important;
             margin: 0 !important; height: auto !important;
         }
+        /* Restore native checkbox rendering — Materialize hides them off-screen by default */
+        .kb-page input[type="checkbox"] {
+            position: static !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            width: 16px !important;
+            height: 16px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 1px solid #aaa !important;
+            -webkit-appearance: checkbox !important;
+            appearance: checkbox !important;
+            box-shadow: none !important;
+        }
+        .kb-page input[type="checkbox"] + span,
+        .kb-page input[type="checkbox"] + span:before,
+        .kb-page input[type="checkbox"] + span:after {
+            display: none !important;
+        }
         .kb-page .field-group textarea { min-height: 80px; resize: vertical; font-family: inherit; line-height: 1.5; }
         .kb-page .field-group input:focus, .kb-page .field-group select:focus, .kb-page .field-group textarea:focus {
             border-color: #01B5E2 !important; outline: none;
@@ -68,6 +87,14 @@
             box-sizing: border-box;
         }
 
+        .kb-page .case-list-scroll {
+            max-height: 50vh;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 8px;
+            background: #fafafa;
+        }
         .kb-page .case-list { display: flex; flex-direction: column; gap: 6px; }
         .kb-page .case-row {
             border: 1px solid #e8e8e8; border-radius: 6px;
@@ -122,12 +149,36 @@
         }
         .kb-page .messages li.error div { background-color: #ffebee; color: #c62828; }
         .kb-page .form-error { color: #c62828; font-size: 12px; margin: 8px 0; min-height: 14px; }
+
+        .kb-toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 10000;
+            display: flex; flex-direction: column; gap: 8px;
+            pointer-events: none;
+        }
+        .kb-toast {
+            background: #1a1a2e; color: #fff; padding: 10px 14px;
+            border-radius: 6px; font-size: 13px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            display: flex; align-items: center; gap: 8px;
+            pointer-events: auto; min-width: 240px; max-width: 380px;
+            animation: kb-toast-in 0.2s ease-out;
+        }
+        .kb-toast.success { background: #2e7d32; }
+        .kb-toast.error { background: #c62828; }
+        .kb-toast.info { background: #01B5E2; }
+        .kb-toast .spinner {
+            border-color: rgba(255,255,255,0.4); border-top-color: #fff;
+        }
+        @keyframes kb-toast-in {
+            from { transform: translateX(40px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
+    <div id="kb-toast-container" class="kb-toast-container"></div>
     <div class="content kb-page" data-csrf="{{ csrf_token }}">
         <h1 class="page-title">Knowledge Base</h1>
 
@@ -156,7 +207,7 @@
                         </div>
                         <div>
                             <div class="label">Vector store</div>
-                            <div class="value">{% if kb.vector_store_id %}<code>{{ kb.vector_store_id }}</code>{% else %}<em>not set</em>{% endif %}</div>
+                            <div class="value">{% if vector_store_id %}<code>{{ vector_store_id }}</code>{% else %}<em>not set</em>{% endif %}</div>
                         </div>
                     </div>
                 </div>
@@ -170,9 +221,11 @@
                     <div class="search-row">
                         <input type="text" id="kb-search" placeholder="Search by manufacturer, subject, country, system, or case #…">
                     </div>
-                    <div id="kb-case-list" class="case-list"></div>
-                    <div id="kb-list-status" class="list-status">Loading…</div>
-                    <div id="kb-list-sentinel" style="height: 1px;"></div>
+                    <div id="kb-case-list-scroll" class="case-list-scroll">
+                        <div id="kb-case-list" class="case-list"></div>
+                        <div id="kb-list-status" class="list-status">Loading…</div>
+                        <div id="kb-list-sentinel" style="height: 1px;"></div>
+                    </div>
                 </div>
             </div>
 
@@ -265,7 +318,20 @@
                                         </div>
                                         <div class="field-group full">
                                             <label class="field-label">Request type</label>
-                                            <input type="text" name="request_type" value="Fehlersuche am Fahrzeug">
+                                            <div style="display: flex; flex-direction: column; gap: 6px; padding: 4px 0;">
+                                                <label style="font-size: 13px; font-weight: 400; color: #333; display: flex; align-items: center; gap: 8px;">
+                                                    <input type="checkbox" name="request_type" value="Fehlersuche am Fahrzeug" checked>
+                                                    Fehlersuche am Fahrzeug (vehicle troubleshooting)
+                                                </label>
+                                                <label style="font-size: 13px; font-weight: 400; color: #333; display: flex; align-items: center; gap: 8px;">
+                                                    <input type="checkbox" name="request_type" value="Diagnosegerät (Hard-/Software)">
+                                                    Diagnosegerät (Hard-/Software)
+                                                </label>
+                                                <label style="font-size: 13px; font-weight: 400; color: #333; display: flex; align-items: center; gap: 8px;">
+                                                    <input type="checkbox" name="request_type" value="Fehlersuche am Produkt">
+                                                    Fehlersuche am Produkt (product troubleshooting)
+                                                </label>
+                                            </div>
                                         </div>
                                     </div>
                                 </details>
@@ -357,11 +423,12 @@
             loadMore();
         }
 
+        const scrollContainer = document.getElementById('kb-case-list-scroll');
         const observer = new IntersectionObserver(entries => {
             for (const entry of entries) {
                 if (entry.isIntersecting) loadMore();
             }
-        }, { rootMargin: '300px' });
+        }, { root: scrollContainer, rootMargin: '300px' });
         observer.observe(sentinel);
 
         // Search debounce
@@ -394,16 +461,28 @@
                 return;
             }
             if (ev.target.closest('.del')) {
-                if (!confirm('Delete this case? This also removes it from OpenAI.')) return;
-                const r = await fetch(urls.del(id), {
-                    method: 'POST',
-                    headers: { 'X-CSRFToken': csrfToken },
-                });
-                if (r.ok) {
-                    row.remove();
-                    totalEl.textContent = parseInt(totalEl.textContent || '0', 10) - 1;
-                } else {
-                    alert('Delete failed.');
+                const caseNum = row.dataset.num;
+                if (!confirm(`Delete Case #${caseNum}? This also removes it from OpenAI.`)) return;
+                const progressToast = toast(`Deleting Case #${caseNum} (DB + OpenAI)…`, 'info', 0);
+                try {
+                    const r = await fetch(urls.del(id), {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': csrfToken },
+                    });
+                    let data = {};
+                    try { data = await r.json(); } catch (_) {}
+                    if (r.ok) {
+                        row.remove();
+                        totalEl.textContent = parseInt(totalEl.textContent || '0', 10) - 1;
+                        const msg = data.openai_removed
+                            ? `Case #${caseNum} deleted from DB and OpenAI ✓`
+                            : `Case #${caseNum} deleted from DB (no OpenAI file linked)`;
+                        updateToast(progressToast, msg, 'success', 4000);
+                    } else {
+                        updateToast(progressToast, `Delete failed: ${data.error || r.status}`, 'error', 5000);
+                    }
+                } catch (e) {
+                    updateToast(progressToast, `Delete failed: ${e}`, 'error', 5000);
                 }
                 return;
             }
@@ -416,9 +495,17 @@
         async function openEdit(id, row) {
             const r = await fetch(urls.edit(id));
             const { case: c } = await r.json();
-            // Populate the create form with this case's data, change submit handler to update
             const form = document.getElementById('kb-create-form');
+            // Reset all request_type checkboxes first
+            form.querySelectorAll('input[name="request_type"]').forEach(cb => { cb.checked = false; });
+            const requestTypes = (c.request_type || '').split(' / ').map(s => s.trim()).filter(Boolean);
             for (const f of Object.keys(c)) {
+                if (f === 'request_type') {
+                    form.querySelectorAll('input[name="request_type"]').forEach(cb => {
+                        cb.checked = requestTypes.includes(cb.value);
+                    });
+                    continue;
+                }
                 const input = form.querySelector(`[name="${f}"]`);
                 if (input) input.value = c[f] || '';
             }
@@ -427,25 +514,76 @@
             submit.querySelector('span').textContent = `Update Case #${c.case_number}`;
             const errBox = document.getElementById('kb-create-error');
             errBox.textContent = '';
-            // Smooth-scroll the form into view
             form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Hide the global page loader (triggered by the layout's catch-all
+        // submit handler in common/script.js) — we have our own inline spinner.
+        function hideGlobalLoader() {
+            const gl = document.getElementById('global-loader');
+            if (gl) gl.style.display = 'none';
+        }
+
+        // Lightweight toast notifications. Returns the toast element so callers
+        // can update its text (e.g. "deleting…" → "deleted") or dismiss it.
+        const toastContainer = document.getElementById('kb-toast-container');
+        function toast(message, kind = 'info', duration = 3500) {
+            const el = document.createElement('div');
+            el.className = `kb-toast ${kind}`;
+            el.innerHTML = (kind === 'info' ? '<span class="spinner"></span>' : '') + escape(message);
+            toastContainer.appendChild(el);
+            if (duration > 0) {
+                setTimeout(() => { el.remove(); }, duration);
+            }
+            return el;
+        }
+        function updateToast(el, message, kind = 'info', duration = 3500) {
+            if (!el) return;
+            el.className = `kb-toast ${kind}`;
+            el.innerHTML = (kind === 'info' ? '<span class="spinner"></span>' : '') + escape(message);
+            if (duration > 0) {
+                setTimeout(() => { el.remove(); }, duration);
+            }
         }
 
         // Create / update form submit
         const form = document.getElementById('kb-create-form');
         form.addEventListener('submit', async (ev) => {
             ev.preventDefault();
+            ev.stopImmediatePropagation();
             const submit = document.getElementById('kb-create-submit');
+            const labelSpan = submit.querySelector('span');
             const errBox = document.getElementById('kb-create-error');
             errBox.textContent = '';
+            // Always hide the global loader; we manage state inline.
+            setTimeout(hideGlobalLoader, 80);
+
+            // Client-side validation — bail out before showing the loader
+            const subjectVal = (form.querySelector('[name="subject"]').value || '').trim();
+            const resolutionVal = (form.querySelector('[name="resolution"]').value || '').trim();
+            if (!subjectVal) {
+                errBox.textContent = 'Subject is required.';
+                return;
+            }
+            if (resolutionVal.length < 50) {
+                errBox.textContent = `Resolution must be at least 50 characters (currently ${resolutionVal.length}).`;
+                return;
+            }
 
             const editId = form.dataset.editId;
             const url = editId ? urls.edit(editId) : urls.create;
             const fd = new FormData(form);
 
+            const restoreButton = () => {
+                submit.disabled = false;
+                labelSpan.innerHTML = '';
+                labelSpan.textContent = form.dataset.editId
+                    ? `Update Case`
+                    : 'Add to Knowledge Base';
+                hideGlobalLoader();
+            };
+
             submit.disabled = true;
-            const labelSpan = submit.querySelector('span');
-            const originalLabel = labelSpan.textContent;
             labelSpan.innerHTML = '<span class="spinner"></span>Saving + syncing…';
 
             try {
@@ -454,36 +592,34 @@
                     body: fd,
                     headers: { 'X-CSRFToken': csrfToken },
                 });
-                const data = await r.json();
+                let data = {};
+                try { data = await r.json(); } catch (_) {}
                 if (!r.ok) {
-                    errBox.textContent = data.error || 'Save failed.';
+                    errBox.textContent = data.error || `Save failed (HTTP ${r.status}).`;
+                    restoreButton();
                     return;
                 }
                 if (data.sync_ok === false) {
                     errBox.textContent = `Saved but OpenAI sync failed: ${data.sync_error}`;
                 }
-                // Reset form
+                // Success: reset form + checkboxes + clear edit state
                 form.reset();
-                form.querySelector('[name="request_type"]').value = 'Fehlersuche am Fahrzeug';
+                form.querySelectorAll('input[name="request_type"]').forEach(cb => {
+                    cb.checked = cb.value === 'Fehlersuche am Fahrzeug';
+                });
                 form.removeAttribute('data-edit-id');
 
                 if (editId) {
-                    // Update the existing row in place
                     const row = list.querySelector(`.case-row[data-id="${editId}"]`);
-                    if (row) {
-                        row.outerHTML = rowHtml(data.case);
-                    }
+                    if (row) row.outerHTML = rowHtml(data.case);
                 } else {
-                    // Prepend new row
                     list.insertAdjacentHTML('afterbegin', rowHtml(data.case));
                     totalEl.textContent = parseInt(totalEl.textContent || '0', 10) + 1;
                 }
+                restoreButton();
             } catch (e) {
                 errBox.textContent = 'Network error: ' + e;
-            } finally {
-                submit.disabled = false;
-                labelSpan.innerHTML = '';
-                labelSpan.textContent = form.dataset.editId ? originalLabel : 'Add to Knowledge Base';
+                restoreButton();
             }
         });
 
