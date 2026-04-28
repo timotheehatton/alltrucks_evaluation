@@ -30,3 +30,4 @@ uvicorn==0.30.6
 whitenoise==6.7.0
 sendgrid==6.11.0
 openai==1.75.0
+langdetect==1.0.9

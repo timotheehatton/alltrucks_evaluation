@@ -44,6 +44,7 @@ class InboundWebhook(models.Model):
     # Webhook metadata
     category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default=CATEGORY_UNKNOWN, db_index=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_RECEIVED, db_index=True)
+    language = models.CharField(max_length=10, blank=True, default='', db_index=True)
     source_ip = models.GenericIPAddressField(null=True, blank=True)
     headers = models.JSONField(default=dict)
     raw_body = models.TextField(blank=True, default='')
