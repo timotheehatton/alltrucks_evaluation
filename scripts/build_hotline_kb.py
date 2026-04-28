@@ -19,7 +19,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 INPUT_PATH = SCRIPT_DIR / 'alltrucks_hoteline_data.csv'
 OUTPUT_PATH = SCRIPT_DIR / 'alltrucks_hotline_kb.md'
 
-MIN_RESOLUTION_LEN = 50
+MIN_RESOLUTION_LEN = 100
 
 # We mirror the production-side rule that documentation-only requests don't
 # get an AI answer, so they shouldn't pollute the retrieval space either.
