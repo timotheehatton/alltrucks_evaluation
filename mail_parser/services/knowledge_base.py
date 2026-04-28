@@ -5,8 +5,8 @@ import openai
 from django.conf import settings
 from django.utils import timezone
 
-CHUNK_MAX_TOKENS = 400
-CHUNK_OVERLAP_TOKENS = 50
+CHUNK_MAX_TOKENS = 200
+CHUNK_OVERLAP_TOKENS = 20
 
 CHUNKING_STRATEGY = {
     'type': 'static',
