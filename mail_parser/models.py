@@ -111,6 +111,15 @@ class InboundWebhook(models.Model):
         self.review_token = secrets.token_urlsafe(48)
         return self.review_token
 
+    def save(self, *args, **kwargs):
+        # review_token has unique=True; an empty default would violate the
+        # constraint as soon as a second row is inserted. Generate eagerly so
+        # every row carries a unique token even if the AI flow never runs
+        # (e.g. parse_error, documentation-only "stopped" cases).
+        if not self.review_token:
+            self.generate_review_token()
+        super().save(*args, **kwargs)
+
     def __str__(self):
         if self.sender:
             return f"[{self.status}] From {self.sender} - {self.subject[:50]}"
