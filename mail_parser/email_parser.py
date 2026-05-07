@@ -77,11 +77,14 @@ def parse_portal_email(webhook):
     Parse emails from portal@alltrucks.com.
     Extracts user email, vehicle info, and issue from HTML body.
 
-    Returns: (user_email, content, vehicle_data, issue, error)
+    Returns: (user_email, content, vehicle_data, issue, default_code, request_nature, error)
+    All branches must keep the 7-element shape; the caller unpacks exactly
+    seven names and a shorter tuple raises ValueError that propagates all
+    the way to the SendGrid POST handler and crashes the inbound endpoint.
     """
     html = webhook.body_html
     if not html:
-        return None, None, None, None, 'No HTML body in portal email'
+        return None, None, None, None, '', [], 'No HTML body in portal email'
 
     text = _html_to_text(html)
 
@@ -98,7 +101,7 @@ def parse_portal_email(webhook):
                 break
 
     if not user_email:
-        return None, None, None, None, 'Could not extract user email from portal email'
+        return None, None, None, None, '', [], 'Could not extract user email from portal email'
 
     # Extract vehicle information
     vehicle_data = {

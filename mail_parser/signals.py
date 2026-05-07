@@ -366,30 +366,47 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
     if not instance.sender:
         return
 
-    # Always parse the email on reception, regardless of AI config
-    success, _, _ = parse_webhook(instance)
-    if not success:
-        return
-
-    config = AutoResponderConfig.load()
-    if not config.is_enabled:
-        return
-
-    # Skip AI generation when the mechanic only asked for documentation
-    instance.refresh_from_db()
-    if is_documentation_only_request(instance):
-        instance.status = InboundWebhook.STATUS_STOPPED
-        instance.save(update_fields=['status'])
-        return
-
-    success, error = generate_ai_response(instance)
-    if not success:
-        return
-
-    if not config.is_email_enabled:
-        return
-
+    # Wrap the entire processing pipeline so a bug in parsing/AI/email never
+    # propagates back into SendGrid's POST handler. We already lost five days
+    # of inbound emails once because a ValueError in the parser surfaced as
+    # an HTTP 500 to SendGrid, which then retried indefinitely. The endpoint
+    # MUST always return 200 once the row is saved — failures show up as
+    # error_message / status on the webhook, not as crashes.
     try:
-        _send_auto_reply(config, instance)
+        # Always parse the email on reception, regardless of AI config
+        success, _, _ = parse_webhook(instance)
+        if not success:
+            return
+
+        config = AutoResponderConfig.load()
+        if not config.is_enabled:
+            return
+
+        # Skip AI generation when the mechanic only asked for documentation
+        instance.refresh_from_db()
+        if is_documentation_only_request(instance):
+            instance.status = InboundWebhook.STATUS_STOPPED
+            instance.save(update_fields=['status'])
+            return
+
+        success, error = generate_ai_response(instance)
+        if not success:
+            return
+
+        if not config.is_email_enabled:
+            return
+
+        try:
+            _send_auto_reply(config, instance)
+        except Exception as e:
+            logger.error(f'Failed to send auto-reply for webhook {instance.id}: {e}')
     except Exception as e:
-        logger.error(f'Failed to send auto-reply for webhook {instance.id}: {e}')
+        logger.exception(f'Unhandled error processing webhook {instance.id}: {e}')
+        try:
+            instance.error_message = (
+                f'Signal crashed: {type(e).__name__}: {e}'
+            )[:2000]
+            instance.status = InboundWebhook.STATUS_PARSE_ERROR
+            instance.save(update_fields=['error_message', 'status'])
+        except Exception:
+            pass
