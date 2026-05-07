@@ -41,6 +41,7 @@ class Email:
             return False
 
     def send_auto_reply(self, to_email, subject, html_content, plain_text_content, from_email="support@alltrucks-fleet-platform.com"):
+        """Send a hotline auto-reply. Returns (ok, sendgrid_message_id, error)."""
         message = Mail(
             from_email=from_email,
             to_emails=to_email,
@@ -52,13 +53,13 @@ class Email:
 
         try:
             response = self.sg.send(message)
+            msg_id = ''
+            if getattr(response, 'headers', None):
+                msg_id = response.headers.get('X-Message-Id', '') or ''
             if response.status_code in (200, 201, 202):
-                return True
-            else:
-                print(f"Failed to send auto-reply email: {response.status_code}")
-                return False
+                return True, msg_id, ''
+            return False, msg_id, f'SendGrid returned status {response.status_code}'
         except Exception as e:
-            print(f"Error sending auto-reply email: {str(e)}")
-            return False
+            return False, '', f'{type(e).__name__}: {e}'
 
 email = Email()

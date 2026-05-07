@@ -310,23 +310,50 @@ def build_email_html(webhook, star_urls=None, labels=None):
 
 def _send_auto_reply(config, webhook):
     from common.useful.email import email as email_service
+    from .models import OutboundEmail
 
     labels = _get_email_labels(webhook)
     subject = (webhook.subject or '').strip()
     html_content = build_email_html(webhook, labels=labels)
 
     recipients = _get_recipients(config, webhook)
+    user_send_succeeded = False
+
     for recipient_email in recipients:
-        email_service.send_auto_reply(
+        is_user = (
+            config.send_to_user
+            and webhook.parsed_user_email
+            and webhook.parsed_user_email == recipient_email
+        )
+        log = OutboundEmail.objects.create(
+            webhook=webhook,
+            kind=OutboundEmail.KIND_END_USER if is_user else OutboundEmail.KIND_ADMIN_TEST,
+            recipient=recipient_email,
+            from_email=config.from_email,
+            subject=subject,
+            status=OutboundEmail.STATUS_QUEUED,
+        )
+        ok, msg_id, error = email_service.send_auto_reply(
             to_email=recipient_email,
             subject=subject,
             html_content=html_content,
             plain_text_content=webhook.ai_response,
             from_email=config.from_email,
         )
+        log.sendgrid_message_id = msg_id
+        if ok:
+            log.status = OutboundEmail.STATUS_SENT
+            log.sent_at = timezone.now()
+            if is_user:
+                user_send_succeeded = True
+        else:
+            log.status = OutboundEmail.STATUS_FAILED
+            log.error_message = error[:2000]
+            log.failed_at = timezone.now()
+        log.save()
 
-    # Track email sent to end user only (not test/admin recipients)
-    if config.send_to_user and webhook.parsed_user_email and webhook.parsed_user_email in recipients:
+    # Mark webhook answered only when the end-user copy was accepted by SendGrid.
+    if user_send_succeeded:
         webhook.email_sent_at = timezone.now()
         webhook.status = InboundWebhook.STATUS_ANSWERED
         webhook.save(update_fields=['email_sent_at', 'status'])

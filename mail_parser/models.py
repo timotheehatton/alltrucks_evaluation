@@ -125,6 +125,67 @@ class InboundWebhook(models.Model):
         return f"[{self.status}] {self.received_at}"
 
 
+class OutboundEmail(models.Model):
+    """One row per email we hand off to SendGrid (per recipient).
+
+    Both the end-user reply and the admin/test copies get their own row so
+    we can answer "did the user actually receive the AI response?" without
+    confusing it with the operator copy.
+
+    Optional `delivered_at` / `bounced_at` / `dropped_at` are populated by
+    the SendGrid Event Webhook (set up separately).
+    """
+
+    KIND_END_USER = 'end_user'
+    KIND_ADMIN_TEST = 'admin_test'
+    KIND_CHOICES = [
+        (KIND_END_USER, 'End user'),
+        (KIND_ADMIN_TEST, 'Admin / Test'),
+    ]
+
+    STATUS_QUEUED = 'queued'
+    STATUS_SENT = 'sent'
+    STATUS_DELIVERED = 'delivered'
+    STATUS_FAILED = 'failed'
+    STATUS_BOUNCED = 'bounced'
+    STATUS_DROPPED = 'dropped'
+    STATUS_CHOICES = [
+        (STATUS_QUEUED, 'Queued'),
+        (STATUS_SENT, 'Sent'),
+        (STATUS_DELIVERED, 'Delivered'),
+        (STATUS_FAILED, 'Failed'),
+        (STATUS_BOUNCED, 'Bounced'),
+        (STATUS_DROPPED, 'Dropped'),
+    ]
+    SUCCESS_STATUSES = {STATUS_SENT, STATUS_DELIVERED}
+    FAILURE_STATUSES = {STATUS_FAILED, STATUS_BOUNCED, STATUS_DROPPED}
+
+    webhook = models.ForeignKey(
+        InboundWebhook, on_delete=models.CASCADE, related_name='outbound_emails'
+    )
+    kind = models.CharField(max_length=20, choices=KIND_CHOICES, db_index=True)
+    recipient = models.EmailField()
+    from_email = models.EmailField(blank=True, default='')
+    subject = models.CharField(max_length=512, blank=True, default='')
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default=STATUS_QUEUED, db_index=True
+    )
+    sendgrid_message_id = models.CharField(max_length=128, blank=True, default='', db_index=True)
+    error_message = models.TextField(blank=True, default='')
+
+    sent_at = models.DateTimeField(null=True, blank=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
+    failed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Outbound Email'
+
+    def __str__(self):
+        return f'[{self.status}] → {self.recipient} ({self.kind})'
+
+
 class AutoResponderConfig(models.Model):
     # AI generation. The system prompt is hard-coded in
     # `mail_parser/default_system_prompt.txt` and loaded via

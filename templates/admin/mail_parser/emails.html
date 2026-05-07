@@ -1,0 +1,133 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <style>
+        .emails-page tr.is-user td { background: #f4fafd; }
+        .emails-page tr.is-user td:first-child { border-left: 3px solid #01B5E2; }
+        .emails-page .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 3px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .emails-page .badge.user { background: #01B5E2; color: #fff; }
+        .emails-page .badge.admin { background: #eee; color: #555; }
+        .emails-page .badge.ok { background: #e8f5e9; color: #2e7d32; }
+        .emails-page .badge.fail { background: #ffebee; color: #c62828; }
+        .emails-page .badge.pending { background: #fff3e0; color: #ef6c00; }
+        .emails-page td { font-size: 13px; vertical-align: middle; }
+        .emails-page .err { font-family: 'Consolas','Monaco',monospace; font-size: 11px; color: #c62828; }
+    </style>
+{% endblock %}
+
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content emails-page">
+        <h1 class="page-title">Outbound Emails</h1>
+
+        <div class="row">
+            <form method="GET" action="{% url 'admin:outbound_emails' %}" class="col s12">
+                <div class="input-field col s2">
+                    <select name="kind">
+                        <option value="">All</option>
+                        {% for value, label in kind_choices %}
+                            <option value="{{ value }}" {% if kind == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <label>Kind</label>
+                </div>
+                <div class="input-field col s2">
+                    <select name="status">
+                        <option value="">All</option>
+                        {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if status == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                    <label>Status</label>
+                </div>
+                <div class="input-field col s4">
+                    <input id="search" type="text" name="search" value="{{ search }}">
+                    <label for="search" class="{% if search %}active{% endif %}">Search recipient</label>
+                </div>
+                <div class="input-field col s2">
+                    <button class="btn blue" type="submit">Filter
+                        <i class="material-icons right">search</i>
+                    </button>
+                </div>
+                <div class="input-field col s2" style="text-align: right; padding-top: 18px; color: #888;">
+                    {{ total }} email(s)
+                </div>
+            </form>
+        </div>
+
+        <div class="model-list-table" style="max-height: 75vh; overflow-y: auto;">
+            <table class="highlight responsive-table">
+                <thead style="position: sticky; top: 0; background-color: white; z-index: 10; box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);">
+                    <tr>
+                        <th>WEBHOOK</th>
+                        <th>KIND</th>
+                        <th>RECIPIENT</th>
+                        <th>SUBJECT</th>
+                        <th>STATUS</th>
+                        <th>SENT AT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for email in page %}
+                    <tr class="clickable-row {% if email.kind == 'end_user' %}is-user{% endif %}"
+                        data-href="{% url 'admin:webhook_detail' email.webhook_id %}">
+                        <td>#{{ email.webhook_id }}</td>
+                        <td>
+                            {% if email.kind == 'end_user' %}
+                                <span class="badge user">End user</span>
+                            {% else %}
+                                <span class="badge admin">Admin / Test</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ email.recipient|truncatechars:45 }}</td>
+                        <td>{{ email.subject|truncatechars:50|default:"-" }}</td>
+                        <td>
+                            {% if email.status == 'sent' or email.status == 'delivered' %}
+                                <span class="badge ok">{{ email.get_status_display }}</span>
+                            {% elif email.status == 'failed' or email.status == 'bounced' or email.status == 'dropped' %}
+                                <span class="badge fail">{{ email.get_status_display }}</span>
+                                {% if email.error_message %}
+                                    <div class="err">{{ email.error_message|truncatechars:150 }}</div>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge pending">{{ email.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if email.sent_at %}
+                                {{ email.sent_at|date:"Y-m-d H:i:s" }}
+                            {% elif email.failed_at %}
+                                {{ email.failed_at|date:"Y-m-d H:i:s" }}
+                            {% else %}
+                                <span style="color: #aaa;">{{ email.created_at|date:"Y-m-d H:i:s" }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 20px;">No outbound emails recorded yet.</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if page.has_other_pages %}
+            <div style="text-align: center; padding: 16px;">
+                {% if page.has_previous %}
+                    <a class="btn-flat" href="?page={{ page.previous_page_number }}{% if kind %}&kind={{ kind }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search %}&search={{ search }}{% endif %}">‹ Prev</a>
+                {% endif %}
+                <span style="margin: 0 12px; color: #888;">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>
+                {% if page.has_next %}
+                    <a class="btn-flat" href="?page={{ page.next_page_number }}{% if kind %}&kind={{ kind }}{% endif %}{% if status %}&status={{ status }}{% endif %}{% if search %}&search={{ search }}{% endif %}">Next ›</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

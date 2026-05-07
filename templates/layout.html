@@ -71,6 +71,9 @@
                         <a class="{% if request.resolver_match.url_name == "webhooks" or request.resolver_match.url_name == "webhook_detail" %}active{% endif %}"
                            href="{% url 'admin:webhooks' %}"><i class="material-icons">email</i>Support Emails</a></li>
                     <li>
+                        <a class="{% if request.resolver_match.url_name == "outbound_emails" %}active{% endif %}"
+                           href="{% url 'admin:outbound_emails' %}"><i class="material-icons">outgoing_mail</i>Sent Emails</a></li>
+                    <li>
                         <a class="{% if request.resolver_match.url_name == "knowledge_base" %}active{% endif %}"
                            href="{% url 'admin:knowledge_base' %}"><i class="material-icons">menu_book</i>Knowledge Base</a></li>
                     <li>

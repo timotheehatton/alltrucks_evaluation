@@ -22,6 +22,7 @@ from mail_parser.models import (
     InboundWebhook,
     KnowledgeBaseCase,
     KnowledgeBaseFile,
+    OutboundEmail,
 )
 from mail_parser.services.knowledge_base import (
     delete_case_from_openai,
@@ -34,6 +35,8 @@ def _format_response_time(seconds):
     """Return (value_str, unit_str) chosen so the KPI tile reads naturally."""
     if seconds <= 0:
         return '—', ''
+    if seconds < 1:
+        return f'{seconds * 1000:.0f}', 'ms'
     if seconds < 60:
         return f'{seconds:.0f}', 's'
     if seconds < 3600:
@@ -70,6 +73,7 @@ class MyAdminSite(admin.AdminSite):
             path('knowledge-base/cases/<int:case_id>/edit/', self.admin_view(self.kb_case_edit_view), name='kb_case_edit'),
             path('knowledge-base/cases/<int:case_id>/delete/', self.admin_view(self.kb_case_delete_view), name='kb_case_delete'),
             path('stats/', self.admin_view(self.amcat_stats_view), name='amcat_stats'),
+            path('emails/', self.admin_view(self.outbound_emails_view), name='outbound_emails'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -650,6 +654,8 @@ class MyAdminSite(admin.AdminSite):
                     content = case.to_markdown()
             citations.append({**c, 'content': content})
 
+        outbound_emails = list(webhook.outbound_emails.all().order_by('-created_at'))
+
         return render(request, 'admin/mail_parser/webhook_detail.html', {
             'webhook': webhook,
             'email_preview': email_preview,
@@ -658,6 +664,7 @@ class MyAdminSite(admin.AdminSite):
             'ai_user_message': ai_user_message,
             'documentation_only': documentation_only,
             'citations_with_content': citations,
+            'outbound_emails': outbound_emails,
         })
 
     @staticmethod
@@ -916,16 +923,42 @@ class MyAdminSite(admin.AdminSite):
             for row in rating_qs
         ]
 
-        # Temps de réponse moyen (entre réception et envoi du mail AI au client)
-        responded = list(
+        # Temps de réponse moyen — uniquement les webhooks où au moins un email
+        # (admin ou end-user) a été envoyé avec succès. Source primaire :
+        # OutboundEmail (un par destinataire). On retombe sur le legacy
+        # email_sent_at pour les webhooks d'avant l'instrumentation.
+        from django.db.models import Min as _Min
+        outbound_first = dict(
+            OutboundEmail.objects
+            .filter(status__in=OutboundEmail.SUCCESS_STATUSES, sent_at__isnull=False)
+            .values('webhook_id')
+            .annotate(first=_Min('sent_at'))
+            .values_list('webhook_id', 'first')
+        )
+        legacy_sent = dict(
             webhooks.exclude(email_sent_at__isnull=True)
-            .values_list('received_at', 'email_sent_at')
+            .values_list('id', 'email_sent_at')
         )
-        avg_response_seconds = (
-            sum((sent - recv).total_seconds() for recv, sent in responded) / len(responded)
-            if responded else 0
+        first_send_by_webhook = {}
+        for wid, t in outbound_first.items():
+            first_send_by_webhook[wid] = t
+        for wid, t in legacy_sent.items():
+            cur = first_send_by_webhook.get(wid)
+            if cur is None or t < cur:
+                first_send_by_webhook[wid] = t
+
+        received_by_webhook = dict(
+            webhooks.filter(id__in=first_send_by_webhook.keys())
+            .values_list('id', 'received_at')
         )
+        deltas = [
+            (first_send_by_webhook[wid] - received_by_webhook[wid]).total_seconds()
+            for wid in first_send_by_webhook
+            if wid in received_by_webhook
+        ]
+        avg_response_seconds = sum(deltas) / len(deltas) if deltas else 0
         avg_response_label, avg_response_unit = _format_response_time(avg_response_seconds)
+        responded_count = len(deltas)
 
         context = {
             'total': total,
@@ -945,9 +978,42 @@ class MyAdminSite(admin.AdminSite):
             'rating_over_time': rating_over_time,
             'avg_response_label': avg_response_label,
             'avg_response_unit': avg_response_unit,
-            'responded_count': len(responded),
+            'responded_count': responded_count,
         }
         return render(request, 'admin/mail_parser/stats.html', context)
+
+    # =========================================================================
+    # Outbound emails — global list
+    # =========================================================================
+
+    def outbound_emails_view(self, request):
+        from django.core.paginator import Paginator
+
+        kind = request.GET.get('kind', '').strip()
+        status = request.GET.get('status', '').strip()
+        search = request.GET.get('search', '').strip()
+
+        qs = OutboundEmail.objects.select_related('webhook').order_by('-created_at')
+        if kind:
+            qs = qs.filter(kind=kind)
+        if status:
+            qs = qs.filter(status=status)
+        if search:
+            qs = qs.filter(recipient__icontains=search)
+
+        paginator = Paginator(qs, 50)
+        page_number = request.GET.get('page', 1)
+        page = paginator.get_page(page_number)
+
+        return render(request, 'admin/mail_parser/emails.html', {
+            'page': page,
+            'kind': kind,
+            'status': status,
+            'search': search,
+            'kind_choices': OutboundEmail.KIND_CHOICES,
+            'status_choices': OutboundEmail.STATUS_CHOICES,
+            'total': qs.count(),
+        })
 
     def _kb_serialize(self, case, include_full=False):
         out = {
