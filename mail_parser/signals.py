@@ -103,8 +103,10 @@ def generate_ai_response(webhook):
     if not webhook.review_token:
         webhook.generate_review_token()
 
+    from .system_prompt import get_system_prompt
+
     response_text, error, metadata = ai_service.generate_response(
-        system_prompt=config.system_prompt,
+        system_prompt=get_system_prompt(),
         user_message=user_message,
         model=config.openai_model,
     )

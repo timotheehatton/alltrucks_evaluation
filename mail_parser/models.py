@@ -1,4 +1,3 @@
-import os
 import re
 import secrets
 
@@ -6,12 +5,12 @@ from django.db import models
 
 
 def _load_default_system_prompt():
-    file_path = os.path.join(os.path.dirname(__file__), 'default_system_prompt.txt')
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return f.read().strip()
-    except FileNotFoundError:
-        return ''
+    # Kept as a stub so historical migrations that referenced it
+    # (e.g. 0016_alter_autoresponderconfig_system_prompt) can still be
+    # imported. The runtime prompt now lives in
+    # `mail_parser/default_system_prompt.txt` and is loaded via
+    # `mail_parser.system_prompt.get_system_prompt`.
+    return ''
 
 
 class InboundWebhook(models.Model):
@@ -127,9 +126,11 @@ class InboundWebhook(models.Model):
 
 
 class AutoResponderConfig(models.Model):
-    # AI generation
+    # AI generation. The system prompt is hard-coded in
+    # `mail_parser/default_system_prompt.txt` and loaded via
+    # `mail_parser.system_prompt.get_system_prompt`. Editing it requires a
+    # deploy — it is intentionally not stored in the DB.
     is_enabled = models.BooleanField(default=False)
-    system_prompt = models.TextField(default=_load_default_system_prompt)
     openai_model = models.CharField(max_length=50, default='gpt-4o-mini')
 
     # Email sending

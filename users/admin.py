@@ -623,8 +623,10 @@ class MyAdminSite(admin.AdminSite):
         config = AutoResponderConfig.load()
 
         from mail_parser.signals import build_ai_user_message, is_documentation_only_request
+        from mail_parser.system_prompt import get_system_prompt
         ai_user_message = build_ai_user_message(webhook)
         documentation_only = is_documentation_only_request(webhook)
+        system_prompt = get_system_prompt()
 
         citations = []
         for c in (webhook.ai_citations or []):
@@ -641,6 +643,7 @@ class MyAdminSite(admin.AdminSite):
             'webhook': webhook,
             'email_preview': email_preview,
             'config': config,
+            'system_prompt': system_prompt,
             'ai_user_message': ai_user_message,
             'documentation_only': documentation_only,
             'citations_with_content': citations,
@@ -670,7 +673,6 @@ class MyAdminSite(admin.AdminSite):
         config = AutoResponderConfig.load()
         if request.method == 'POST':
             config.is_enabled = 'is_enabled' in request.POST
-            config.system_prompt = request.POST.get('system_prompt', config.system_prompt)
             config.openai_model = request.POST.get('openai_model', config.openai_model)
             config.is_email_enabled = 'is_email_enabled' in request.POST
             config.send_to_user = 'send_to_user' in request.POST

@@ -169,12 +169,6 @@
                 </div>
 
                 <div class="field-group">
-                    <label class="field-label" for="system_prompt">System Prompt</label>
-                    <p class="field-help">Instructions sent to the AI alongside each email.</p>
-                    <textarea id="system_prompt" name="system_prompt" style="min-height: 300px;">{{ config.system_prompt }}</textarea>
-                </div>
-
-                <div class="field-group">
                     <label class="field-label" for="openai_model">OpenAI Model</label>
                     <select id="openai_model" name="openai_model" class="browser-default">
                         <option value="gpt-4o-mini" {% if config.openai_model == 'gpt-4o-mini' %}selected{% endif %}>gpt-4o-mini (fast, cheap)</option>
