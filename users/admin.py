@@ -30,6 +30,17 @@ from mail_parser.services.knowledge_base import (
 from .models import Company, Score, User
 
 
+def _format_response_time(seconds):
+    """Return (value_str, unit_str) chosen so the KPI tile reads naturally."""
+    if seconds <= 0:
+        return '—', ''
+    if seconds < 60:
+        return f'{seconds:.0f}', 's'
+    if seconds < 3600:
+        return f'{seconds / 60:.1f}', 'min'
+    return f'{seconds / 3600:.1f}', 'h'
+
+
 class MyAdminSite(admin.AdminSite):
     site_header = 'Alltrucks AMCAT Admin'
     site_title = 'Workshops'
@@ -905,6 +916,17 @@ class MyAdminSite(admin.AdminSite):
             for row in rating_qs
         ]
 
+        # Temps de réponse moyen (entre réception et envoi du mail AI au client)
+        responded = list(
+            webhooks.exclude(email_sent_at__isnull=True)
+            .values_list('received_at', 'email_sent_at')
+        )
+        avg_response_seconds = (
+            sum((sent - recv).total_seconds() for recv, sent in responded) / len(responded)
+            if responded else 0
+        )
+        avg_response_label, avg_response_unit = _format_response_time(avg_response_seconds)
+
         context = {
             'total': total,
             'with_citations': with_citations,
@@ -921,6 +943,9 @@ class MyAdminSite(admin.AdminSite):
             'daily_volume': daily_volume,
             'top_cases': top_cases,
             'rating_over_time': rating_over_time,
+            'avg_response_label': avg_response_label,
+            'avg_response_unit': avg_response_unit,
+            'responded_count': len(responded),
         }
         return render(request, 'admin/mail_parser/stats.html', context)
 

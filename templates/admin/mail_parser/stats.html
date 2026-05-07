@@ -7,8 +7,9 @@
         .stats-page { max-width: 1400px; padding-bottom: 80px; }
         .stats-page .page-title { font-size: 22px; margin: 8px 0 20px; color: #1a1a2e; }
 
-        .stats-page .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
-        @media (max-width: 1100px) { .stats-page .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+        .stats-page .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 20px; }
+        @media (max-width: 1300px) { .stats-page .kpi-row { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 800px) { .stats-page .kpi-row { grid-template-columns: repeat(2, 1fr); } }
         .stats-page .kpi {
             background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
             padding: 18px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);
@@ -84,6 +85,11 @@
                 <p class="label">Average rating</p>
                 <div class="value">{{ avg_rating }}<small>/5</small></div>
                 <div style="font-size: 11px; color: #888; margin-top: 4px;">{{ rated_count }} review(s)</div>
+            </div>
+            <div class="kpi">
+                <p class="label">Avg. response time</p>
+                <div class="value">{{ avg_response_label }}<small>{{ avg_response_unit }}</small></div>
+                <div style="font-size: 11px; color: #888; margin-top: 4px;">{{ responded_count }} email(s) sent</div>
             </div>
         </div>
 
