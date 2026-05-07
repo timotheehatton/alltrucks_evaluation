@@ -73,6 +73,7 @@ class MyAdminSite(admin.AdminSite):
             path('knowledge-base/cases/<int:case_id>/edit/', self.admin_view(self.kb_case_edit_view), name='kb_case_edit'),
             path('knowledge-base/cases/<int:case_id>/delete/', self.admin_view(self.kb_case_delete_view), name='kb_case_delete'),
             path('stats/', self.admin_view(self.amcat_stats_view), name='amcat_stats'),
+            path('training-stats/', self.admin_view(self.training_stats_view), name='training_stats'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -980,6 +981,228 @@ class MyAdminSite(admin.AdminSite):
             'responded_count': responded_count,
         }
         return render(request, 'admin/mail_parser/stats.html', context)
+
+    # =========================================================================
+    # Training stats — workshops / managers / technicians breakdown by country
+    # =========================================================================
+
+    def training_stats_view(self, request):
+        from collections import Counter, defaultdict
+        from datetime import timedelta
+        from django.db.models import Avg, Count, Q
+        from django.db.models.functions import TruncMonth
+        from django.utils import timezone
+
+        TOTAL_QUESTIONS = sum(settings.QUESTION_NUMBER.values())  # 100
+        countries = ['FR', 'ES', 'PL', 'DE', 'IT']
+        category_max = settings.QUESTION_NUMBER  # {'diagnostic': 15, ...}
+
+        # Exclude internal/staff users (alltrucks employees, support test
+        # accounts, etc.) so they don't skew the activation/test/score stats.
+        external_users = User.objects.exclude(email__icontains='alltrucks')
+
+        # Aggregate KPIs
+        total_workshops = Company.objects.count()
+        managers = external_users.filter(user_type='manager')
+        technicians = external_users.filter(user_type='technician')
+        total_managers = managers.count()
+        total_technicians = technicians.count()
+        active_users = external_users.filter(
+            user_type__in=['manager', 'technician'], is_active=True
+        ).count()
+        total_users = total_managers + total_technicians
+        activation_rate = round(100 * active_users / total_users, 1) if total_users else 0
+
+        # Technicians who completed at least one test = exist in Score table
+        techs_who_tested_ids = set(
+            Score.objects.filter(user__user_type='technician')
+            .values_list('user_id', flat=True)
+            .distinct()
+        )
+        test_rate = (
+            round(100 * len(techs_who_tested_ids) / total_technicians, 1)
+            if total_technicians else 0
+        )
+
+        # By-country table — workshops, managers (active/total), technicians (active/total),
+        # technicians who took the test, average score percentage.
+        by_country = []
+        for country in countries:
+            workshops_in_country = Company.objects.filter(country=country)
+            workshop_ids = list(workshops_in_country.values_list('id', flat=True))
+
+            country_managers = managers.filter(company_id__in=workshop_ids)
+            country_techs = technicians.filter(company_id__in=workshop_ids)
+
+            country_tech_ids = list(country_techs.values_list('id', flat=True))
+            tested_in_country = sum(1 for t in country_tech_ids if t in techs_who_tested_ids)
+
+            # Average score (sum of all category scores by tech) / total possible
+            # Take the LAST attempt per technician — group by (user, date) so multiple
+            # retakes don't bias the average.
+            score_rows = Score.objects.filter(user_id__in=country_tech_ids)
+            if score_rows.exists():
+                # Build {user_id: {date: total_score}} then take the latest date per user
+                user_attempts = {}
+                for s in score_rows.values('user_id', 'date', 'score'):
+                    key = (s['user_id'], s['date'])
+                    user_attempts[key] = user_attempts.get(key, 0) + s['score']
+                latest_per_user = {}
+                for (uid, date), total in user_attempts.items():
+                    cur = latest_per_user.get(uid)
+                    if cur is None or date > cur[0]:
+                        latest_per_user[uid] = (date, total)
+                if latest_per_user:
+                    avg_score_pct = round(
+                        100 * sum(t[1] for t in latest_per_user.values())
+                        / (TOTAL_QUESTIONS * len(latest_per_user)),
+                        1,
+                    )
+                else:
+                    avg_score_pct = None
+            else:
+                avg_score_pct = None
+
+            by_country.append({
+                'country': country,
+                'workshops': workshops_in_country.count(),
+                'managers_total': country_managers.count(),
+                'managers_active': country_managers.filter(is_active=True).count(),
+                'techs_total': country_techs.count(),
+                'techs_active': country_techs.filter(is_active=True).count(),
+                'tested': tested_in_country,
+                'tested_pct': round(100 * tested_in_country / country_techs.count(), 1)
+                              if country_techs.count() else 0,
+                'avg_score_pct': avg_score_pct,
+            })
+
+        # Sort the chart payload by score so the leaderboard reads naturally.
+        ranking = sorted(
+            (c for c in by_country if c['avg_score_pct'] is not None),
+            key=lambda c: -c['avg_score_pct'],
+        )
+
+        # ---- Tests over time (last 12 months, monthly) ------------------------
+        twelve_months_ago = timezone.now() - timedelta(days=365)
+        external_tech_ids = list(technicians.values_list('id', flat=True))
+        # One "evaluation" = one (user, date) pair (Score has 8 rows per test).
+        eval_pairs = (
+            Score.objects.filter(
+                user_id__in=external_tech_ids,
+                date__gte=twelve_months_ago,
+            )
+            .values('user_id', 'date')
+            .distinct()
+        )
+        evals_per_month = Counter()
+        for row in eval_pairs:
+            month_key = row['date'].replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            evals_per_month[month_key] += 1
+        evals_over_time = [
+            {'month': m.strftime('%Y-%m'), 'count': evals_per_month[m]}
+            for m in sorted(evals_per_month)
+        ]
+
+        # ---- Average score per category (latest attempt per technician) ------
+        # Re-walk the scores once and gather per-category sums, picking only the
+        # latest (user, date) attempt per user so retakes don't double-count.
+        all_scores = list(
+            Score.objects.filter(user_id__in=external_tech_ids)
+            .values('user_id', 'date', 'question_type', 'score')
+        )
+        latest_attempt = {}  # user_id -> latest date
+        for s in all_scores:
+            cur = latest_attempt.get(s['user_id'])
+            if cur is None or s['date'] > cur:
+                latest_attempt[s['user_id']] = s['date']
+
+        cat_sum = defaultdict(int)
+        cat_taken = defaultdict(int)
+        per_user_total = defaultdict(int)
+        for s in all_scores:
+            if s['date'] != latest_attempt.get(s['user_id']):
+                continue
+            cat_sum[s['question_type']] += s['score']
+            cat_taken[s['question_type']] += 1
+            per_user_total[s['user_id']] += s['score']
+
+        category_breakdown = []
+        for cat, max_q in category_max.items():
+            n = cat_taken.get(cat, 0)
+            avg_pct = round(100 * cat_sum[cat] / (max_q * n), 1) if n else 0
+            category_breakdown.append({
+                'category': cat.replace('_', ' ').title(),
+                'avg_pct': avg_pct,
+                'n': n,
+            })
+        category_breakdown.sort(key=lambda x: -x['avg_pct'])
+
+        # ---- Score distribution histogram (latest attempt per tech) -----------
+        buckets = {'0-25': 0, '25-50': 0, '50-75': 0, '75-100': 0}
+        for total in per_user_total.values():
+            pct = 100 * total / TOTAL_QUESTIONS
+            if pct < 25: buckets['0-25'] += 1
+            elif pct < 50: buckets['25-50'] += 1
+            elif pct < 75: buckets['50-75'] += 1
+            else: buckets['75-100'] += 1
+        score_distribution = [
+            {'bucket': k, 'count': v} for k, v in buckets.items()
+        ]
+
+        # ---- Top workshops leaderboard ---------------------------------------
+        # Average score per workshop = mean of its technicians' latest totals.
+        workshop_totals = defaultdict(list)
+        tech_to_company = dict(
+            technicians.values_list('id', 'company_id')
+        )
+        for uid, total in per_user_total.items():
+            cid = tech_to_company.get(uid)
+            if cid is not None:
+                workshop_totals[cid].append(total)
+        workshops_by_id = {
+            c.id: c for c in Company.objects.filter(id__in=workshop_totals.keys())
+        }
+        top_workshops = []
+        for cid, totals in workshop_totals.items():
+            company = workshops_by_id.get(cid)
+            if not company or not totals:
+                continue
+            avg_pct = round(100 * sum(totals) / (TOTAL_QUESTIONS * len(totals)), 1)
+            top_workshops.append({
+                'name': company.name,
+                'country': company.country,
+                'city': company.city,
+                'techs_tested': len(totals),
+                'avg_pct': avg_pct,
+            })
+        top_workshops.sort(key=lambda x: (-x['avg_pct'], -x['techs_tested']))
+        top_workshops = top_workshops[:10]
+
+        # ---- Overall average score (single number) ---------------------------
+        overall_avg_pct = (
+            round(100 * sum(per_user_total.values()) / (TOTAL_QUESTIONS * len(per_user_total)), 1)
+            if per_user_total else 0
+        )
+
+        context = {
+            'total_workshops': total_workshops,
+            'total_managers': total_managers,
+            'total_technicians': total_technicians,
+            'activation_rate': activation_rate,
+            'active_users': active_users,
+            'total_users': total_users,
+            'test_rate': test_rate,
+            'tested_count': len(techs_who_tested_ids),
+            'total_questions': TOTAL_QUESTIONS,
+            'overall_avg_pct': overall_avg_pct,
+            'by_country': by_country,
+            'ranking': ranking,
+            'evals_over_time': evals_over_time,
+            'category_breakdown': category_breakdown,
+            'score_distribution': score_distribution,
+            'top_workshops': top_workshops,
+        }
+        return render(request, 'admin/training_stats.html', context)
 
     def _kb_serialize(self, case, include_full=False):
         out = {

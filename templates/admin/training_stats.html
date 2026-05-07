@@ -1,0 +1,322 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <style>
+        .stats-page { max-width: 1400px; padding-bottom: 80px; }
+        .stats-page .page-title { font-size: 22px; margin: 8px 0 20px; color: #1a1a2e; }
+
+        .stats-page .kpi-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-bottom: 20px; }
+        @media (max-width: 1300px) { .stats-page .kpi-row { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 800px) { .stats-page .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+        .stats-page .kpi {
+            background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
+            padding: 18px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            border-left: 4px solid #01B5E2;
+        }
+        .stats-page .kpi .label {
+            font-size: 11px; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.4px; margin: 0 0 6px 0;
+        }
+        .stats-page .kpi .value { font-size: 30px; font-weight: 700; color: #00193E; }
+        .stats-page .kpi .value small { font-size: 14px; color: #888; font-weight: 500; margin-left: 4px; }
+
+        .stats-page .charts-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 16px; }
+        .stats-page .charts-grid.full { grid-template-columns: 1fr; }
+
+        .stats-page .card {
+            background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
+            padding: 18px 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .stats-page .card-title {
+            font-size: 13px; font-weight: 700; color: #00193E;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid #eee;
+        }
+        .stats-page canvas { max-height: 320px; }
+
+        .stats-page table.country-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .stats-page table.country-table thead th {
+            text-align: left; padding: 10px 12px; background: #fafafa;
+            font-size: 11px; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.4px;
+            border-bottom: 2px solid #eee;
+        }
+        .stats-page table.country-table thead th.num,
+        .stats-page table.country-table tbody td.num {
+            text-align: right; font-family: 'Consolas','Monaco',monospace;
+            color: #00193E; font-weight: 600;
+        }
+        .stats-page table.country-table tbody td {
+            padding: 10px 12px; border-bottom: 1px solid #f4f4f4; color: #1a1a2e;
+        }
+        .stats-page table.country-table tbody tr:hover td { background: #f4fafd; }
+        .stats-page .flag {
+            display: inline-block; padding: 3px 10px; border-radius: 4px;
+            background: #00193E; color: #fff; font-weight: 700; font-size: 11px;
+            letter-spacing: 1px; min-width: 32px; text-align: center;
+        }
+        .stats-page .pct-bar {
+            display: inline-block; width: 60px; height: 6px; background: #eee;
+            border-radius: 3px; overflow: hidden; vertical-align: middle; margin-left: 8px;
+        }
+        .stats-page .pct-bar > span { display: block; height: 100%; background: #01B5E2; }
+        .stats-page .em-dash { color: #ccc; }
+    </style>
+{% endblock %}
+
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content stats-page">
+        <h1 class="page-title">Statistics · AMCAT Training</h1>
+
+        <!-- KPI tiles -->
+        <div class="kpi-row">
+            <div class="kpi">
+                <p class="label">Workshops</p>
+                <div class="value">{{ total_workshops }}</div>
+            </div>
+            <div class="kpi">
+                <p class="label">Technicians</p>
+                <div class="value">{{ total_technicians }}</div>
+                <div style="font-size: 11px; color: #888; margin-top: 4px;">{{ total_managers }} manager(s)</div>
+            </div>
+            <div class="kpi">
+                <p class="label">Active accounts</p>
+                <div class="value">{{ activation_rate }}<small>%</small></div>
+                <div style="font-size: 11px; color: #888; margin-top: 4px;">{{ active_users }} / {{ total_users }} activated</div>
+            </div>
+            <div class="kpi">
+                <p class="label">Completed first eval</p>
+                <div class="value">{{ test_rate }}<small>%</small></div>
+                <div style="font-size: 11px; color: #888; margin-top: 4px;">{{ tested_count }} / {{ total_technicians }} technicians</div>
+            </div>
+            <div class="kpi">
+                <p class="label">Avg score (network)</p>
+                <div class="value">{{ overall_avg_pct }}<small>%</small></div>
+                <div style="font-size: 11px; color: #888; margin-top: 4px;">{{ total_questions }} questions / eval</div>
+            </div>
+        </div>
+
+        <!-- By-country table -->
+        <div class="charts-grid full">
+            <div class="card">
+                <h3 class="card-title">Breakdown by country</h3>
+                <table class="country-table">
+                    <thead>
+                        <tr>
+                            <th>Country</th>
+                            <th class="num">Workshops</th>
+                            <th class="num">Managers</th>
+                            <th class="num">Technicians</th>
+                            <th class="num">Active</th>
+                            <th class="num">Took 1st eval</th>
+                            <th class="num">Avg score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in by_country %}
+                        <tr>
+                            <td><span class="flag">{{ row.country }}</span></td>
+                            <td class="num">{{ row.workshops }}</td>
+                            <td class="num">{{ row.managers_active }} / {{ row.managers_total }}</td>
+                            <td class="num">{{ row.techs_total }}</td>
+                            <td class="num">
+                                {{ row.techs_active }} / {{ row.techs_total }}
+                            </td>
+                            <td class="num">
+                                {{ row.tested }} <span style="color:#888; font-weight: 500;">({{ row.tested_pct }}%)</span>
+                            </td>
+                            <td class="num">
+                                {% if row.avg_score_pct is not None %}
+                                    {{ row.avg_score_pct }}<span style="color:#888; font-weight: 500;">%</span>
+                                    <span class="pct-bar"><span style="width: {{ row.avg_score_pct }}%;"></span></span>
+                                {% else %}
+                                    <span class="em-dash">—</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Leaderboard + Evaluations over time -->
+        <div class="charts-grid">
+            <div class="card">
+                <h3 class="card-title">Leaderboard · Average score by country</h3>
+                {% if ranking %}
+                    <canvas id="chart-leaderboard"></canvas>
+                {% else %}
+                    <p style="color:#888; font-size: 13px; margin: 0;">No completed evaluations recorded yet.</p>
+                {% endif %}
+            </div>
+            <div class="card">
+                <h3 class="card-title">Evaluations completed (last 12 months)</h3>
+                {% if evals_over_time %}
+                    <canvas id="chart-evals-time"></canvas>
+                {% else %}
+                    <p style="color:#888; font-size: 13px; margin: 0;">No evaluations recorded over the last 12 months.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Per-category avg + Score distribution -->
+        <div class="charts-grid">
+            <div class="card">
+                <h3 class="card-title">Average score per category</h3>
+                {% if category_breakdown %}
+                    <canvas id="chart-categories"></canvas>
+                {% else %}
+                    <p style="color:#888; font-size: 13px; margin: 0;">No category data yet.</p>
+                {% endif %}
+            </div>
+            <div class="card">
+                <h3 class="card-title">Score distribution (latest attempt)</h3>
+                {% if tested_count %}
+                    <canvas id="chart-distribution"></canvas>
+                {% else %}
+                    <p style="color:#888; font-size: 13px; margin: 0;">No evaluations recorded yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Top workshops -->
+        <div class="charts-grid full">
+            <div class="card">
+                <h3 class="card-title">Top 10 workshops by average score</h3>
+                {% if top_workshops %}
+                    <table class="country-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Workshop</th>
+                                <th>City</th>
+                                <th>Country</th>
+                                <th class="num">Techs tested</th>
+                                <th class="num">Avg score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for w in top_workshops %}
+                            <tr>
+                                <td style="color:#888; font-weight: 600;">{{ forloop.counter }}</td>
+                                <td>{{ w.name }}</td>
+                                <td style="color:#666;">{{ w.city }}</td>
+                                <td><span class="flag">{{ w.country }}</span></td>
+                                <td class="num">{{ w.techs_tested }}</td>
+                                <td class="num">
+                                    {{ w.avg_pct }}<span style="color:#888; font-weight: 500;">%</span>
+                                    <span class="pct-bar"><span style="width: {{ w.avg_pct }}%;"></span></span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p style="color:#888; font-size: 13px; margin: 0;">No workshop has any tested technician yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div style="height: 60px;"></div>
+    </div>
+
+    {{ ranking|json_script:"data-ranking" }}
+    {{ evals_over_time|json_script:"data-evals-time" }}
+    {{ category_breakdown|json_script:"data-categories" }}
+    {{ score_distribution|json_script:"data-distribution" }}
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const get = id => JSON.parse(document.getElementById(id).textContent);
+        const palette = ['#01B5E2', '#1976d2', '#26a69a', '#7e57c2', '#f57c00'];
+
+        const ranking = get('data-ranking');
+        if (ranking && ranking.length) {
+            new Chart(document.getElementById('chart-leaderboard'), {
+                type: 'bar',
+                data: {
+                    labels: ranking.map(r => r.country),
+                    datasets: [{
+                        label: 'Average score (%)',
+                        data: ranking.map(r => r.avg_score_pct),
+                        backgroundColor: palette,
+                    }],
+                },
+                options: {
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } },
+                },
+            });
+        }
+
+        // Evaluations over time
+        const evals = get('data-evals-time');
+        if (evals && evals.length) {
+            new Chart(document.getElementById('chart-evals-time'), {
+                type: 'line',
+                data: {
+                    labels: evals.map(r => r.month),
+                    datasets: [{
+                        label: 'Evaluations completed',
+                        data: evals.map(r => r.count),
+                        borderColor: '#01B5E2',
+                        backgroundColor: 'rgba(1,181,226,0.15)',
+                        fill: true, tension: 0.3, pointRadius: 4,
+                    }],
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                },
+            });
+        }
+
+        // Average score per category
+        const cats = get('data-categories');
+        if (cats && cats.length) {
+            new Chart(document.getElementById('chart-categories'), {
+                type: 'bar',
+                data: {
+                    labels: cats.map(r => r.category),
+                    datasets: [{
+                        label: 'Avg score (%)',
+                        data: cats.map(r => r.avg_pct),
+                        backgroundColor: '#01B5E2',
+                    }],
+                },
+                options: {
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } },
+                },
+            });
+        }
+
+        // Score distribution
+        const dist = get('data-distribution');
+        if (dist && dist.length) {
+            new Chart(document.getElementById('chart-distribution'), {
+                type: 'bar',
+                data: {
+                    labels: dist.map(r => r.bucket + '%'),
+                    datasets: [{
+                        label: 'Technicians',
+                        data: dist.map(r => r.count),
+                        backgroundColor: ['#c62828', '#f57c00', '#fbc02d', '#2e7d32'],
+                    }],
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                },
+            });
+        }
+    });
+    </script>
+{% endblock %}
