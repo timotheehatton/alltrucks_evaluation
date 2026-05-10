@@ -1072,31 +1072,29 @@ class MyAdminSite(admin.AdminSite):
     # =========================================================================
 
     def training_stats_view(self, request):
-        from collections import Counter, defaultdict
-        from datetime import timedelta
-        from django.db.models import Avg, Count, Q
-        from django.db.models.functions import TruncMonth
-        from django.utils import timezone
+        from collections import defaultdict
+        from django.db.models import Avg, Count
 
         TOTAL_QUESTIONS = sum(settings.QUESTION_NUMBER.values())  # 100
         countries = ['FR', 'ES', 'PL', 'DE', 'IT']
+        country_flags = {
+            'FR': '🇫🇷', 'ES': '🇪🇸', 'PL': '🇵🇱',
+            'DE': '🇩🇪', 'IT': '🇮🇹',
+        }
         category_max = settings.QUESTION_NUMBER  # {'diagnostic': 15, ...}
 
-        # Exclude internal/staff users (alltrucks employees, support test
-        # accounts, etc.) so they don't skew the activation/test/score stats.
-        external_users = User.objects.exclude(email__icontains='alltrucks')
-
-        # Aggregate KPIs
+        # Aggregate KPIs — include every account (no filtering on alltrucks
+        # internal emails per product decision).
         total_workshops = Company.objects.count()
-        managers = external_users.filter(user_type='manager')
-        technicians = external_users.filter(user_type='technician')
+        managers = User.objects.filter(user_type='manager')
+        technicians = User.objects.filter(user_type='technician')
         total_managers = managers.count()
         total_technicians = technicians.count()
-        active_users = external_users.filter(
+        active_users = User.objects.filter(
             user_type__in=['manager', 'technician'], is_active=True
         ).count()
         total_users = total_managers + total_technicians
-        activation_rate = round(100 * active_users / total_users, 1) if total_users else 0
+        activation_rate = round(100 * active_users / total_users) if total_users else 0
 
         # Technicians who completed at least one test = exist in Score table
         techs_who_tested_ids = set(
@@ -1105,7 +1103,7 @@ class MyAdminSite(admin.AdminSite):
             .distinct()
         )
         test_rate = (
-            round(100 * len(techs_who_tested_ids) / total_technicians, 1)
+            round(100 * len(techs_who_tested_ids) / total_technicians)
             if total_technicians else 0
         )
 
@@ -1140,8 +1138,7 @@ class MyAdminSite(admin.AdminSite):
                 if latest_per_user:
                     avg_score_pct = round(
                         100 * sum(t[1] for t in latest_per_user.values())
-                        / (TOTAL_QUESTIONS * len(latest_per_user)),
-                        1,
+                        / (TOTAL_QUESTIONS * len(latest_per_user))
                     )
                 else:
                     avg_score_pct = None
@@ -1150,13 +1147,14 @@ class MyAdminSite(admin.AdminSite):
 
             by_country.append({
                 'country': country,
+                'flag': country_flags.get(country, ''),
                 'workshops': workshops_in_country.count(),
                 'managers_total': country_managers.count(),
                 'managers_active': country_managers.filter(is_active=True).count(),
                 'techs_total': country_techs.count(),
                 'techs_active': country_techs.filter(is_active=True).count(),
                 'tested': tested_in_country,
-                'tested_pct': round(100 * tested_in_country / country_techs.count(), 1)
+                'tested_pct': round(100 * tested_in_country / country_techs.count())
                               if country_techs.count() else 0,
                 'avg_score_pct': avg_score_pct,
             })
@@ -1167,35 +1165,16 @@ class MyAdminSite(admin.AdminSite):
             key=lambda c: -c['avg_score_pct'],
         )
 
-        # ---- Tests over time (last 12 months, monthly) ------------------------
-        twelve_months_ago = timezone.now() - timedelta(days=365)
-        external_tech_ids = list(technicians.values_list('id', flat=True))
-        # One "evaluation" = one (user, date) pair (Score has 8 rows per test).
-        eval_pairs = (
-            Score.objects.filter(
-                user_id__in=external_tech_ids,
-                date__gte=twelve_months_ago,
-            )
-            .values('user_id', 'date')
-            .distinct()
-        )
-        evals_per_month = Counter()
-        for row in eval_pairs:
-            month_key = row['date'].replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-            evals_per_month[month_key] += 1
-        evals_over_time = [
-            {'month': m.strftime('%Y-%m'), 'count': evals_per_month[m]}
-            for m in sorted(evals_per_month)
-        ]
-
         # ---- Average score per category (latest attempt per technician) ------
-        # Re-walk the scores once and gather per-category sums, picking only the
-        # latest (user, date) attempt per user so retakes don't double-count.
+        # Walk every Score row once. For each technician, keep only the rows
+        # belonging to their most recent (user_id, date) attempt so retakes
+        # don't double-count.
+        all_tech_ids = list(technicians.values_list('id', flat=True))
         all_scores = list(
-            Score.objects.filter(user_id__in=external_tech_ids)
+            Score.objects.filter(user_id__in=all_tech_ids)
             .values('user_id', 'date', 'question_type', 'score')
         )
-        latest_attempt = {}  # user_id -> latest date
+        latest_attempt = {}
         for s in all_scores:
             cur = latest_attempt.get(s['user_id'])
             if cur is None or s['date'] > cur:
@@ -1214,7 +1193,7 @@ class MyAdminSite(admin.AdminSite):
         category_breakdown = []
         for cat, max_q in category_max.items():
             n = cat_taken.get(cat, 0)
-            avg_pct = round(100 * cat_sum[cat] / (max_q * n), 1) if n else 0
+            avg_pct = round(100 * cat_sum[cat] / (max_q * n)) if n else 0
             category_breakdown.append({
                 'category': cat.replace('_', ' ').title(),
                 'avg_pct': avg_pct,
@@ -1222,24 +1201,9 @@ class MyAdminSite(admin.AdminSite):
             })
         category_breakdown.sort(key=lambda x: -x['avg_pct'])
 
-        # ---- Score distribution histogram (latest attempt per tech) -----------
-        buckets = {'0-25': 0, '25-50': 0, '50-75': 0, '75-100': 0}
-        for total in per_user_total.values():
-            pct = 100 * total / TOTAL_QUESTIONS
-            if pct < 25: buckets['0-25'] += 1
-            elif pct < 50: buckets['25-50'] += 1
-            elif pct < 75: buckets['50-75'] += 1
-            else: buckets['75-100'] += 1
-        score_distribution = [
-            {'bucket': k, 'count': v} for k, v in buckets.items()
-        ]
-
-        # ---- Top workshops leaderboard ---------------------------------------
-        # Average score per workshop = mean of its technicians' latest totals.
+        # ---- Top workshops (global top 10 + top 5 per country) ---------------
         workshop_totals = defaultdict(list)
-        tech_to_company = dict(
-            technicians.values_list('id', 'company_id')
-        )
+        tech_to_company = dict(technicians.values_list('id', 'company_id'))
         for uid, total in per_user_total.items():
             cid = tech_to_company.get(uid)
             if cid is not None:
@@ -1247,25 +1211,35 @@ class MyAdminSite(admin.AdminSite):
         workshops_by_id = {
             c.id: c for c in Company.objects.filter(id__in=workshop_totals.keys())
         }
-        top_workshops = []
+        all_workshops_scored = []
         for cid, totals in workshop_totals.items():
             company = workshops_by_id.get(cid)
             if not company or not totals:
                 continue
-            avg_pct = round(100 * sum(totals) / (TOTAL_QUESTIONS * len(totals)), 1)
-            top_workshops.append({
+            all_workshops_scored.append({
                 'name': company.name,
                 'country': company.country,
+                'flag': country_flags.get(company.country, ''),
                 'city': company.city,
                 'techs_tested': len(totals),
-                'avg_pct': avg_pct,
+                'avg_pct': round(100 * sum(totals) / (TOTAL_QUESTIONS * len(totals))),
             })
-        top_workshops.sort(key=lambda x: (-x['avg_pct'], -x['techs_tested']))
-        top_workshops = top_workshops[:10]
+        all_workshops_scored.sort(key=lambda x: (-x['avg_pct'], -x['techs_tested']))
+        top_workshops = all_workshops_scored[:10]
+
+        # Per-country top 5 — for the country-level leaderboards.
+        top_workshops_per_country = []
+        for country in countries:
+            country_top = [w for w in all_workshops_scored if w['country'] == country][:5]
+            top_workshops_per_country.append({
+                'country': country,
+                'flag': country_flags.get(country, ''),
+                'workshops': country_top,
+            })
 
         # ---- Overall average score (single number) ---------------------------
         overall_avg_pct = (
-            round(100 * sum(per_user_total.values()) / (TOTAL_QUESTIONS * len(per_user_total)), 1)
+            round(100 * sum(per_user_total.values()) / (TOTAL_QUESTIONS * len(per_user_total)))
             if per_user_total else 0
         )
 
@@ -1282,10 +1256,9 @@ class MyAdminSite(admin.AdminSite):
             'overall_avg_pct': overall_avg_pct,
             'by_country': by_country,
             'ranking': ranking,
-            'evals_over_time': evals_over_time,
             'category_breakdown': category_breakdown,
-            'score_distribution': score_distribution,
             'top_workshops': top_workshops,
+            'top_workshops_per_country': top_workshops_per_country,
         }
         return render(request, 'admin/training_stats.html', context)
 

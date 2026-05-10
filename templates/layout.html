@@ -52,6 +52,9 @@
                             class="material-icons">manage_accounts</i> {{ page_content.menu.workshop_account }}</a></li>
                 {% elif request.user.is_superuser == True %}
                     <li>
+                        <a class="{% if request.resolver_match.url_name == "training_stats" %}active{% endif %}"
+                           href="{% url 'admin:training_stats' %}"><i class="material-icons">insights</i>Stats</a></li>
+                    <li>
                         <a class="{% if request.resolver_match.url_name == "workshops" or request.resolver_match.url_name == "create_company" or request.resolver_match.url_name == "single_workshop" %}active{% endif %}"
                            href="{% url 'admin:workshops' %}"><i class="material-icons">business</i>Workshops</a></li>
                     <li>
@@ -63,9 +66,6 @@
                     <li>
                         <a class="{% if request.resolver_match.url_name == "download_content" %}active{% endif %}"
                            href="{% url 'admin:download_content' %}"><i class="material-icons">download</i>Content</a></li>
-                    <li>
-                        <a class="{% if request.resolver_match.url_name == "training_stats" %}active{% endif %}"
-                           href="{% url 'admin:training_stats' %}"><i class="material-icons">analytics</i>Training Stats</a></li>
                     <li class="header spaced-row-top-big">AI Support</li>
                     <li>
                         <a class="{% if request.resolver_match.url_name == "amcat_stats" %}active{% endif %}"

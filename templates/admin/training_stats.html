@@ -58,11 +58,49 @@
             letter-spacing: 1px; min-width: 32px; text-align: center;
         }
         .stats-page .pct-bar {
-            display: inline-block; width: 60px; height: 6px; background: #eee;
-            border-radius: 3px; overflow: hidden; vertical-align: middle; margin-left: 8px;
+            display: inline-block; width: 140px; height: 8px; background: #eee;
+            border-radius: 4px; overflow: hidden; vertical-align: middle; margin-left: 8px;
         }
-        .stats-page .pct-bar > span { display: block; height: 100%; background: #01B5E2; }
+        .stats-page .pct-bar > span { display: block; height: 100%; background: #01B5E2; min-width: 1px; }
         .stats-page .em-dash { color: #ccc; }
+        .stats-page .country-flag { font-size: 18px; margin-right: 6px; vertical-align: middle; }
+
+        /* Per-country top 5 cards */
+        .stats-page .country-cards {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+        }
+        @media (max-width: 1300px) { .stats-page .country-cards { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 800px) { .stats-page .country-cards { grid-template-columns: 1fr; } }
+        .stats-page .country-card { padding: 14px 14px 6px; }
+        .stats-page .country-card h4 {
+            margin: 0 0 10px 0; font-size: 13px; color: #00193E;
+            text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700;
+            padding-bottom: 6px; border-bottom: 1px solid #eee;
+        }
+        .stats-page .country-card ol {
+            list-style: none; counter-reset: rank; padding: 0; margin: 0;
+            font-size: 12.5px;
+        }
+        .stats-page .country-card li {
+            counter-increment: rank; display: flex; align-items: center;
+            padding: 6px 0; border-bottom: 1px solid #f4f4f4;
+        }
+        .stats-page .country-card li:last-child { border-bottom: 0; }
+        .stats-page .country-card li::before {
+            content: counter(rank) ". "; color: #888; font-weight: 600;
+            min-width: 20px;
+        }
+        .stats-page .country-card .ws-name {
+            flex: 1; min-width: 0; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap; color: #1a1a2e;
+        }
+        .stats-page .country-card .ws-score {
+            font-family: 'Consolas','Monaco',monospace; color: #00193E;
+            font-weight: 700; margin-left: 6px;
+        }
+        .stats-page .country-card .empty {
+            color: #aaa; font-size: 12px; font-style: italic; padding: 8px 0;
+        }
     </style>
 {% endblock %}
 
@@ -70,7 +108,7 @@
 
 {% block body %}
     <div class="content stats-page">
-        <h1 class="page-title">Statistics · AMCAT Training</h1>
+        <h1 class="page-title">Statistics</h1>
 
         <!-- KPI tiles -->
         <div class="kpi-row">
@@ -109,26 +147,20 @@
                         <tr>
                             <th>Country</th>
                             <th class="num">Workshops</th>
-                            <th class="num">Managers</th>
-                            <th class="num">Technicians</th>
-                            <th class="num">Active</th>
-                            <th class="num">Took 1st eval</th>
+                            <th class="num">Active managers<br><span style="font-weight: 400; font-size: 9px; color: #aaa;">activated / total</span></th>
+                            <th class="num">Active technicians<br><span style="font-weight: 400; font-size: 9px; color: #aaa;">activated / total</span></th>
+                            <th class="num">Completed 1st eval<br><span style="font-weight: 400; font-size: 9px; color: #aaa;">techs who took the test</span></th>
                             <th class="num">Avg score</th>
                         </tr>
                     </thead>
                     <tbody>
                     {% for row in by_country %}
                         <tr>
-                            <td><span class="flag">{{ row.country }}</span></td>
+                            <td><span class="country-flag">{{ row.flag }}</span><span style="font-weight: 600; color: #00193E;">{{ row.country }}</span></td>
                             <td class="num">{{ row.workshops }}</td>
-                            <td class="num">{{ row.managers_active }} / {{ row.managers_total }}</td>
-                            <td class="num">{{ row.techs_total }}</td>
-                            <td class="num">
-                                {{ row.techs_active }} / {{ row.techs_total }}
-                            </td>
-                            <td class="num">
-                                {{ row.tested }} <span style="color:#888; font-weight: 500;">({{ row.tested_pct }}%)</span>
-                            </td>
+                            <td class="num">{{ row.managers_active }} <span style="color: #aaa; font-weight: 400;">/ {{ row.managers_total }}</span></td>
+                            <td class="num">{{ row.techs_active }} <span style="color: #aaa; font-weight: 400;">/ {{ row.techs_total }}</span></td>
+                            <td class="num">{{ row.tested }} <span style="color:#888; font-weight: 500;">({{ row.tested_pct }}%)</span></td>
                             <td class="num">
                                 {% if row.avg_score_pct is not None %}
                                     {{ row.avg_score_pct }}<span style="color:#888; font-weight: 500;">%</span>
@@ -144,7 +176,7 @@
             </div>
         </div>
 
-        <!-- Leaderboard + Evaluations over time -->
+        <!-- Leaderboard + per-category avg -->
         <div class="charts-grid">
             <div class="card">
                 <h3 class="card-title">Leaderboard · Average score by country</h3>
@@ -155,18 +187,6 @@
                 {% endif %}
             </div>
             <div class="card">
-                <h3 class="card-title">Evaluations completed (last 12 months)</h3>
-                {% if evals_over_time %}
-                    <canvas id="chart-evals-time"></canvas>
-                {% else %}
-                    <p style="color:#888; font-size: 13px; margin: 0;">No evaluations recorded over the last 12 months.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Per-category avg + Score distribution -->
-        <div class="charts-grid">
-            <div class="card">
                 <h3 class="card-title">Average score per category</h3>
                 {% if category_breakdown %}
                     <canvas id="chart-categories"></canvas>
@@ -174,17 +194,9 @@
                     <p style="color:#888; font-size: 13px; margin: 0;">No category data yet.</p>
                 {% endif %}
             </div>
-            <div class="card">
-                <h3 class="card-title">Score distribution (latest attempt)</h3>
-                {% if tested_count %}
-                    <canvas id="chart-distribution"></canvas>
-                {% else %}
-                    <p style="color:#888; font-size: 13px; margin: 0;">No evaluations recorded yet.</p>
-                {% endif %}
-            </div>
         </div>
 
-        <!-- Top workshops -->
+        <!-- Top workshops (global) -->
         <div class="charts-grid full">
             <div class="card">
                 <h3 class="card-title">Top 10 workshops by average score</h3>
@@ -206,7 +218,7 @@
                                 <td style="color:#888; font-weight: 600;">{{ forloop.counter }}</td>
                                 <td>{{ w.name }}</td>
                                 <td style="color:#666;">{{ w.city }}</td>
-                                <td><span class="flag">{{ w.country }}</span></td>
+                                <td><span class="country-flag">{{ w.flag }}</span>{{ w.country }}</td>
                                 <td class="num">{{ w.techs_tested }}</td>
                                 <td class="num">
                                     {{ w.avg_pct }}<span style="color:#888; font-weight: 500;">%</span>
@@ -222,13 +234,37 @@
             </div>
         </div>
 
+        <!-- Top 5 workshops per country -->
+        <div class="charts-grid full">
+            <div class="card">
+                <h3 class="card-title">Top 5 workshops by country</h3>
+                <div class="country-cards">
+                    {% for block in top_workshops_per_country %}
+                        <div class="country-card">
+                            <h4><span class="country-flag">{{ block.flag }}</span>{{ block.country }}</h4>
+                            {% if block.workshops %}
+                                <ol>
+                                    {% for w in block.workshops %}
+                                        <li>
+                                            <span class="ws-name" title="{{ w.name }} · {{ w.city }}">{{ w.name }}</span>
+                                            <span class="ws-score">{{ w.avg_pct }}%</span>
+                                        </li>
+                                    {% endfor %}
+                                </ol>
+                            {% else %}
+                                <p class="empty">No tested workshop yet.</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
         <div style="height: 60px;"></div>
     </div>
 
     {{ ranking|json_script:"data-ranking" }}
-    {{ evals_over_time|json_script:"data-evals-time" }}
     {{ category_breakdown|json_script:"data-categories" }}
-    {{ score_distribution|json_script:"data-distribution" }}
 
     <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -240,7 +276,7 @@
             new Chart(document.getElementById('chart-leaderboard'), {
                 type: 'bar',
                 data: {
-                    labels: ranking.map(r => r.country),
+                    labels: ranking.map(r => `${r.flag} ${r.country}`),
                     datasets: [{
                         label: 'Average score (%)',
                         data: ranking.map(r => r.avg_score_pct),
@@ -251,28 +287,6 @@
                     indexAxis: 'y',
                     plugins: { legend: { display: false } },
                     scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } },
-                },
-            });
-        }
-
-        // Evaluations over time
-        const evals = get('data-evals-time');
-        if (evals && evals.length) {
-            new Chart(document.getElementById('chart-evals-time'), {
-                type: 'line',
-                data: {
-                    labels: evals.map(r => r.month),
-                    datasets: [{
-                        label: 'Evaluations completed',
-                        data: evals.map(r => r.count),
-                        borderColor: '#01B5E2',
-                        backgroundColor: 'rgba(1,181,226,0.15)',
-                        fill: true, tension: 0.3, pointRadius: 4,
-                    }],
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
                 },
             });
         }
@@ -294,26 +308,6 @@
                     indexAxis: 'y',
                     plugins: { legend: { display: false } },
                     scales: { x: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } } },
-                },
-            });
-        }
-
-        // Score distribution
-        const dist = get('data-distribution');
-        if (dist && dist.length) {
-            new Chart(document.getElementById('chart-distribution'), {
-                type: 'bar',
-                data: {
-                    labels: dist.map(r => r.bucket + '%'),
-                    datasets: [{
-                        label: 'Technicians',
-                        data: dist.map(r => r.count),
-                        backgroundColor: ['#c62828', '#f57c00', '#fbc02d', '#2e7d32'],
-                    }],
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
                 },
             });
         }
