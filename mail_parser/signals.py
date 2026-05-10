@@ -378,6 +378,12 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
         probe = HealthCheckProbe.objects.filter(
             probe_token=token, status=HealthCheckProbe.STATUS_PENDING,
         ).first()
+        logger.info(
+            f'HEALTHCHECK inbound matched: token={token} '
+            f'subject={(instance.subject or "")[:120]!r} '
+            f'sender={(instance.sender or "")[:80]!r} '
+            f'probe_found={probe is not None}'
+        )
         if probe:
             probe.received_webhook = instance
             probe.received_at = timezone.now()
