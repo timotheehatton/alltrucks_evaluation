@@ -147,6 +147,8 @@ class OutboundEmail(models.Model):
     STATUS_QUEUED = 'queued'
     STATUS_SENT = 'sent'
     STATUS_DELIVERED = 'delivered'
+    STATUS_OPENED = 'opened'
+    STATUS_CLICKED = 'clicked'
     STATUS_DEFERRED = 'deferred'
     STATUS_FAILED = 'failed'
     STATUS_BOUNCED = 'bounced'
@@ -157,6 +159,8 @@ class OutboundEmail(models.Model):
         (STATUS_QUEUED, 'Queued'),
         (STATUS_SENT, 'Sent'),
         (STATUS_DELIVERED, 'Delivered'),
+        (STATUS_OPENED, 'Opened'),
+        (STATUS_CLICKED, 'Clicked'),
         (STATUS_DEFERRED, 'Deferred'),
         (STATUS_FAILED, 'Failed'),
         (STATUS_BOUNCED, 'Bounced'),
@@ -164,11 +168,25 @@ class OutboundEmail(models.Model):
         (STATUS_BLOCKED, 'Blocked'),
         (STATUS_SPAM_REPORTED, 'Spam reported'),
     ]
-    SUCCESS_STATUSES = {STATUS_SENT, STATUS_DELIVERED}
+    # Funnel order — higher index = more advanced engagement.
+    # Failure statuses are tracked separately and override progress.
+    _PROGRESS_ORDER = [STATUS_QUEUED, STATUS_SENT, STATUS_DELIVERED, STATUS_OPENED, STATUS_CLICKED]
+    SUCCESS_STATUSES = {STATUS_SENT, STATUS_DELIVERED, STATUS_OPENED, STATUS_CLICKED}
     FAILURE_STATUSES = {
         STATUS_FAILED, STATUS_BOUNCED, STATUS_DROPPED,
         STATUS_BLOCKED, STATUS_SPAM_REPORTED,
     }
+
+    @classmethod
+    def advance_status(cls, current, target):
+        """Return target if it advances the funnel beyond current, else current.
+        Failure statuses are never overwritten by progress events.
+        """
+        if current in cls.FAILURE_STATUSES:
+            return current
+        if current in cls._PROGRESS_ORDER and target in cls._PROGRESS_ORDER:
+            return target if cls._PROGRESS_ORDER.index(target) > cls._PROGRESS_ORDER.index(current) else current
+        return target
 
     webhook = models.ForeignKey(
         InboundWebhook, on_delete=models.CASCADE, related_name='outbound_emails'

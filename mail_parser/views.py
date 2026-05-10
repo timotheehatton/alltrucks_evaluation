@@ -221,10 +221,8 @@ def _apply_sendgrid_event(event):
 
     updates = {'last_event_at': event_ts, 'last_event_type': event_type[:32]}
 
-    if event_type == 'delivered':
-        updates['status'] = OutboundEmail.STATUS_DELIVERED
-        updates['delivered_at'] = event_ts
-    elif event_type == 'deferred':
+    # Failure events override everything.
+    if event_type == 'deferred':
         updates['status'] = OutboundEmail.STATUS_DEFERRED
         reason = event.get('response') or event.get('reason') or ''
         updates['error_message'] = f'deferred: {reason}'[:2000]
@@ -245,14 +243,20 @@ def _apply_sendgrid_event(event):
     elif event_type == 'spamreport':
         updates['status'] = OutboundEmail.STATUS_SPAM_REPORTED
         updates['spam_reported_at'] = event_ts
+    # Progress events advance the funnel; never regress.
+    elif event_type == 'delivered':
+        updates['status'] = OutboundEmail.advance_status(ob.status, OutboundEmail.STATUS_DELIVERED)
+        updates['delivered_at'] = event_ts
     elif event_type == 'open':
         if not ob.opened_at:
             updates['opened_at'] = event_ts
         updates['opens_count'] = ob.opens_count + 1
+        updates['status'] = OutboundEmail.advance_status(ob.status, OutboundEmail.STATUS_OPENED)
     elif event_type == 'click':
         if not ob.clicked_at:
             updates['clicked_at'] = event_ts
         updates['clicks_count'] = ob.clicks_count + 1
+        updates['status'] = OutboundEmail.advance_status(ob.status, OutboundEmail.STATUS_CLICKED)
     # `processed` and unknown events: only last_event_at/type updated.
 
     OutboundEmail.objects.filter(id=ob.id).update(**updates)
