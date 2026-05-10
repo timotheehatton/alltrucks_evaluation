@@ -147,19 +147,28 @@ class OutboundEmail(models.Model):
     STATUS_QUEUED = 'queued'
     STATUS_SENT = 'sent'
     STATUS_DELIVERED = 'delivered'
+    STATUS_DEFERRED = 'deferred'
     STATUS_FAILED = 'failed'
     STATUS_BOUNCED = 'bounced'
     STATUS_DROPPED = 'dropped'
+    STATUS_BLOCKED = 'blocked'
+    STATUS_SPAM_REPORTED = 'spam_reported'
     STATUS_CHOICES = [
         (STATUS_QUEUED, 'Queued'),
         (STATUS_SENT, 'Sent'),
         (STATUS_DELIVERED, 'Delivered'),
+        (STATUS_DEFERRED, 'Deferred'),
         (STATUS_FAILED, 'Failed'),
         (STATUS_BOUNCED, 'Bounced'),
         (STATUS_DROPPED, 'Dropped'),
+        (STATUS_BLOCKED, 'Blocked'),
+        (STATUS_SPAM_REPORTED, 'Spam reported'),
     ]
     SUCCESS_STATUSES = {STATUS_SENT, STATUS_DELIVERED}
-    FAILURE_STATUSES = {STATUS_FAILED, STATUS_BOUNCED, STATUS_DROPPED}
+    FAILURE_STATUSES = {
+        STATUS_FAILED, STATUS_BOUNCED, STATUS_DROPPED,
+        STATUS_BLOCKED, STATUS_SPAM_REPORTED,
+    }
 
     webhook = models.ForeignKey(
         InboundWebhook, on_delete=models.CASCADE, related_name='outbound_emails'
@@ -178,6 +187,17 @@ class OutboundEmail(models.Model):
     delivered_at = models.DateTimeField(null=True, blank=True)
     failed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    # Engagement + spam (populated by /webhook/sendgrid-events/ handler)
+    opened_at = models.DateTimeField(null=True, blank=True)
+    opens_count = models.IntegerField(default=0)
+    clicked_at = models.DateTimeField(null=True, blank=True)
+    clicks_count = models.IntegerField(default=0)
+    spam_reported_at = models.DateTimeField(null=True, blank=True)
+
+    # Last SendGrid event seen, for audit / tooltips
+    last_event_at = models.DateTimeField(null=True, blank=True)
+    last_event_type = models.CharField(max_length=32, blank=True, default='')
 
     class Meta:
         ordering = ['-created_at']

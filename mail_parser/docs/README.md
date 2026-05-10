@@ -275,6 +275,46 @@ for h in c.history.all()[:10]:
 
 ---
 
+## 7-bis. SendGrid Event Webhook — delivered / opened / bounced / spam
+
+Outbound delivery doesn't stop at `OutboundEmail.status='sent'` (which
+just means SendGrid accepted the API call). SendGrid posts the real
+lifecycle events to **`/webhook/sendgrid-events/`** and the
+`OutboundEmail` row is updated with the actual outcome.
+
+| Event | `OutboundEmail.status` after | Extra fields set |
+|---|---|---|
+| `processed` | unchanged | `last_event_at`, `last_event_type` |
+| `delivered` | `delivered` | `delivered_at` |
+| `deferred` | `deferred` | `error_message` |
+| `bounce` | `bounced` | `failed_at`, `error_message` |
+| `dropped` | `dropped` | `failed_at`, `error_message` |
+| `blocked` | `blocked` | `failed_at`, `error_message` |
+| `spamreport` | `spam_reported` | `spam_reported_at` |
+| `open` | unchanged | `opened_at` (first), `opens_count++` |
+| `click` | unchanged | `clicked_at` (first), `clicks_count++` |
+
+Matching is done on `OutboundEmail.sendgrid_message_id` against the
+first dot-separated segment of `event.sg_message_id`.
+
+Setup (one-off, manual):
+
+1. SendGrid → Settings → Mail Settings → **Event Webhook**
+2. HTTP Post URL: `https://www.alltrucks-amcat.com/webhook/sendgrid-events/`
+3. Tick all event types (Delivered, Opened, Clicked, Bounced, Spam
+   Reports, Dropped, Blocked, Deferred, Processed, ...)
+4. **Enable Signed Event Webhook Requests** → copy the public key
+5. Heroku: `heroku config:set SENDGRID_EVENT_WEBHOOK_PUBLIC_KEY="<PEM>" --app prod-amcat`
+6. Settings → Mail Settings → **Open Tracking** and **Click Tracking** → enable
+   (otherwise `open`/`click` events are never generated)
+
+If `SENDGRID_EVENT_WEBHOOK_PUBLIC_KEY` is unset, the endpoint accepts
+unsigned events and logs a warning — useful for dev, **not** for prod.
+
+The endpoint always returns 200, even on malformed batches or unknown
+sg_message_ids, to avoid SendGrid retrying for hours over a single
+broken event.
+
 ## 8. Admin pages
 
 | URL | What it shows |
@@ -363,6 +403,7 @@ firing every 10 minutes (each prints a summary line) and
 | `OPENAI_VECTOR_STORE_ID` | KB vector store used by `file_search` and the OpenAI probe |
 | `SITE_DOMAIN` | Used to build review URLs in the auto-reply emails |
 | `STRAPI_URL`, `STRAPI_EMAIL_TOKEN` | Strapi CMS for i18n email content (per-locale labels) |
+| `SENDGRID_EVENT_WEBHOOK_PUBLIC_KEY` | PEM-encoded ECDSA public key from SendGrid → Mail Settings → Event Webhook → Signed Requests. Used to verify the signature on `/webhook/sendgrid-events/`. Optional in dev; required in prod for security. |
 
 Fallbacks:
 - If Strapi is down or the locale is missing, the EN defaults in

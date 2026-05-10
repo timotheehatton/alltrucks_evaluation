@@ -1,6 +1,7 @@
 import json
 import logging
 import traceback
+from datetime import datetime, timezone as dt_timezone
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -9,7 +10,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from .models import EmergencyInboundDump, InboundWebhook
+from .models import EmergencyInboundDump, InboundWebhook, OutboundEmail
 
 logger = logging.getLogger(__name__)
 
@@ -138,3 +139,116 @@ def review_email(request, review_token):
         'preselected_rating': preselected_rating,
         'rating_range': range(1, 6),
     })
+
+
+@csrf_exempt
+@require_POST
+def sendgrid_events_webhook(request):
+    """Receive SendGrid Event Webhook batches and update OutboundEmail rows.
+
+    Each POST is a JSON array of event dicts. We match every event to an
+    `OutboundEmail` via the `sg_message_id` field (whose first
+    dot-separated segment equals the `X-Message-Id` we captured at send
+    time) and update its delivery / engagement status.
+
+    Always returns 200 — same contract as the inbound endpoint. SendGrid
+    retries 5xx for ~24h, so a bug here would otherwise burn quota and
+    risk dropping legitimate events.
+    """
+    public_key = getattr(settings, 'SENDGRID_EVENT_WEBHOOK_PUBLIC_KEY', '')
+    if public_key:
+        try:
+            from sendgrid.helpers.eventwebhook import EventWebhook, EventWebhookHeader
+            ew = EventWebhook(public_key=public_key)
+            sig = request.headers.get(EventWebhookHeader.SIGNATURE, '')
+            ts = request.headers.get(EventWebhookHeader.TIMESTAMP, '')
+            if not ew.verify_signature(request.body, sig, ts):
+                logger.warning('SendGrid Event Webhook signature verification failed')
+                return HttpResponse(status=403)
+        except Exception:
+            logger.exception('SendGrid signature verification raised')
+            return HttpResponse(status=403)
+    else:
+        logger.warning(
+            'SendGrid Event Webhook received but SENDGRID_EVENT_WEBHOOK_PUBLIC_KEY '
+            'is not set — accepting unsigned events'
+        )
+
+    try:
+        events = json.loads(request.body.decode('utf-8', errors='replace') or '[]')
+    except Exception:
+        return HttpResponse(status=200)
+    if not isinstance(events, list):
+        return HttpResponse(status=200)
+
+    for event in events:
+        try:
+            _apply_sendgrid_event(event)
+        except Exception:
+            logger.exception('Failed to apply SendGrid event: %s', event)
+
+    return HttpResponse(status=200)
+
+
+def _apply_sendgrid_event(event):
+    """Apply a single SendGrid event dict to the matching OutboundEmail row.
+
+    `sg_message_id` in events looks like
+    `<X-Message-Id>.filter0001p3iad1-21036-67E5C8FB-7.0`, so we split on `.`
+    to recover the original ID we stored at send time.
+    """
+    if not isinstance(event, dict):
+        return
+    raw_id = event.get('sg_message_id') or ''
+    sg_message_id = raw_id.split('.', 1)[0]
+    if not sg_message_id:
+        return
+
+    ob = OutboundEmail.objects.filter(sendgrid_message_id=sg_message_id).first()
+    if not ob:
+        return  # event for an email we don't track (test from another account, etc.)
+
+    event_type = event.get('event', '')
+    ts_unix = event.get('timestamp')
+    event_ts = (
+        datetime.fromtimestamp(ts_unix, tz=dt_timezone.utc)
+        if isinstance(ts_unix, (int, float)) else timezone.now()
+    )
+
+    updates = {'last_event_at': event_ts, 'last_event_type': event_type[:32]}
+
+    if event_type == 'delivered':
+        updates['status'] = OutboundEmail.STATUS_DELIVERED
+        updates['delivered_at'] = event_ts
+    elif event_type == 'deferred':
+        updates['status'] = OutboundEmail.STATUS_DEFERRED
+        reason = event.get('response') or event.get('reason') or ''
+        updates['error_message'] = f'deferred: {reason}'[:2000]
+    elif event_type == 'bounce':
+        updates['status'] = OutboundEmail.STATUS_BOUNCED
+        updates['failed_at'] = event_ts
+        reason = event.get('reason') or ''
+        bounce_type = event.get('type') or ''
+        updates['error_message'] = f'bounce ({bounce_type}): {reason}'[:2000]
+    elif event_type == 'dropped':
+        updates['status'] = OutboundEmail.STATUS_DROPPED
+        updates['failed_at'] = event_ts
+        updates['error_message'] = f'dropped: {event.get("reason", "")}'[:2000]
+    elif event_type == 'blocked':
+        updates['status'] = OutboundEmail.STATUS_BLOCKED
+        updates['failed_at'] = event_ts
+        updates['error_message'] = f'blocked: {event.get("reason", "")}'[:2000]
+    elif event_type == 'spamreport':
+        updates['status'] = OutboundEmail.STATUS_SPAM_REPORTED
+        updates['spam_reported_at'] = event_ts
+    elif event_type == 'open':
+        if not ob.opened_at:
+            updates['opened_at'] = event_ts
+        updates['opens_count'] = ob.opens_count + 1
+    elif event_type == 'click':
+        if not ob.clicked_at:
+            updates['clicked_at'] = event_ts
+        updates['clicks_count'] = ob.clicks_count + 1
+    # `processed` and unknown events: only last_event_at/type updated.
+
+    OutboundEmail.objects.filter(id=ob.id).update(**updates)
