@@ -357,3 +357,59 @@ class KnowledgeBaseCase(models.Model):
             lines.append(self.resolution)
 
         return '\n'.join(lines)
+
+
+class HealthCheckProbe(models.Model):
+    """One row per synthetic monitor tick.
+
+    Each tick sends a marker email to the inbound address and pings OpenAI.
+    The row starts as `pending`; the inbound webhook signal flips it to
+    `success` when the marker comes back, or the `expire_old_probes`
+    command flips it to `timeout` after 30 minutes without response.
+    """
+
+    STATUS_PENDING = 'pending'
+    STATUS_SUCCESS = 'success'
+    STATUS_TIMEOUT = 'timeout'
+    STATUS_SEND_FAILED = 'send_failed'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_SUCCESS, 'Success'),
+        (STATUS_TIMEOUT, 'Timeout'),
+        (STATUS_SEND_FAILED, 'Send failed'),
+    ]
+    SUCCESS_STATUSES = {STATUS_SUCCESS}
+    FAILURE_STATUSES = {STATUS_TIMEOUT, STATUS_SEND_FAILED}
+
+    OPENAI_STATUS_SUCCESS = 'success'
+    OPENAI_STATUS_FAILED = 'failed'
+
+    # Email round-trip
+    probe_token = models.CharField(max_length=32, unique=True, db_index=True)
+    sent_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    sendgrid_message_id = models.CharField(max_length=128, blank=True, default='')
+    received_webhook = models.ForeignKey(
+        'InboundWebhook', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='+',
+    )
+    received_at = models.DateTimeField(null=True, blank=True)
+    latency_seconds = models.FloatField(null=True, blank=True)
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES,
+        default=STATUS_PENDING, db_index=True,
+    )
+    error_message = models.TextField(blank=True, default='')
+
+    # OpenAI ping (run synchronously inside send_health_probe)
+    openai_status = models.CharField(max_length=20, blank=True, default='')
+    openai_latency_seconds = models.FloatField(null=True, blank=True)
+    openai_error = models.TextField(blank=True, default='')
+    openai_models_ok = models.BooleanField(default=False)
+    openai_vector_store_ok = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-sent_at']
+        verbose_name = 'Health Check Probe'
+
+    def __str__(self):
+        return f'Probe {self.probe_token} [{self.status}]'

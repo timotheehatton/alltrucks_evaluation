@@ -57,6 +57,68 @@
             font-family: 'Consolas','Monaco',monospace; font-size: 11px;
             line-height: 1.5; max-height: 320px; overflow-y: auto;
         }
+
+        /* Service health */
+        .stats-page .service-health {
+            background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
+            padding: 16px 20px; margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+            border-left: 4px solid #888;
+        }
+        .stats-page .service-health--operational { border-left-color: #2e7d32; }
+        .stats-page .service-health--degraded    { border-left-color: #ef6c00; }
+        .stats-page .service-health--down        { border-left-color: #c62828; }
+        .stats-page .service-health--unknown     { border-left-color: #888; }
+        .stats-page .service-health .pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            font-size: 14px; font-weight: 700; color: #1a1a2e;
+        }
+        .stats-page .service-health .pill .dot {
+            width: 10px; height: 10px; border-radius: 50%; background: #888;
+            display: inline-block;
+        }
+        .stats-page .service-health--operational .pill .dot { background: #2e7d32; }
+        .stats-page .service-health--degraded    .pill .dot { background: #ef6c00; }
+        .stats-page .service-health--down        .pill .dot { background: #c62828; }
+        .stats-page .service-health .meta {
+            display: flex; gap: 18px; flex-wrap: wrap;
+            margin-top: 6px; font-size: 12px; color: #666;
+        }
+        .stats-page .service-health .summary {
+            font-size: 12px; color: #888; margin-top: 6px;
+        }
+        .stats-page .service-health .actions { margin-top: 12px; }
+        .stats-page .service-health .actions button {
+            background: #01B5E2; color: #fff; border: 0; border-radius: 4px;
+            padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .stats-page .service-health .actions button:hover { background: #0298bd; }
+        .stats-page .service-health details { margin-top: 12px; }
+        .stats-page .service-health summary {
+            cursor: pointer; font-size: 12px; color: #01B5E2; font-weight: 600;
+        }
+        .stats-page .service-health table.probes {
+            width: 100%; border-collapse: collapse; font-size: 12px;
+            margin-top: 8px;
+        }
+        .stats-page .service-health table.probes th,
+        .stats-page .service-health table.probes td {
+            padding: 6px 8px; border-bottom: 1px solid #f4f4f4; text-align: left;
+        }
+        .stats-page .service-health table.probes th {
+            font-size: 10px; color: #888; text-transform: uppercase;
+            letter-spacing: 0.4px; font-weight: 700;
+        }
+        .stats-page .service-health .badge {
+            display: inline-block; padding: 1px 7px; border-radius: 3px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .stats-page .service-health .badge.success  { background: #e8f5e9; color: #2e7d32; }
+        .stats-page .service-health .badge.timeout  { background: #ffebee; color: #c62828; }
+        .stats-page .service-health .badge.failed   { background: #ffebee; color: #c62828; }
+        .stats-page .service-health .badge.pending  { background: #fff3e0; color: #ef6c00; }
     </style>
 {% endblock %}
 
@@ -65,6 +127,85 @@
 {% block body %}
     <div class="content stats-page">
         <h1 class="page-title">Statistics · Hotline AI</h1>
+
+        <!-- Service health -->
+        <div class="service-health service-health--{{ health_status }}">
+            <div class="pill">
+                <span class="dot"></span>
+                Service status: {{ health_status_label }}
+            </div>
+            {% if health_latest_probe %}
+                <div class="meta">
+                    <span><strong>Last check:</strong> {{ health_latest_probe.sent_at|timesince }} ago</span>
+                    {% if health_latest_probe.latency_seconds %}
+                        <span><strong>Round-trip:</strong> {{ health_latest_probe.latency_seconds|floatformat:1 }}s</span>
+                    {% else %}
+                        <span><strong>Round-trip:</strong> {{ health_latest_probe.get_status_display }}</span>
+                    {% endif %}
+                    {% if health_latest_probe.openai_status %}
+                        <span><strong>OpenAI:</strong>
+                            {% if health_latest_probe.openai_status == 'success' %}
+                                ✓ {{ health_latest_probe.openai_latency_seconds|floatformat:1 }}s
+                            {% else %}
+                                ✗ {{ health_latest_probe.openai_error|truncatechars:80 }}
+                            {% endif %}
+                        </span>
+                    {% endif %}
+                </div>
+                {% if health_total_count_7d %}
+                    <div class="summary">
+                        Last 7 days: {{ health_success_count_7d }} / {{ health_total_count_7d }} probes successful
+                        ({{ health_success_rate_7d }}%){% if health_median_latency_7d %} · median round-trip {{ health_median_latency_7d }}s{% endif %}
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="summary">No probe has run yet. Click below to send the first one.</div>
+            {% endif %}
+
+            <div class="actions">
+                <form method="POST" action="{% url 'admin:run_health_probe' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit">Run probe now</button>
+                </form>
+            </div>
+
+            {% if health_recent_probes %}
+                <details>
+                    <summary>Recent probes (last {{ health_recent_probes|length }})</summary>
+                    <table class="probes">
+                        <thead>
+                            <tr>
+                                <th>Sent at</th>
+                                <th>Status</th>
+                                <th>Round-trip</th>
+                                <th>OpenAI</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in health_recent_probes %}
+                                <tr>
+                                    <td>{{ p.sent_at|date:"Y-m-d H:i:s" }}</td>
+                                    <td><span class="badge {{ p.status }}">{{ p.get_status_display }}</span></td>
+                                    <td>{% if p.latency_seconds %}{{ p.latency_seconds|floatformat:1 }}s{% else %}—{% endif %}</td>
+                                    <td>
+                                        {% if p.openai_status == 'success' %}
+                                            <span class="badge success">OK</span>
+                                            {% if p.openai_latency_seconds %}{{ p.openai_latency_seconds|floatformat:1 }}s{% endif %}
+                                        {% elif p.openai_status == 'failed' %}
+                                            <span class="badge failed">Failed</span>
+                                        {% else %}
+                                            —
+                                        {% endif %}
+                                    </td>
+                                    <td style="font-size: 11px; color: #888;">{{ p.error_message|default:p.openai_error|truncatechars:80 }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </details>
+            {% endif %}
+        </div>
 
         <!-- KPI tiles -->
         <div class="kpi-row">

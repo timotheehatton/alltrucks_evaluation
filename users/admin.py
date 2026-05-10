@@ -19,6 +19,7 @@ from common.useful.strapi import strapi_content
 from common.views.forms import AdminUserForm, CompanyUserForm
 from mail_parser.models import (
     AutoResponderConfig,
+    HealthCheckProbe,
     InboundWebhook,
     KnowledgeBaseCase,
     KnowledgeBaseFile,
@@ -74,6 +75,7 @@ class MyAdminSite(admin.AdminSite):
             path('knowledge-base/cases/<int:case_id>/delete/', self.admin_view(self.kb_case_delete_view), name='kb_case_delete'),
             path('stats/', self.admin_view(self.amcat_stats_view), name='amcat_stats'),
             path('training-stats/', self.admin_view(self.training_stats_view), name='training_stats'),
+            path('run-health-probe/', self.admin_view(self.run_health_probe_view), name='run_health_probe'),
             path('logout/', LogoutView.as_view(), name='logout'),
         ]
         return custom_urls + urls
@@ -980,7 +982,90 @@ class MyAdminSite(admin.AdminSite):
             'avg_response_unit': avg_response_unit,
             'responded_count': responded_count,
         }
+        context.update(self._health_summary())
         return render(request, 'admin/mail_parser/stats.html', context)
+
+    @staticmethod
+    def _health_summary():
+        """Build the Service Health context block."""
+        from datetime import timedelta
+        from django.utils import timezone
+        from statistics import median
+
+        now = timezone.now()
+        last_24h = now - timedelta(hours=24)
+        last_7d = now - timedelta(days=7)
+
+        latest_probe = HealthCheckProbe.objects.order_by('-sent_at').first()
+        recent_probes = list(
+            HealthCheckProbe.objects.order_by('-sent_at')[:10]
+        )
+
+        # Determine status
+        if latest_probe is None or latest_probe.sent_at < last_24h:
+            service_status = 'unknown'
+            service_status_label = 'Unknown'
+        else:
+            terminal_recent = [
+                p for p in recent_probes
+                if p.status in HealthCheckProbe.SUCCESS_STATUSES | HealthCheckProbe.FAILURE_STATUSES
+            ]
+            last_two_failed = (
+                len(terminal_recent) >= 2
+                and all(p.status in HealthCheckProbe.FAILURE_STATUSES for p in terminal_recent[:2])
+            )
+            if last_two_failed:
+                service_status = 'down'
+                service_status_label = 'Down'
+            elif latest_probe.status == HealthCheckProbe.STATUS_SUCCESS and \
+                 latest_probe.openai_status == HealthCheckProbe.OPENAI_STATUS_SUCCESS:
+                service_status = 'operational'
+                service_status_label = 'Operational'
+            else:
+                service_status = 'degraded'
+                service_status_label = 'Degraded'
+
+        # 7-day stats (only count terminal probes)
+        terminal_7d = list(
+            HealthCheckProbe.objects.filter(sent_at__gte=last_7d)
+            .exclude(status=HealthCheckProbe.STATUS_PENDING)
+        )
+        success_7d = [p for p in terminal_7d if p.status == HealthCheckProbe.STATUS_SUCCESS]
+        success_count_7d = len(success_7d)
+        total_count_7d = len(terminal_7d)
+        success_rate_7d = (
+            round(100 * success_count_7d / total_count_7d, 1)
+            if total_count_7d else None
+        )
+        latencies = [p.latency_seconds for p in success_7d if p.latency_seconds is not None]
+        median_latency_7d = round(median(latencies), 2) if latencies else None
+
+        return {
+            'health_latest_probe': latest_probe,
+            'health_recent_probes': recent_probes,
+            'health_status': service_status,
+            'health_status_label': service_status_label,
+            'health_success_count_7d': success_count_7d,
+            'health_total_count_7d': total_count_7d,
+            'health_success_rate_7d': success_rate_7d,
+            'health_median_latency_7d': median_latency_7d,
+        }
+
+    def run_health_probe_view(self, request):
+        from django.core.management import call_command
+        from django.http import HttpResponseNotAllowed
+        if request.method != 'POST':
+            return HttpResponseNotAllowed(['POST'])
+        try:
+            call_command('send_health_probe')
+            messages.success(
+                request,
+                'Health probe sent. The email round-trip usually completes '
+                'within a minute — refresh in 30s to see the result.',
+            )
+        except Exception as e:
+            messages.error(request, f'Failed to send probe: {e}')
+        return redirect('admin:amcat_stats')
 
     # =========================================================================
     # Training stats — workshops / managers / technicians breakdown by country

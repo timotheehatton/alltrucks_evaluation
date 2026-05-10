@@ -8,12 +8,13 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
 
-from .models import InboundWebhook, AutoResponderConfig
+from .models import InboundWebhook, AutoResponderConfig, HealthCheckProbe
 from .email_parser import parse_inbound_email
 
 logger = logging.getLogger(__name__)
 
 DOCUMENTATION_REQUEST_LABEL = 'To send the technical data / documentation'
+HEALTHCHECK_RE = re.compile(r'\[HEALTHCHECK ([0-9a-f]{8,32})\]', re.I)
 
 
 def is_documentation_only_request(webhook):
@@ -364,6 +365,28 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
     if not created:
         return
     if not instance.sender:
+        return
+
+    # Synthetic health probe — match the marker token, close the probe loop,
+    # and drop the inbound row so it doesn't pollute the operator's queue.
+    # Kept outside the defensive try/except below: if this branch ever
+    # raises it's a real bug we want to surface (no real customer email
+    # carries the HEALTHCHECK pattern).
+    m = HEALTHCHECK_RE.search(instance.subject or '')
+    if m:
+        token = m.group(1).lower()
+        probe = HealthCheckProbe.objects.filter(
+            probe_token=token, status=HealthCheckProbe.STATUS_PENDING,
+        ).first()
+        if probe:
+            probe.received_webhook = instance
+            probe.received_at = timezone.now()
+            probe.latency_seconds = (
+                probe.received_at - probe.sent_at
+            ).total_seconds()
+            probe.status = HealthCheckProbe.STATUS_SUCCESS
+            probe.save()
+        instance.delete()
         return
 
     # Wrap the entire processing pipeline so a bug in parsing/AI/email never
