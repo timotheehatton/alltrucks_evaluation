@@ -156,13 +156,17 @@ def sendgrid_events_webhook(request):
     risk dropping legitimate events.
     """
     public_key = getattr(settings, 'SENDGRID_EVENT_WEBHOOK_PUBLIC_KEY', '')
+    # Read body once — used both for signature verification and JSON parsing.
+    raw_body_bytes = request.body
+    raw_body_str = raw_body_bytes.decode('utf-8', errors='replace')
     if public_key:
         try:
             from sendgrid.helpers.eventwebhook import EventWebhook, EventWebhookHeader
             ew = EventWebhook(public_key=public_key)
             sig = request.headers.get(EventWebhookHeader.SIGNATURE, '')
             ts = request.headers.get(EventWebhookHeader.TIMESTAMP, '')
-            if not ew.verify_signature(request.body, sig, ts):
+            # SDK concatenates `timestamp + payload` and requires both as str.
+            if not ew.verify_signature(raw_body_str, sig, ts):
                 logger.warning('SendGrid Event Webhook signature verification failed')
                 return HttpResponse(status=403)
         except Exception:
@@ -175,7 +179,7 @@ def sendgrid_events_webhook(request):
         )
 
     try:
-        events = json.loads(request.body.decode('utf-8', errors='replace') or '[]')
+        events = json.loads(raw_body_str or '[]')
     except Exception:
         return HttpResponse(status=200)
     if not isinstance(events, list):
