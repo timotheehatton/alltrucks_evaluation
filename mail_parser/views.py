@@ -1,4 +1,5 @@
 import json
+import logging
 import traceback
 
 from django.conf import settings
@@ -8,7 +9,9 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from .models import InboundWebhook
+from .models import EmergencyInboundDump, InboundWebhook
+
+logger = logging.getLogger(__name__)
 
 
 def _get_client_ip(request):
@@ -39,18 +42,20 @@ def _verify_webhook_secret(request):
 @csrf_exempt
 @require_POST
 def inbound_email_webhook(request):
+    """SendGrid Inbound Parse endpoint.
+
+    Always returns 200 once the secret is verified. If the structured
+    InboundWebhook.create() fails for any reason (DB constraint, parser
+    bug, etc.), we fall back to a minimal `EmergencyInboundDump` row so
+    the raw POST is never lost. SendGrid never gets a 5xx — that's the
+    contract that prevents another 5-day silence.
+    """
+    if not _verify_webhook_secret(request):
+        return HttpResponse(status=403)
+
     source_ip = _get_client_ip(request)
     headers = _get_safe_headers(request)
     raw_body = request.body.decode('utf-8', errors='replace')[:50000]
-
-    base_kwargs = {
-        'source_ip': source_ip,
-        'headers': headers,
-        'raw_body': raw_body,
-    }
-
-    if not _verify_webhook_secret(request):
-        return HttpResponse(status=403)
 
     try:
         sender = request.POST.get('from', '')
@@ -66,14 +71,15 @@ def inbound_email_webhook(request):
             envelope = json.loads(envelope_raw)
         except (json.JSONDecodeError, TypeError):
             envelope = {}
-
         try:
             charsets = json.loads(charsets_raw)
         except (json.JSONDecodeError, TypeError):
             charsets = {}
 
         InboundWebhook.objects.create(
-            **base_kwargs,
+            source_ip=source_ip,
+            headers=headers,
+            raw_body=raw_body,
             sender=sender,
             recipient=recipient,
             subject=subject,
@@ -83,15 +89,22 @@ def inbound_email_webhook(request):
             charsets=charsets,
             num_attachments=num_attachments,
         )
-        return HttpResponse(status=200)
-
     except Exception as e:
         error_msg = f'{type(e).__name__}: {e}\n{traceback.format_exc()}'
-        InboundWebhook.objects.create(
-            **base_kwargs,
-            error_message=error_msg[:2000],
-        )
-        return HttpResponse(status=200)
+        logger.exception('Inbound webhook create failed; falling back to EmergencyInboundDump')
+        try:
+            EmergencyInboundDump.objects.create(
+                raw_body=raw_body,
+                headers=headers,
+                error_message=error_msg[:5000],
+            )
+        except Exception:
+            # Even the dump failed (DB outage?). Nothing we can do but
+            # return 200 — SendGrid retries are useless here, and we've
+            # already logged the exception above.
+            logger.exception('Emergency inbound dump also failed')
+
+    return HttpResponse(status=200)
 
 
 def review_email(request, review_token):

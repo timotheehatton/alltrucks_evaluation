@@ -2,6 +2,7 @@ import re
 import secrets
 
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 
 def _load_default_system_prompt():
@@ -199,6 +200,12 @@ class AutoResponderConfig(models.Model):
     send_to_user = models.BooleanField(default=False)
     test_emails = models.TextField(blank=True, default='')
     from_email = models.EmailField(default='support@alltrucks-fleet-platform.com')
+
+    # Audit trail of every save (timestamp, user, snapshot of all fields).
+    # Powered by django-simple-history; explore via /admin/ on the
+    # `historicalautoresponderconfig` model or programmatically through
+    # `AutoResponderConfig.history.all()`.
+    history = HistoricalRecords()
 
     class Meta:
         verbose_name = 'Auto-Responder Configuration'
@@ -413,3 +420,31 @@ class HealthCheckProbe(models.Model):
 
     def __str__(self):
         return f'Probe {self.probe_token} [{self.status}]'
+
+
+class EmergencyInboundDump(models.Model):
+    """Last-resort store for inbound POSTs we couldn't even persist as InboundWebhook.
+
+    The inbound webhook view always returns 200; if the structured
+    InboundWebhook.create() raises (DB constraint, unexpected exception),
+    we fall back to writing the raw POST body here. The schema is
+    intentionally minimal — no FK, no unique constraints, no signals —
+    so it's much harder to fail than the full InboundWebhook model.
+
+    Rows can be replayed later from /admin/emergency-dumps/ once the
+    underlying bug is fixed.
+    """
+
+    received_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    raw_body = models.TextField(blank=True, default='')
+    headers = models.JSONField(default=dict, blank=True)
+    error_message = models.TextField(blank=True, default='')
+    replayed = models.BooleanField(default=False, db_index=True)
+    replayed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-received_at']
+        verbose_name = 'Emergency Inbound Dump'
+
+    def __str__(self):
+        return f'Dump {self.id} [{self.received_at:%Y-%m-%d %H:%M}]'

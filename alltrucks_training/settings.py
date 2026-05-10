@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'simple_history',
     'technician',
     'manager',
     'common',
@@ -65,6 +66,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'alltrucks_training.middleware.LoginRequiredMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 STORAGES = {

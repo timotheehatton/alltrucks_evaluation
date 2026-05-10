@@ -2,8 +2,10 @@ import os
 import re
 import html
 import logging
+import threading
 
 from django.conf import settings
+from django.db import transaction
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
@@ -362,6 +364,16 @@ def _send_auto_reply(config, webhook):
 
 @receiver(post_save, sender=InboundWebhook)
 def handle_new_inbound_email(sender, instance, created, **kwargs):
+    """Lightweight signal — only handles HEALTHCHECK probes synchronously
+    (latency-sensitive). Real processing (parse/AI/email) is deferred to a
+    background daemon thread so a bug in any of those stages can never
+    block, slow down, or break the SendGrid POST request.
+
+    The `process_pending_webhooks` management command (Heroku Scheduler,
+    every 10 min) is the safety net: it picks up webhooks stuck in
+    `status='received'` for >5 min (i.e. cases where the daemon thread
+    died, e.g. dyno restart) and re-runs the pipeline.
+    """
     if not created:
         return
     if not instance.sender:
@@ -369,9 +381,8 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
 
     # Synthetic health probe — match the marker token, close the probe loop,
     # and drop the inbound row so it doesn't pollute the operator's queue.
-    # Kept outside the defensive try/except below: if this branch ever
-    # raises it's a real bug we want to surface (no real customer email
-    # carries the HEALTHCHECK pattern).
+    # Kept synchronous because it's fast (no external I/O) and the probe
+    # latency metric depends on it firing immediately.
     m = HEALTHCHECK_RE.search(instance.subject or '')
     if m:
         token = m.group(1).lower()
@@ -395,14 +406,34 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
         instance.delete()
         return
 
-    # Wrap the entire processing pipeline so a bug in parsing/AI/email never
-    # propagates back into SendGrid's POST handler. We already lost five days
-    # of inbound emails once because a ValueError in the parser surfaced as
-    # an HTTP 500 to SendGrid, which then retried indefinitely. The endpoint
-    # MUST always return 200 once the row is saved — failures show up as
-    # error_message / status on the webhook, not as crashes.
+    # Defer real processing — fire-and-forget daemon thread, kicked off
+    # only after the InboundWebhook row is committed (transaction.on_commit
+    # guarantees the row is visible to the thread when it queries it back).
+    transaction.on_commit(
+        lambda: threading.Thread(
+            target=_process_webhook_async,
+            args=(instance.id,),
+            daemon=True,
+        ).start()
+    )
+
+
+def _process_webhook_async(webhook_id):
+    """Run the parse + AI + email pipeline on a previously-saved webhook.
+
+    Called from a daemon thread after the SendGrid POST has already
+    returned 200, so any exception here is contained — it cannot bubble
+    up to SendGrid. The `process_pending_webhooks` cron rescues anything
+    stuck in `status='received'` if the thread dies mid-way (dyno restart).
+    Idempotent: re-runnable on the same webhook_id without side effects
+    on already-completed steps.
+    """
     try:
-        # Always parse the email on reception, regardless of AI config
+        instance = InboundWebhook.objects.get(id=webhook_id)
+    except InboundWebhook.DoesNotExist:
+        return
+
+    try:
         success, _, _ = parse_webhook(instance)
         if not success:
             return
@@ -411,7 +442,6 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
         if not config.is_enabled:
             return
 
-        # Skip AI generation when the mechanic only asked for documentation
         instance.refresh_from_db()
         if is_documentation_only_request(instance):
             instance.status = InboundWebhook.STATUS_STOPPED
@@ -433,7 +463,7 @@ def handle_new_inbound_email(sender, instance, created, **kwargs):
         logger.exception(f'Unhandled error processing webhook {instance.id}: {e}')
         try:
             instance.error_message = (
-                f'Signal crashed: {type(e).__name__}: {e}'
+                f'Background processing crashed: {type(e).__name__}: {e}'
             )[:2000]
             instance.status = InboundWebhook.STATUS_PARSE_ERROR
             instance.save(update_fields=['error_message', 'status'])
