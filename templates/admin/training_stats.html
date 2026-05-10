@@ -149,7 +149,7 @@
                             <th class="num">Workshops</th>
                             <th class="num">Active managers<br><span style="font-weight: 400; font-size: 9px; color: #aaa;">activated / total</span></th>
                             <th class="num">Active technicians<br><span style="font-weight: 400; font-size: 9px; color: #aaa;">activated / total</span></th>
-                            <th class="num">Completed 1st eval<br><span style="font-weight: 400; font-size: 9px; color: #aaa;">techs who took the test</span></th>
+                            <th class="num">Completed 1st eval<br><span style="font-weight: 400; font-size: 9px; color: #aaa;">tested / total</span></th>
                             <th class="num">Avg score</th>
                         </tr>
                     </thead>
@@ -160,7 +160,7 @@
                             <td class="num">{{ row.workshops }}</td>
                             <td class="num">{{ row.managers_active }} <span style="color: #aaa; font-weight: 400;">/ {{ row.managers_total }}</span></td>
                             <td class="num">{{ row.techs_active }} <span style="color: #aaa; font-weight: 400;">/ {{ row.techs_total }}</span></td>
-                            <td class="num">{{ row.tested }} <span style="color:#888; font-weight: 500;">({{ row.tested_pct }}%)</span></td>
+                            <td class="num">{{ row.tested }} <span style="color: #aaa; font-weight: 400;">/ {{ row.techs_total }}</span></td>
                             <td class="num">
                                 {% if row.avg_score_pct is not None %}
                                     {{ row.avg_score_pct }}<span style="color:#888; font-weight: 500;">%</span>
