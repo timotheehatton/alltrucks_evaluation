@@ -33,7 +33,7 @@ class Command(BaseCommand):
         probe = HealthCheckProbe.objects.create(probe_token=token)
         self.stdout.write(f'Created probe {token}')
 
-        # 1) Send the marker email
+        # 1) Send the marker email.
         subject = f'[HEALTHCHECK {token}] Synthetic monitor'
         timestamp = datetime.now(dt_timezone.utc).isoformat()
         body = (
@@ -51,31 +51,43 @@ class Command(BaseCommand):
             plain_text_content=body,
             from_email=PROBE_FROM,
         )
-        probe.sendgrid_message_id = msg_id or ''
+
+        # Collect every column we want this command to write. We deliberately
+        # avoid `probe.save()` because the inbound webhook signal can fire and
+        # flip `status` to `success` between our INSERT above and the final
+        # save here — a full save() reading from our stale in-memory object
+        # would silently overwrite that success with `pending`. The single
+        # SQL UPDATE below only touches the columns we own, never the ones
+        # the signal owns (status / received_webhook / received_at /
+        # latency_seconds).
+        updates = {'sendgrid_message_id': msg_id or ''}
         if not ok:
-            probe.status = HealthCheckProbe.STATUS_SEND_FAILED
-            probe.error_message = (err or 'unknown SendGrid error')[:2000]
+            # Send failed: the inbound signal will never fire, so we own
+            # the status field too.
+            updates['status'] = HealthCheckProbe.STATUS_SEND_FAILED
+            updates['error_message'] = (err or 'unknown SendGrid error')[:2000]
             self.stdout.write(self.style.ERROR(f'  email send FAILED: {err}'))
         else:
             self.stdout.write(f'  email sent (X-Message-Id={msg_id})')
 
-        # 2) Ping OpenAI (always run, even if email send failed)
+        # 2) Ping OpenAI (always run, even if email send failed).
         t0 = time.time()
         try:
             client = openai.OpenAI(api_key=settings.OPENAI_API_KEY, timeout=15.0)
             list(client.models.list().data)[:1]  # auth + connectivity
-            probe.openai_models_ok = True
+            updates['openai_models_ok'] = True
             vector_store_id = getattr(settings, 'OPENAI_VECTOR_STORE_ID', None)
             if vector_store_id:
                 client.vector_stores.retrieve(vector_store_id)
-                probe.openai_vector_store_ok = True
-            probe.openai_status = HealthCheckProbe.OPENAI_STATUS_SUCCESS
+                updates['openai_vector_store_ok'] = True
+            updates['openai_status'] = HealthCheckProbe.OPENAI_STATUS_SUCCESS
             self.stdout.write(self.style.SUCCESS('  openai ping OK'))
         except Exception as e:
-            probe.openai_status = HealthCheckProbe.OPENAI_STATUS_FAILED
-            probe.openai_error = f'{type(e).__name__}: {e}'[:2000]
+            updates['openai_status'] = HealthCheckProbe.OPENAI_STATUS_FAILED
+            updates['openai_error'] = f'{type(e).__name__}: {e}'[:2000]
             self.stdout.write(self.style.ERROR(f'  openai ping FAILED: {e}'))
-        probe.openai_latency_seconds = time.time() - t0
+        updates['openai_latency_seconds'] = time.time() - t0
 
-        probe.save()
-        self.stdout.write(f'Probe {token} saved (status={probe.status}).')
+        # Targeted UPDATE — safe against concurrent signal updates.
+        HealthCheckProbe.objects.filter(id=probe.id).update(**updates)
+        self.stdout.write(f'Probe {token} saved.')
