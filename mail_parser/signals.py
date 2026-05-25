@@ -284,7 +284,14 @@ def build_email_html(webhook, star_urls=None, labels=None):
         review_base_url = _build_review_url(webhook)
         star_urls = {f'star_{i}_url': f'{review_base_url}?rating={i}' for i in range(1, 6)}
 
-    date_str = webhook.received_at.strftime('%B %d, %Y - %H:%M') if webhook.received_at else ''
+    # webhook.received_at is timezone-aware UTC (Django stores it that way).
+    # Calling .strftime() directly would render UTC, not the TIME_ZONE setting
+    # — that's how operators ended up seeing emails dated 2h in the future.
+    # Run it through timezone.localtime() so the email matches the admin UI.
+    date_str = (
+        timezone.localtime(webhook.received_at).strftime('%B %d, %Y - %H:%M')
+        if webhook.received_at else ''
+    )
     issue = webhook.parsed_issue or webhook.parsed_content[:500] or ''
 
     output = (
