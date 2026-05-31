@@ -68,6 +68,18 @@ def inbound_email_webhook(request):
         charsets_raw = request.POST.get('charsets', '{}')
         num_attachments = int(request.POST.get('attachments', 0) or 0)
 
+        # Drop forum auto-notifications ("Notification de nouveau message" /
+        # "Notification de nouveau sujet" from technic.forum@alltrucks.com).
+        # These are alerts that someone posted/replied on the forum — not
+        # real customer requests. 100% of historical forum webhooks match
+        # this pattern; ingesting them just burns AI calls and pollutes the
+        # operator queue. We skip even the DB write.
+        if (
+            'technic.forum@alltrucks.com' in sender.lower()
+            and subject.startswith('Notification de nouveau ')
+        ):
+            return HttpResponse(status=200)
+
         try:
             envelope = json.loads(envelope_raw)
         except (json.JSONDecodeError, TypeError):
