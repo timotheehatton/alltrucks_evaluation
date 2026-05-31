@@ -128,10 +128,32 @@ def generate_ai_response(webhook):
     # Keep ANSWERED if email already sent to user, otherwise GENERATED
     if not webhook.email_sent_at:
         webhook.status = InboundWebhook.STATUS_GENERATED
-    webhook.save(update_fields=[
+
+    fields_to_save = [
         'ai_response', 'ai_responded_at', 'ai_error', 'status', 'review_token',
         'ai_search_queries', 'ai_citations',
-    ])
+    ]
+
+    # Refine language detection on issue + AI response combined. The AI
+    # response is typically ~1500 chars vs ~50 on a short issue, so
+    # langdetect's signal-to-noise ratio improves dramatically — and since
+    # the system prompt forces the AI to answer in the input language,
+    # the response is a faithful amplification of the issue's language.
+    # This catches cases like #468 where a short all-caps French issue
+    # was mis-detected as German on the first pass.
+    from .email_parser import detect_language
+    refined_lang = detect_language(f'{webhook.parsed_issue or ""}\n\n{response_text}')
+    if refined_lang and refined_lang != webhook.language:
+        logger.info(
+            f'Refining language for webhook {webhook.id}: '
+            f'{webhook.language!r} -> {refined_lang!r} '
+            f'(issue_len={len(webhook.parsed_issue or "")}, '
+            f'response_len={len(response_text)})'
+        )
+        webhook.language = refined_lang
+        fields_to_save.append('language')
+
+    webhook.save(update_fields=fields_to_save)
 
     return True, None
 
