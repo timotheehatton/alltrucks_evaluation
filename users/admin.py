@@ -151,7 +151,6 @@ class MyAdminSite(admin.AdminSite):
                             first_name=first_name,
                             last_name=last_name,
                             user_type=user_type,
-                            language=company.country,
                             company=company,
                             ct_number=ct_number,
                             is_active=False
@@ -234,7 +233,6 @@ class MyAdminSite(admin.AdminSite):
                 last_name = request.POST.get('last_name')
                 email = request.POST.get('email', '').lower().strip()
                 ct_number = request.POST.get('ct_number')
-                language = request.POST.get('language')
 
                 if User.objects.filter(email=email).exclude(id=user_id).exists():
                     messages.error(request, f'A user with email {email} already exists.')
@@ -244,7 +242,6 @@ class MyAdminSite(admin.AdminSite):
                     technician.email = email
                     technician.username = email
                     technician.ct_number = ct_number
-                    technician.language = language
                     technician.save()
                     messages.success(request, f'User information updated successfully.')
 
@@ -412,7 +409,6 @@ class MyAdminSite(admin.AdminSite):
                             first_name=request.POST[f'technician_first_name_{idx}'],
                             last_name=request.POST[f'technician_last_name_{idx}'],
                             user_type='technician',
-                            language=company.country,
                             company=company,
                             ct_number=request.POST[f'technician_ct_number_{idx}'],
                             is_active=False

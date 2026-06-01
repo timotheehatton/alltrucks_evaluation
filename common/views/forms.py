@@ -3,12 +3,6 @@ from django import forms
 from users.models import Company, User
 
 
-class LanguageForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['language']
-
-
 class AdminUserForm(forms.ModelForm):
     class Meta:
         model = User

@@ -20,13 +20,6 @@ class Company(models.Model):
 
 class User(AbstractUser):
     user_type = models.CharField(max_length=55, blank=True, null=True)
-    language = models.CharField(max_length=2, choices=(
-        ('FR', 'FR'),
-        ('ES', 'ES'),
-        ('PL', 'PL'),
-        ('DE', 'DE'),
-        ('IT', 'IT'),
-    ), default='FR')
     company = models.ForeignKey('Company', on_delete=models.CASCADE, null=True, blank=True)
     ct_number = models.CharField(max_length=20, null=True)
 
@@ -34,6 +27,19 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
     email = models.EmailField(unique=True)
+
+    @property
+    def language(self):
+        """Language is no longer stored — it's derived from the user's
+        company country. A user without a company (e.g. superuser) falls
+        back to FR so any Strapi locale lookup still gets a sensible value.
+        Returns the 2-letter ISO code in upper case to match the legacy
+        field semantics; existing callers that do `.language.lower()`
+        continue to work unchanged.
+        """
+        if self.company_id and self.company.country:
+            return self.company.country
+        return 'FR'
 
 
 class Score(models.Model):

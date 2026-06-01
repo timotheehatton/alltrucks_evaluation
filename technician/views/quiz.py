@@ -13,14 +13,32 @@ from users.models import Score
 
 
 def get_content(request):
-    return strapi_content.get_content(
-        pages=['test', 'menu', 'category', 'questions'],
+    """Two Strapi fetches: localized UI strings (test/menu/category) keyed by
+    the user's locale, and the question pool keyed by the user's country.
+    Questions used to be i18n'd; they're now an independent per-country
+    catalogue so we filter by `country` instead of `locale`. The Strapi
+    client caches each call separately because their parameter dicts differ.
+    """
+    country = request.user.company.country if request.user.company_id else 'FR'
+    locale = country.lower()
+
+    ui_content = strapi_content.get_content(
+        pages=['test', 'menu', 'category'],
         parameters={
-            'locale': request.user.language.lower(),
+            'locale': locale,
             'populate': '*',
             'pagination[pageSize]': 500,
-        }
+        },
     )
+    questions = strapi_content.get_content(
+        pages=['questions'],
+        parameters={
+            'filters[country][$eq]': country,
+            'populate': '*',
+            'pagination[pageSize]': 500,
+        },
+    )
+    return {**ui_content, **questions}
 
 
 def handle_quiz(request, page_content):
