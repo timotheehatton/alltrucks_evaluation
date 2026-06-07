@@ -3,40 +3,69 @@
 
 {% block stylesheets %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <style>
+        .content-page .card { margin: 0 0 14px 0; }
+        .content-page .card-content { padding: 16px 20px; }
+        .content-page .card-title {
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            color: #00193E;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px !important;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .content-page .stats-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .content-page .stats-table th {
+            text-align: left; padding: 6px 10px;
+            font-size: 11px; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .content-page .stats-table td { padding: 6px 10px; border-bottom: 1px solid #f4f4f4; }
+        .content-page .stats-table .num {
+            text-align: right;
+            font-family: 'Consolas','Monaco',monospace;
+            color: #00193E; font-weight: 600;
+        }
+        .content-page .country-flag { font-size: 16px; margin-right: 6px; vertical-align: middle; }
+        .content-page form.row { margin: 0; }
+        .content-page .input-field { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+    </style>
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
-    <div class="content">
+    <div class="content content-page">
         <a href="{% url 'admin:workshops' %}" class="button-back"><i class="material-icons">arrow_back</i>Back to admin</a>
-        <h1 class="page-title">Download Strapi Content</h1>
+        <h1 class="page-title">Strapi content</h1>
 
-        <!-- Stats fetched from Strapi at page load -->
         <div class="row">
-            <div class="col s12">
+            <!-- Stats -->
+            <div class="col s12 m8">
                 <div class="card">
                     <div class="card-content">
                         <span class="card-title">Question content by country</span>
                         {% if stats_error %}
-                            <div class="red lighten-4 red-text text-darken-2" style="padding: 10px; border-radius: 4px;">{{ stats_error }}</div>
+                            <div class="red lighten-4 red-text text-darken-2" style="padding: 8px 10px; border-radius: 4px; font-size: 13px;">{{ stats_error }}</div>
                         {% elif country_stats %}
-                            <table class="striped">
+                            <table class="stats-table">
                                 <thead>
                                     <tr>
                                         <th>Country</th>
-                                        <th class="right-align">Questions</th>
-                                        <th class="right-align">With image</th>
-                                        <th class="right-align">Image share</th>
+                                        <th class="num">Questions</th>
+                                        <th class="num">With image</th>
+                                        <th class="num">Image share</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                 {% for s in country_stats %}
                                     <tr>
-                                        <td><span style="font-size: 18px; margin-right: 6px;">{{ s.flag }}</span>{{ s.country }}</td>
-                                        <td class="right-align">{{ s.total }}</td>
-                                        <td class="right-align">{{ s.with_image }}</td>
-                                        <td class="right-align">{{ s.image_share }}%</td>
+                                        <td><span class="country-flag">{{ s.flag }}</span>{{ s.country }}</td>
+                                        <td class="num">{{ s.total }}</td>
+                                        <td class="num">{{ s.with_image }}</td>
+                                        <td class="num">{{ s.image_share }}%</td>
                                     </tr>
                                 {% endfor %}
                                 </tbody>
@@ -45,15 +74,15 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row">
-            <div class="col s6 offset-s3">
+            <!-- Download -->
+            <div class="col s12 m4">
                 <div class="card">
                     <div class="card-content">
-                        <form id="download-form" method="post" action="{% url 'admin:download_content' %}" class="row">
+                        <span class="card-title">Download</span>
+                        <form id="download-form" method="post" action="{% url 'admin:download_content' %}">
                             {% csrf_token %}
-                            <div class="input-field col s12">
+                            <div class="input-field">
                                 <select name="content_type" required>
                                     <option value="" disabled selected>Choose content type</option>
                                     <option value="trainings">Trainings</option>
@@ -61,7 +90,7 @@
                                 </select>
                                 <label>Content Type</label>
                             </div>
-                            <div class="input-field col s12">
+                            <div class="input-field">
                                 <select name="language" required>
                                     <option value="" disabled selected>Choose language</option>
                                     <option value="es">Spanish (ES)</option>
@@ -72,20 +101,20 @@
                                 </select>
                                 <label>Language</label>
                             </div>
-                            <div class="col s12 center-align">
+                            <div class="center-align" style="margin-top: 12px;">
                                 <button type="submit" class="btn blue">Download CSV</button>
                             </div>
                         </form>
                         {% if messages %}
-                            <ul class="messages-list">
+                            <ul class="messages-list" style="margin-top: 12px;">
                                 {% for message in messages %}
                                     <li class="{% if message.tags %} {{ message.tags }} {% endif %}">
                                         {% if "success" in message.tags %}
-                                            <div class="green lighten-4 green-text text-darken-2" style="padding: 10px; margin-top: 10px; border-radius: 4px;">{{ message }}</div>
+                                            <div class="green lighten-4 green-text text-darken-2" style="padding: 8px 10px; border-radius: 4px; font-size: 13px;">{{ message }}</div>
                                         {% elif "error" in message.tags %}
-                                            <div class="red lighten-4 red-text text-darken-2" style="padding: 10px; margin-top: 10px; border-radius: 4px;">{{ message }}</div>
+                                            <div class="red lighten-4 red-text text-darken-2" style="padding: 8px 10px; border-radius: 4px; font-size: 13px;">{{ message }}</div>
                                         {% else %}
-                                            <div class="grey lighten-4 grey-text text-darken-2" style="padding: 10px; margin-top: 10px; border-radius: 4px;">{{ message }}</div>
+                                            <div class="grey lighten-4 grey-text text-darken-2" style="padding: 8px 10px; border-radius: 4px; font-size: 13px;">{{ message }}</div>
                                         {% endif %}
                                     </li>
                                 {% endfor %}
@@ -99,18 +128,14 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Initialize Materialize select elements
             var elems = document.querySelectorAll('select');
             M.FormSelect.init(elems);
 
-            // Handle loader for download form
             const downloadForm = document.getElementById('download-form');
             const loader = document.getElementById('global-loader');
 
             if (downloadForm) {
                 downloadForm.addEventListener('submit', function() {
-                    // Hide loader after 2 seconds for file downloads
-                    // File downloads don't trigger page navigation, so we need to hide the loader manually
                     setTimeout(function() {
                         if (loader) {
                             loader.style.display = 'none';
