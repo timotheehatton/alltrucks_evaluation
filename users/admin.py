@@ -500,6 +500,26 @@ class MyAdminSite(admin.AdminSite):
 
         return redirect('admin:single_workshop', company_id=company_id)
 
+    def _question_count(self, country, with_image=False):
+        """Return Strapi's reported total of questions for one country.
+
+        Asks for pageSize=1 so Strapi only returns one row but reports the
+        full `meta.pagination.total`. Used by the content page to display
+        per-country counts at page load without paginating through the
+        full data set.
+        """
+        api_url = f'{settings.STRAPI_URL}/api/questions'
+        headers = {'Authorization': f'Bearer {settings.STRAPI_EMAIL_TOKEN}'}
+        params = {
+            'filters[country][$eq]': country,
+            'pagination[pageSize]': 1,
+        }
+        if with_image:
+            params['filters[image][$notNull]'] = 'true'
+        r = requests.get(api_url, params=params, headers=headers, timeout=15)
+        r.raise_for_status()
+        return r.json().get('meta', {}).get('pagination', {}).get('total', 0)
+
     def _fetch_all_strapi_content(self, content_type, language):
         """Fetch all paginated data from Strapi API"""
         api_url = f'{settings.STRAPI_URL}/api/{content_type}'
@@ -582,7 +602,32 @@ class MyAdminSite(admin.AdminSite):
                 messages.error(request, f'Error fetching content: {str(e)}')
                 return render(request, 'admin/content/download.html', dict(self.each_context(request)))
 
+        # GET: load per-country question stats from Strapi so the page shows
+        # how the catalogue is distributed at a glance. Failures are caught
+        # so the download form stays usable even if Strapi is down.
+        country_flags = {
+            'FR': '🇫🇷', 'ES': '🇪🇸', 'PL': '🇵🇱', 'DE': '🇩🇪', 'IT': '🇮🇹',
+        }
+        country_stats = []
+        stats_error = None
+        try:
+            for country, flag in country_flags.items():
+                total = self._question_count(country)
+                with_image = self._question_count(country, with_image=True) if total else 0
+                country_stats.append({
+                    'country': country,
+                    'flag': flag,
+                    'total': total,
+                    'with_image': with_image,
+                    'image_share': round(100 * with_image / total) if total else 0,
+                })
+        except Exception as e:
+            country_stats = None
+            stats_error = f'Could not fetch Strapi stats: {e}'
+
         context = dict(self.each_context(request))
+        context['country_stats'] = country_stats
+        context['stats_error'] = stats_error
         return render(request, 'admin/content/download.html', context)
 
     def webhooks_view(self, request):

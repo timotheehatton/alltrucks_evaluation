@@ -12,6 +12,41 @@
         <a href="{% url 'admin:workshops' %}" class="button-back"><i class="material-icons">arrow_back</i>Back to admin</a>
         <h1 class="page-title">Download Strapi Content</h1>
 
+        <!-- Stats fetched from Strapi at page load -->
+        <div class="row">
+            <div class="col s12">
+                <div class="card">
+                    <div class="card-content">
+                        <span class="card-title">Question content by country</span>
+                        {% if stats_error %}
+                            <div class="red lighten-4 red-text text-darken-2" style="padding: 10px; border-radius: 4px;">{{ stats_error }}</div>
+                        {% elif country_stats %}
+                            <table class="striped">
+                                <thead>
+                                    <tr>
+                                        <th>Country</th>
+                                        <th class="right-align">Questions</th>
+                                        <th class="right-align">With image</th>
+                                        <th class="right-align">Image share</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for s in country_stats %}
+                                    <tr>
+                                        <td><span style="font-size: 18px; margin-right: 6px;">{{ s.flag }}</span>{{ s.country }}</td>
+                                        <td class="right-align">{{ s.total }}</td>
+                                        <td class="right-align">{{ s.with_image }}</td>
+                                        <td class="right-align">{{ s.image_share }}%</td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col s6 offset-s3">
                 <div class="card">
