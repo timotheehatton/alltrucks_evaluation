@@ -4,7 +4,15 @@
 {% block stylesheets %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
     <style>
-        .content-page .card { margin: 0 0 14px 0; }
+        .content-page .row { display: flex; flex-wrap: wrap; gap: 20px; margin-left: 0; margin-right: 0; }
+        .content-page .row > [class*="col"] { padding: 0; }
+        .content-page .row > [class*="col"].s12.m8 { flex: 0 0 calc(66.6667% - 10px); max-width: calc(66.6667% - 10px); }
+        .content-page .row > [class*="col"].s12.m4 { flex: 0 0 calc(33.3333% - 10px); max-width: calc(33.3333% - 10px); }
+        @media (max-width: 992px) {
+            .content-page .row > [class*="col"].s12.m8,
+            .content-page .row > [class*="col"].s12.m4 { flex: 0 0 100%; max-width: 100%; }
+        }
+        .content-page .card { margin: 0; }
         .content-page .card-content { padding: 16px 20px; }
         .content-page .card-title {
             font-size: 14px !important;
@@ -29,8 +37,9 @@
             color: #00193E; font-weight: 600;
         }
         .content-page .country-flag { font-size: 16px; margin-right: 6px; vertical-align: middle; }
-        .content-page form.row { margin: 0; }
-        .content-page .input-field { margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .content-page form { margin: 0; }
+        .content-page form .input-field { margin-top: 1.5rem; margin-bottom: 0; }
+        .content-page form .input-field:first-of-type { margin-top: 0.5rem; }
     </style>
 {% endblock %}
 
