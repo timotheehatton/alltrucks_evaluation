@@ -297,6 +297,13 @@
     // immediately before lines[k]" — used to draw a red separator at that
     // vertical position.
     function lcsLineDiff(oldStr, newStr) {
+        // HTML forms POST newlines as \r\n (spec), so the stored prompt
+        // content carries \r\n internally. The textarea's .value strips
+        // the \r when read back via the DOM. Without normalising, every
+        // line ends in an invisible \r on one side and nothing on the
+        // other → every line is flagged as changed.
+        oldStr = (oldStr || '').replace(/\r\n?/g, '\n');
+        newStr = (newStr || '').replace(/\r\n?/g, '\n');
         const a = oldStr.split('\n');
         const b = newStr.split('\n');
         const m = a.length, n = b.length;
