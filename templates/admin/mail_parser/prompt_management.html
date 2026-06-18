@@ -284,14 +284,16 @@
     const highlightEl = document.getElementById('editor-highlight');
     const liveContent = JSON.parse(document.getElementById('live-content-data').textContent);
 
+    // Diff returns {lines: [{value, added}], deletions: [indexInLines, ...]}.
+    // A `deletions` entry at index k means "one or more lines were removed
+    // immediately before lines[k]" — used to draw a red separator at that
+    // vertical position.
     function lcsLineDiff(oldStr, newStr) {
         const a = oldStr.split('\n');
         const b = newStr.split('\n');
         const m = a.length, n = b.length;
-        // Skip the heavy DP table when the texts are identical — common
-        // case on first load if there's no draft yet.
         if (oldStr === newStr) {
-            return b.map(function (line) { return {value: line, added: false}; });
+            return {lines: b.map(function (line) { return {value: line, added: false}; }), deletions: []};
         }
         const dp = Array.from({length: m + 1}, function () { return new Int32Array(n + 1); });
         for (let i = m - 1; i >= 0; i--) {
@@ -301,20 +303,30 @@
             }
         }
         const out = [];
-        let i = 0, j = 0;
+        const deletions = [];
+        let i = 0, j = 0, pendingDel = false;
+        function flushDel() { if (pendingDel) { deletions.push(out.length); pendingDel = false; } }
         while (i < m && j < n) {
             if (a[i] === b[j]) {
+                flushDel();
                 out.push({value: b[j], added: false});
                 i++; j++;
             } else if (dp[i + 1][j] >= dp[i][j + 1]) {
-                i++;  // line removed — not visible in the textarea
+                pendingDel = true;
+                i++;
             } else {
+                flushDel();
                 out.push({value: b[j], added: true});
                 j++;
             }
         }
-        while (j < n) out.push({value: b[j++], added: true});
-        return out;
+        while (j < n) {
+            flushDel();
+            out.push({value: b[j++], added: true});
+        }
+        // Trailing deletions after the last visible line.
+        if (pendingDel || i < m) deletions.push(out.length);
+        return {lines: out, deletions: deletions};
     }
 
     function escapeHtml(s) {
@@ -323,16 +335,25 @@
         });
     }
 
+    // Matches the textarea's `padding: 16px 18px` + `font-size: 13px;
+    // line-height: 1.7`. Keep in sync if those CSS values change.
+    const HL_LINE_HEIGHT = 13 * 1.7;
+    const HL_PADDING_TOP = 16;
+    const HL_PADDING_X = 18;
+
     function renderHighlight() {
-        const lines = lcsLineDiff(liveContent || '', draftEl.value);
-        const html = lines.map(function (l) {
+        const diff = lcsLineDiff(liveContent || '', draftEl.value);
+        const linesHtml = diff.lines.map(function (l) {
             const escaped = escapeHtml(l.value) || '​';  // keep empty lines occupying a row
             return l.added
                 ? '<span style="background:#ffe0b3;border-radius:2px;box-shadow:0 0 0 1px #ffe0b3">' + escaped + '</span>'
                 : escaped;
         }).join('\n');
-        // Trailing newline forces the last line to render at the right height.
-        highlightEl.innerHTML = html + '\n';
+        const markersHtml = diff.deletions.map(function (idx) {
+            const y = HL_PADDING_TOP + idx * HL_LINE_HEIGHT - 1;
+            return '<div style="position:absolute;left:' + HL_PADDING_X + 'px;right:' + HL_PADDING_X + 'px;height:0;border-top:2px solid #d33;top:' + y.toFixed(2) + 'px;pointer-events:none"></div>';
+        }).join('');
+        highlightEl.innerHTML = markersHtml + linesHtml + '\n';
         highlightEl.scrollTop = draftEl.scrollTop;
     }
     draftEl.addEventListener('input', renderHighlight);
