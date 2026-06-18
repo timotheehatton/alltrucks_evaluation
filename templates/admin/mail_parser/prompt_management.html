@@ -173,7 +173,6 @@
 </div>
 
 <!-- ============ STATE / TEMPLATES ============ -->
-<script id="active-content-raw" type="text/plain">{{ active_content }}</script>
 {% for c in testable_webhooks %}
 <script id="webhook-meta-{{ c.id }}" type="application/json">{"id": {{ c.id }}, "vehicle": "{{ c.vehicle|escapejs }}", "lang": "{{ c.lang|escapejs }}", "issue": "{{ c.issue|escapejs }}", "prod_answer": {{ c.prod_answer|escapejs|safe|stringformat:'r' }} }</script>
 {% endfor %}
@@ -237,7 +236,7 @@
 
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     const draftEl = document.getElementById('draft-content');
-    const initialContent = document.getElementById('active-content-raw').textContent;
+    const initialContent = draftEl.value;
     const unsavedBadge = document.getElementById('unsaved-badge');
     const tokenEst = document.getElementById('token-est');
     const charCount = document.getElementById('char-count');
