@@ -520,8 +520,16 @@ class MyAdminSite(admin.AdminSite):
         r.raise_for_status()
         return r.json().get('meta', {}).get('pagination', {}).get('total', 0)
 
-    def _fetch_all_strapi_content(self, content_type, language):
-        """Fetch all paginated data from Strapi API"""
+    def _fetch_all_strapi_content(self, content_type, code):
+        """Fetch all paginated data from Strapi API.
+
+        `code` is the 2-letter country/locale code in any case. The filter
+        depends on the content type: `questions` lost i18n and is now
+        country-scoped (`filters[country][$eq]=DE`), whereas `trainings`
+        still uses i18n locales (`locale=de`). Picking the wrong filter
+        was returning the whole dataset because Strapi silently ignores
+        unknown query params.
+        """
         api_url = f'{settings.STRAPI_URL}/api/{content_type}'
         headers = {'Authorization': f'Bearer {settings.STRAPI_EMAIL_TOKEN}'}
         all_data = []
@@ -530,10 +538,13 @@ class MyAdminSite(admin.AdminSite):
 
         while True:
             params = {
-                'locale': language,
                 'pagination[page]': page,
-                'pagination[pageSize]': page_size
+                'pagination[pageSize]': page_size,
             }
+            if content_type == 'questions':
+                params['filters[country][$eq]'] = code.upper()
+            else:
+                params['locale'] = code.lower()
 
             response = requests.get(api_url, params=params, headers=headers)
             response.raise_for_status()
@@ -558,32 +569,32 @@ class MyAdminSite(admin.AdminSite):
     def download_strapi_content_view(self, request):
         if request.method == 'POST':
             content_type = request.POST.get('content_type')
-            language = request.POST.get('language')
+            code = (request.POST.get('language') or '').upper()
 
             # Validate inputs
-            if not content_type or not language:
-                messages.error(request, 'Please select both content type and language')
+            if not content_type or not code:
+                messages.error(request, 'Please select both content type and country')
                 return render(request, 'admin/content/download.html', dict(self.each_context(request)))
 
             if content_type not in ['trainings', 'questions']:
                 messages.error(request, 'Invalid content type')
                 return render(request, 'admin/content/download.html', dict(self.each_context(request)))
 
-            if language not in ['es', 'fr', 'pl', 'de', 'it']:
-                messages.error(request, 'Invalid language')
+            if code not in ['ES', 'FR', 'PL', 'DE', 'IT']:
+                messages.error(request, 'Invalid country')
                 return render(request, 'admin/content/download.html', dict(self.each_context(request)))
 
             # Fetch ALL content from Strapi with pagination
             try:
-                data = self._fetch_all_strapi_content(content_type, language)
+                data = self._fetch_all_strapi_content(content_type, code)
 
                 if not data:
-                    messages.error(request, f'No content found for {content_type} in language {language}')
+                    messages.error(request, f'No content found for {content_type} in {code}')
                     return render(request, 'admin/content/download.html', dict(self.each_context(request)))
 
                 # Create CSV response
                 response = HttpResponse(content_type='text/csv')
-                response['Content-Disposition'] = f'attachment; filename="{content_type}_{language}.csv"'
+                response['Content-Disposition'] = f'attachment; filename="{content_type}_{code}.csv"'
 
                 writer = csv.writer(response)
 
