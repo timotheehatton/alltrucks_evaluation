@@ -267,8 +267,7 @@
     });
 
     document.getElementById('save-draft-btn').addEventListener('click', function () {
-        const note = prompt('Optional changelog note for this draft (leave empty to skip):', '') || '';
-        document.getElementById('hidden-notes').value = note;
+        document.getElementById('hidden-notes').value = '';
         document.getElementById('hidden-label').value = '';
         document.getElementById('hidden-activate').value = '';
         document.getElementById('save-form').submit();

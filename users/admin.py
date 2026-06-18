@@ -846,7 +846,7 @@ class MyAdminSite(admin.AdminSite):
         content = request.POST.get('content', '').strip()
         label = request.POST.get('label', '').strip()[:120]
         notes = request.POST.get('notes', '').strip()
-        activate_now = 'activate_now' in request.POST
+        activate_now = request.POST.get('activate_now') == 'on'
 
         if not content:
             messages.error(request, 'Prompt content cannot be empty.')
@@ -858,11 +858,12 @@ class MyAdminSite(admin.AdminSite):
             notes=notes,
             created_by=request.user if request.user.is_authenticated else None,
         )
+        version_label = f'v{PromptVersion.objects.filter(created_at__lte=version.created_at).count()}'
         if activate_now:
             version.activate(user=request.user if request.user.is_authenticated else None)
-            messages.success(request, f'Version #{version.id} saved and activated.')
+            messages.success(request, f'{version_label} published to production.')
         else:
-            messages.success(request, f'Version #{version.id} saved as draft (not active).')
+            messages.success(request, f'Draft saved as {version_label}.')
         return redirect('admin:prompt_management')
 
     def prompt_activate_view(self, request, version_id):
