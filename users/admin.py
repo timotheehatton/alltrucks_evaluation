@@ -965,6 +965,8 @@ class MyAdminSite(admin.AdminSite):
             'original_response': webhook.ai_response,
             'webhook_subject': webhook.subject or '',
             'webhook_sender': webhook.sender_email,
+            'prompt_chars': len(draft_content),
+            'prompt_preview': draft_content[:160],
         })
 
     # =========================================================================
