@@ -489,3 +489,53 @@ class EmergencyInboundDump(models.Model):
 
     def __str__(self):
         return f'Dump {self.id} [{self.received_at:%Y-%m-%d %H:%M}]'
+
+
+class PromptVersion(models.Model):
+    """Immutable snapshot of the AI system prompt.
+
+    The runtime prompt comes from whichever row has `is_active=True`.
+    Versions are never edited in place — to change the prompt, create
+    a new row. To rollback, activate an older row (or copy it into a
+    new one). This keeps the chronology + author audit trail trivially
+    self-contained without a separate history table.
+    """
+
+    content = models.TextField()
+    label = models.CharField(max_length=120, blank=True, default='')
+    notes = models.TextField(
+        blank=True, default='',
+        help_text='Free-form notes about why this version was created.',
+    )
+
+    is_active = models.BooleanField(default=False, db_index=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    created_by = models.ForeignKey(
+        'users.User', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='+',
+    )
+    activated_at = models.DateTimeField(null=True, blank=True)
+    activated_by = models.ForeignKey(
+        'users.User', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='+',
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Prompt Version'
+
+    def __str__(self):
+        return f'PromptVersion #{self.id} [{self.label or "no label"}]'
+
+    def activate(self, user):
+        from django.db import transaction
+        from django.utils import timezone
+        from .system_prompt import invalidate_cache
+        with transaction.atomic():
+            PromptVersion.objects.filter(is_active=True).update(is_active=False)
+            self.is_active = True
+            self.activated_at = timezone.now()
+            self.activated_by = user
+            self.save(update_fields=['is_active', 'activated_at', 'activated_by'])
+        invalidate_cache()

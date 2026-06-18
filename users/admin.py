@@ -24,6 +24,7 @@ from mail_parser.models import (
     KnowledgeBaseCase,
     KnowledgeBaseFile,
     OutboundEmail,
+    PromptVersion,
 )
 from mail_parser.services.knowledge_base import (
     delete_case_from_openai,
@@ -67,6 +68,10 @@ class MyAdminSite(admin.AdminSite):
             path('webhooks/<int:webhook_id>/', self.admin_view(self.webhook_detail_view), name='webhook_detail'),
             path('webhooks/<int:webhook_id>/generate/', self.admin_view(self.webhook_generate_view), name='webhook_generate'),
             path('auto-responder-config/', self.admin_view(self.auto_responder_config_view), name='auto_responder_config'),
+            path('prompt/', self.admin_view(self.prompt_management_view), name='prompt_management'),
+            path('prompt/save/', self.admin_view(self.prompt_save_view), name='prompt_save'),
+            path('prompt/<int:version_id>/activate/', self.admin_view(self.prompt_activate_view), name='prompt_activate'),
+            path('prompt/test/', self.admin_view(self.prompt_test_view), name='prompt_test'),
             path('knowledge-base/', self.admin_view(self.kb_page_view), name='knowledge_base'),
             path('knowledge-base/cases/', self.admin_view(self.kb_cases_json_view), name='kb_cases_json'),
             path('knowledge-base/cases/create/', self.admin_view(self.kb_case_create_view), name='kb_case_create'),
@@ -763,6 +768,138 @@ class MyAdminSite(admin.AdminSite):
             return redirect('admin:auto_responder_config')
         return render(request, 'admin/mail_parser/auto_responder_config.html', {
             'config': config,
+        })
+
+    # =========================================================================
+    # Prompt management — version, compare, test, rollback
+    # =========================================================================
+
+    def prompt_management_view(self, request):
+        from difflib import unified_diff
+
+        versions = list(PromptVersion.objects.all())
+        active = next((v for v in versions if v.is_active), None)
+        active_content = active.content if active else ''
+
+        # Pre-compute a diff vs active for every non-active version so the
+        # template can render it inline on row expand without a roundtrip.
+        history = []
+        for v in versions:
+            if v.is_active or not active_content:
+                diff_lines = []
+            else:
+                diff_lines = list(unified_diff(
+                    active_content.splitlines(),
+                    v.content.splitlines(),
+                    fromfile=f'active (#{active.id})',
+                    tofile=f'#{v.id} {v.label}',
+                    lineterm='',
+                    n=2,
+                ))
+            history.append({'v': v, 'diff_lines': diff_lines})
+
+        # Webhooks that already carry an AI response — those are the only
+        # ones useful as "compare against the original" test fixtures.
+        testable_webhooks = list(
+            InboundWebhook.objects
+            .exclude(ai_response='')
+            .order_by('-id')[:20]
+        )
+
+        return render(request, 'admin/mail_parser/prompt_management.html', {
+            'active': active,
+            'active_content': active_content,
+            'history': history,
+            'testable_webhooks': testable_webhooks,
+        })
+
+    def prompt_save_view(self, request):
+        from django.http import HttpResponseNotAllowed
+        if request.method != 'POST':
+            return HttpResponseNotAllowed(['POST'])
+        content = request.POST.get('content', '').strip()
+        label = request.POST.get('label', '').strip()[:120]
+        notes = request.POST.get('notes', '').strip()
+        activate_now = 'activate_now' in request.POST
+
+        if not content:
+            messages.error(request, 'Prompt content cannot be empty.')
+            return redirect('admin:prompt_management')
+
+        version = PromptVersion.objects.create(
+            content=content,
+            label=label,
+            notes=notes,
+            created_by=request.user if request.user.is_authenticated else None,
+        )
+        if activate_now:
+            version.activate(user=request.user if request.user.is_authenticated else None)
+            messages.success(request, f'Version #{version.id} saved and activated.')
+        else:
+            messages.success(request, f'Version #{version.id} saved as draft (not active).')
+        return redirect('admin:prompt_management')
+
+    def prompt_activate_view(self, request, version_id):
+        from django.http import HttpResponseNotAllowed
+        if request.method != 'POST':
+            return HttpResponseNotAllowed(['POST'])
+        version = get_object_or_404(PromptVersion, id=version_id)
+        version.activate(user=request.user if request.user.is_authenticated else None)
+        messages.success(request, f'Version #{version.id} ({version.label or "no label"}) is now live.')
+        return redirect('admin:prompt_management')
+
+    def prompt_test_view(self, request):
+        """Run a draft prompt against a past webhook. Returns JSON for the
+        client-side fetch() in the prompt management page. Costs one
+        OpenAI call per click."""
+        import json
+        import time
+        from django.http import JsonResponse, HttpResponseNotAllowed
+
+        if request.method != 'POST':
+            return HttpResponseNotAllowed(['POST'])
+
+        try:
+            payload = json.loads(request.body.decode('utf-8') or '{}')
+        except Exception:
+            return JsonResponse({'error': 'Invalid JSON body'}, status=400)
+
+        draft_content = (payload.get('draft_content') or '').strip()
+        webhook_id = payload.get('webhook_id')
+        if not draft_content:
+            return JsonResponse({'error': 'Empty draft content'}, status=400)
+        if not webhook_id:
+            return JsonResponse({'error': 'Missing webhook_id'}, status=400)
+
+        try:
+            webhook = InboundWebhook.objects.get(id=int(webhook_id))
+        except (InboundWebhook.DoesNotExist, ValueError, TypeError):
+            return JsonResponse({'error': 'Webhook not found'}, status=404)
+
+        from mail_parser.signals import build_ai_user_message
+        from common.useful.openai_service import ai_service
+        config = AutoResponderConfig.load()
+
+        user_message = build_ai_user_message(webhook)
+        t0 = time.time()
+        response_text, error, metadata = ai_service.generate_response(
+            system_prompt=draft_content,
+            user_message=user_message,
+            model=config.openai_model,
+            temperature=config.openai_temperature,
+        )
+        latency = round(time.time() - t0, 2)
+
+        if error:
+            return JsonResponse({'error': error, 'latency_seconds': latency}, status=502)
+
+        return JsonResponse({
+            'ai_response': response_text,
+            'latency_seconds': latency,
+            'citations': metadata.get('citations', []),
+            'original_response': webhook.ai_response,
+            'webhook_subject': webhook.subject or '',
+            'webhook_sender': webhook.sender_email,
         })
 
     # =========================================================================

@@ -1,0 +1,343 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block stylesheets %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <style>
+        .prompt-page { max-width: 1400px; padding-bottom: 80px; }
+        .prompt-page .page-title { font-size: 22px; margin: 8px 0 16px; color: #1a1a2e; }
+        .prompt-page .card {
+            background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
+            padding: 18px 20px; margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .prompt-page .card-title {
+            font-size: 13px; font-weight: 700; color: #00193E;
+            text-transform: uppercase; letter-spacing: 0.5px;
+            margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid #eee;
+        }
+        .prompt-page textarea.prompt-editor {
+            width: 100%; min-height: 280px; padding: 12px;
+            font-family: 'Consolas','Monaco',monospace; font-size: 13px;
+            line-height: 1.5; border: 1px solid #ddd; border-radius: 6px;
+            background: #fafafa; resize: vertical;
+        }
+        .prompt-page .field-group { margin: 12px 0; }
+        .prompt-page .field-group label.field-label {
+            font-size: 12px; font-weight: 700; color: #555;
+            text-transform: uppercase; letter-spacing: 0.4px;
+            display: block; margin-bottom: 4px;
+        }
+        .prompt-page input[type="text"], .prompt-page textarea.notes {
+            width: 100%; padding: 8px 10px; border: 1px solid #ddd;
+            border-radius: 4px; font-size: 13px; background: #fff;
+        }
+        .prompt-page textarea.notes { min-height: 60px; font-family: inherit; }
+        .prompt-page .save-bar {
+            display: flex; align-items: center; gap: 14px;
+            margin-top: 16px; padding-top: 14px; border-top: 1px solid #eee;
+        }
+        .prompt-page .save-bar label { display: flex; align-items: center; gap: 6px; color: #555; }
+
+        .prompt-page .test-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+            margin-top: 14px;
+        }
+        @media (max-width: 900px) { .prompt-page .test-grid { grid-template-columns: 1fr; } }
+        .prompt-page .test-pane {
+            background: #fafafa; border: 1px solid #eee; border-radius: 6px;
+            padding: 12px 14px; min-height: 200px;
+        }
+        .prompt-page .test-pane h4 {
+            margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .prompt-page .test-pane pre {
+            margin: 0; white-space: pre-wrap; font-family: inherit;
+            font-size: 13px; line-height: 1.5; color: #1a1a2e;
+        }
+        .prompt-page .test-pane .latency {
+            display: inline-block; margin-top: 8px; padding: 2px 8px;
+            background: #e8f5e9; color: #2e7d32; font-size: 11px;
+            font-weight: 700; border-radius: 3px;
+        }
+        .prompt-page .test-pane.error { background: #ffebee; }
+        .prompt-page .test-pane.error pre { color: #c62828; }
+        .prompt-page .spinner {
+            display: inline-block; width: 14px; height: 14px;
+            border: 2px solid #ddd; border-top-color: #01B5E2;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+            vertical-align: middle; margin-right: 6px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .prompt-page table.history { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .prompt-page table.history th {
+            text-align: left; padding: 8px 10px; background: #fafafa;
+            font-size: 11px; font-weight: 700; color: #888;
+            text-transform: uppercase; letter-spacing: 0.4px;
+            border-bottom: 2px solid #eee;
+        }
+        .prompt-page table.history td {
+            padding: 10px; border-bottom: 1px solid #f4f4f4; color: #1a1a2e;
+            vertical-align: top;
+        }
+        .prompt-page table.history tr.history-row { cursor: pointer; }
+        .prompt-page table.history tr.history-row:hover td { background: #f4fafd; }
+        .prompt-page table.history tr.history-detail { display: none; }
+        .prompt-page table.history tr.history-detail.open { display: table-row; }
+        .prompt-page table.history tr.history-detail td { background: #fcfcfc; padding: 0; }
+        .prompt-page .badge {
+            display: inline-block; padding: 2px 8px; border-radius: 3px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .prompt-page .badge.live { background: #01B5E2; color: #fff; }
+        .prompt-page .badge.past { background: #eee; color: #555; }
+        .prompt-page .diff {
+            margin: 0; padding: 12px; max-height: 360px; overflow: auto;
+            font-family: 'Consolas','Monaco',monospace; font-size: 12px;
+            line-height: 1.5; background: #fff;
+        }
+        .prompt-page .diff .add { background: #e6ffed; color: #22863a; }
+        .prompt-page .diff .del { background: #ffeef0; color: #b31d28; }
+        .prompt-page .diff .ctx { color: #555; }
+        .prompt-page .diff .meta { color: #888; font-style: italic; }
+        .prompt-page .full-content {
+            white-space: pre-wrap; padding: 12px; font-family: 'Consolas','Monaco',monospace;
+            font-size: 12px; line-height: 1.5; background: #fff;
+            border-top: 1px solid #eee; max-height: 360px; overflow: auto;
+        }
+
+        .prompt-page .btn-primary {
+            background: #01B5E2; color: #fff; border: 0; border-radius: 4px;
+            padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
+            text-transform: uppercase; letter-spacing: 0.4px;
+        }
+        .prompt-page .btn-primary:hover { background: #0298bd; }
+        .prompt-page .btn-secondary {
+            background: #fff; color: #00193E; border: 1px solid #01B5E2;
+            border-radius: 4px; padding: 6px 10px; font-size: 11px;
+            font-weight: 700; cursor: pointer; text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .prompt-page .btn-secondary:hover { background: #f4fafd; }
+    </style>
+{% endblock %}
+
+{% block sidebar %}{{ block.super }}{% endblock sidebar %}
+
+{% block body %}
+    <div class="content prompt-page">
+        <h1 class="page-title">Prompt management</h1>
+
+        {% if messages %}
+            <div style="margin-bottom: 12px;">
+                {% for message in messages %}
+                    <div class="card-panel {% if message.tags == 'success' %}green lighten-4 green-text text-darken-2{% elif message.tags == 'error' %}red lighten-4 red-text text-darken-2{% else %}grey lighten-4 grey-text text-darken-2{% endif %}" style="padding: 10px; margin: 0 0 8px 0; font-size: 13px;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Editor -->
+        <div class="card">
+            <h3 class="card-title">Editor — create new version</h3>
+            <form method="POST" action="{% url 'admin:prompt_save' %}" id="save-form">
+                {% csrf_token %}
+                <div class="field-group">
+                    <label class="field-label" for="content">Prompt content</label>
+                    <textarea class="prompt-editor" id="content" name="content" required>{{ active_content }}</textarea>
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="label">Label</label>
+                    <input type="text" id="label" name="label" maxlength="120" placeholder="e.g. v3 brand-neutral wording">
+                </div>
+                <div class="field-group">
+                    <label class="field-label" for="notes">Notes (optional)</label>
+                    <textarea class="notes" id="notes" name="notes" placeholder="Why is this version being created? What did you change?"></textarea>
+                </div>
+                <div class="save-bar">
+                    <label>
+                        <input type="checkbox" name="activate_now" id="activate_now" class="filled-in" style="opacity: 1; position: static; appearance: checkbox;">
+                        <span style="margin-left: 4px;">Activate immediately (push live)</span>
+                    </label>
+                    <button class="btn-primary" type="submit">
+                        <i class="material-icons left" style="font-size: 16px; vertical-align: middle;">save</i>Save version
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Test on past case -->
+        <div class="card">
+            <h3 class="card-title">Test on past case</h3>
+            <p style="font-size: 12px; color: #888; margin: 0 0 10px 0;">
+                Runs your draft (from the editor above) against the issue text of a past webhook. Costs one OpenAI call per click.
+            </p>
+            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                <select id="test-webhook" class="browser-default" style="flex: 1; min-width: 280px; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px;">
+                    <option value="">— Select a past webhook —</option>
+                    {% for w in testable_webhooks %}
+                        <option value="{{ w.id }}">#{{ w.id }} · {{ w.sender_email|truncatechars:35 }} · {{ w.subject|truncatechars:50 }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn-primary" id="test-run">
+                    <i class="material-icons left" style="font-size: 16px; vertical-align: middle;">play_arrow</i>Run with draft above
+                </button>
+            </div>
+            <div class="test-grid">
+                <div class="test-pane" id="pane-original">
+                    <h4>Original response (DB)</h4>
+                    <pre id="original-text" style="color: #888; font-style: italic;">Pick a webhook to load its stored AI response.</pre>
+                </div>
+                <div class="test-pane" id="pane-draft">
+                    <h4>Draft response (live OpenAI call)</h4>
+                    <pre id="draft-text" style="color: #888; font-style: italic;">Run the test to generate.</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="card">
+            <h3 class="card-title">History ({{ history|length }} version{{ history|length|pluralize }})</h3>
+            <table class="history">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Label</th>
+                        <th>Created</th>
+                        <th>By</th>
+                        <th>Activated</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for h in history %}
+                    <tr class="history-row" data-idx="{{ forloop.counter0 }}">
+                        <td><strong>#{{ h.v.id }}</strong></td>
+                        <td>{{ h.v.label|default:"—" }}</td>
+                        <td>{{ h.v.created_at|date:"Y-m-d H:i" }}</td>
+                        <td>{{ h.v.created_by|default:"—" }}</td>
+                        <td>{% if h.v.activated_at %}{{ h.v.activated_at|date:"Y-m-d H:i" }}{% else %}—{% endif %}</td>
+                        <td>
+                            {% if h.v.is_active %}
+                                <span class="badge live">Live</span>
+                            {% else %}
+                                <span class="badge past">Past</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not h.v.is_active %}
+                                <form method="POST" action="{% url 'admin:prompt_activate' h.v.id %}" style="display: inline;" onclick="event.stopPropagation();">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-secondary"
+                                        onclick="return confirm('Activate version #{{ h.v.id }} as the live prompt?');">Activate</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr class="history-detail" data-idx="{{ forloop.counter0 }}">
+                        <td colspan="7">
+                            {% if h.v.notes %}
+                                <div style="padding: 12px 14px; border-bottom: 1px solid #eee; font-size: 12px; color: #555;">
+                                    <strong>Notes:</strong> {{ h.v.notes }}
+                                </div>
+                            {% endif %}
+                            {% if h.v.is_active %}
+                                <div style="padding: 8px 14px; font-size: 11px; color: #888;">Live version — full content shown below.</div>
+                                <pre class="full-content">{{ h.v.content }}</pre>
+                            {% elif h.diff_lines %}
+                                <div style="padding: 8px 14px; font-size: 11px; color: #888;">Diff vs the active version (additions in green, removals in red).</div>
+                                <pre class="diff">{% for line in h.diff_lines %}{% if line|slice:":3" == "+++" or line|slice:":3" == "---" %}<span class="meta">{{ line }}</span>
+{% elif line|slice:":2" == "@@" %}<span class="meta">{{ line }}</span>
+{% elif line|slice:":1" == "+" %}<span class="add">{{ line }}</span>
+{% elif line|slice:":1" == "-" %}<span class="del">{{ line }}</span>
+{% else %}<span class="ctx">{{ line }}</span>
+{% endif %}{% endfor %}</pre>
+                            {% else %}
+                                <pre class="full-content">{{ h.v.content }}</pre>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+    (function () {
+        // ── Click-to-expand history rows ───────────────────────────────────
+        document.querySelectorAll('tr.history-row').forEach(function (row) {
+            row.addEventListener('click', function () {
+                var idx = row.dataset.idx;
+                var detail = document.querySelector('tr.history-detail[data-idx="' + idx + '"]');
+                if (detail) detail.classList.toggle('open');
+            });
+        });
+
+        // ── Load original response when webhook picked ─────────────────────
+        var webhookSelect = document.getElementById('test-webhook');
+        var originalText = document.getElementById('original-text');
+        var draftText = document.getElementById('draft-text');
+        var paneDraft = document.getElementById('pane-draft');
+
+        function resetPanes() {
+            paneDraft.classList.remove('error');
+            draftText.style.color = '#888';
+            draftText.style.fontStyle = 'italic';
+            draftText.textContent = 'Run the test to generate.';
+        }
+
+        // ── Run test ───────────────────────────────────────────────────────
+        document.getElementById('test-run').addEventListener('click', function () {
+            var webhookId = webhookSelect.value;
+            var draft = document.getElementById('content').value.trim();
+
+            if (!webhookId) { alert('Pick a webhook from the dropdown first.'); return; }
+            if (!draft) { alert('The draft editor is empty.'); return; }
+
+            paneDraft.classList.remove('error');
+            draftText.style.color = '#555';
+            draftText.style.fontStyle = 'normal';
+            draftText.innerHTML = '<span class="spinner"></span>Calling OpenAI…';
+
+            var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            fetch('{% url "admin:prompt_test" %}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                body: JSON.stringify({ draft_content: draft, webhook_id: webhookId }),
+            })
+            .then(function (r) { return r.json().then(function (b) { return [r.ok, b]; }); })
+            .then(function (pair) {
+                var ok = pair[0], body = pair[1];
+                if (!ok) {
+                    paneDraft.classList.add('error');
+                    draftText.textContent = body.error || 'Request failed';
+                    return;
+                }
+                draftText.textContent = body.ai_response || '(empty response)';
+                var latencyEl = document.createElement('span');
+                latencyEl.className = 'latency';
+                latencyEl.textContent = body.latency_seconds + 's';
+                draftText.appendChild(document.createElement('br'));
+                draftText.appendChild(latencyEl);
+
+                // Also refresh the original pane to match this webhook
+                originalText.textContent = body.original_response || '(no stored response)';
+                originalText.style.color = '#1a1a2e';
+                originalText.style.fontStyle = 'normal';
+            })
+            .catch(function (err) {
+                paneDraft.classList.add('error');
+                draftText.textContent = 'Network error: ' + err;
+            });
+        });
+
+        webhookSelect.addEventListener('change', resetPanes);
+    })();
+    </script>
+{% endblock %}
