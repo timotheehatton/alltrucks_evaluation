@@ -332,7 +332,19 @@
         }
         // Trailing deletions after the last visible line.
         if (pendingDel || i < m) deletions.push(out.length);
-        return {lines: out, deletions: deletions};
+        // Collapse "deletion immediately followed by addition" into a
+        // pure modification — the added line already paints orange, so
+        // the red bar would be visual noise on what the user perceives
+        // as a single edit. Pure deletions (no neighbouring addition),
+        // trailing deletions, and deletions paired with a blank added
+        // line (the user wiped everything) keep their marker.
+        const filteredDeletions = deletions.filter(function (idx) {
+            if (idx >= out.length) return true;
+            const next = out[idx];
+            if (!next.added) return true;
+            return !next.value.trim();
+        });
+        return {lines: out, deletions: filteredDeletions};
     }
 
     function escapeHtml(s) {
