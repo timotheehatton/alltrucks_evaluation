@@ -821,13 +821,16 @@ class MyAdminSite(admin.AdminSite):
         testable_webhooks = []
         webhook_metas = {}
         for w in InboundWebhook.objects.exclude(ai_response='').order_by('-id')[:20]:
-            issue = (w.parsed_issue or w.subject or '').replace('\n', ' ')
+            issue = (w.parsed_issue or w.subject or '').replace('\n', ' ').strip()
             vehicle = f'{w.vehicle_brand} {w.vehicle_model}'.strip() or f'Webhook #{w.id}'
             lang = (w.language or '').upper() or '—'
             issue_short = issue[:160] + ('…' if len(issue) > 160 else '')
+            issue_excerpt = issue[:80] + ('…' if len(issue) > 80 else '') or '(no issue text)'
+            category = w.get_category_display()
             testable_webhooks.append({
                 'id': w.id,
-                'label': f'#{w.id} · {w.sender_email[:30]} · {(w.subject or "")[:50]}',
+                'category': category,
+                'excerpt': issue_excerpt,
                 'vehicle': vehicle,
                 'lang': lang,
                 'issue': issue_short,
