@@ -309,16 +309,26 @@
             }
         }
         const out = [];
+        // Each entry: {idx, count} — `count` is how many source lines
+        // were deleted at this boundary. We need the count so that a
+        // single-line modification can be paired 1-to-1 with the added
+        // replacement (suppressing the bar), while extras beyond a
+        // pairing still produce a visible deletion.
         const deletions = [];
-        let i = 0, j = 0, pendingDel = false;
-        function flushDel() { if (pendingDel) { deletions.push(out.length); pendingDel = false; } }
+        let i = 0, j = 0, pendingDel = 0;
+        function flushDel() {
+            if (pendingDel > 0) {
+                deletions.push({idx: out.length, count: pendingDel});
+                pendingDel = 0;
+            }
+        }
         while (i < m && j < n) {
             if (a[i] === b[j]) {
                 flushDel();
                 out.push({value: b[j], added: false});
                 i++; j++;
             } else if (dp[i + 1][j] >= dp[i][j + 1]) {
-                pendingDel = true;
+                pendingDel++;
                 i++;
             } else {
                 flushDel();
@@ -331,19 +341,23 @@
             out.push({value: b[j++], added: true});
         }
         // Trailing deletions after the last visible line.
-        if (pendingDel || i < m) deletions.push(out.length);
-        // Collapse "deletion immediately followed by addition" into a
-        // pure modification — the added line already paints orange, so
-        // the red bar would be visual noise on what the user perceives
-        // as a single edit. Pure deletions (no neighbouring addition),
-        // trailing deletions, and deletions paired with a blank added
-        // line (the user wiped everything) keep their marker.
-        const filteredDeletions = deletions.filter(function (idx) {
-            if (idx >= out.length) return true;
-            const next = out[idx];
-            if (!next.added) return true;
-            return !next.value.trim();
-        });
+        const trailing = pendingDel + (m - i);
+        if (trailing > 0) deletions.push({idx: out.length, count: trailing});
+        // Pair exactly ONE deletion with the immediately-following added
+        // line — that's a modification, the orange highlight is enough.
+        // If more lines were deleted than there is a 1-line replacement
+        // for, the extras stay visible as a red bar. Trailing deletions
+        // and deletions paired with a blank line (= user wiped content)
+        // always keep their marker.
+        const filteredDeletions = deletions
+            .filter(function (d) {
+                if (d.idx >= out.length) return true;
+                const next = out[d.idx];
+                if (!next.added) return true;
+                if (!next.value.trim()) return true;
+                return d.count > 1;
+            })
+            .map(function (d) { return d.idx; });
         return {lines: out, deletions: filteredDeletions};
     }
 
