@@ -295,6 +295,12 @@
         if (oldStr === newStr) {
             return {lines: b.map(function (line) { return {value: line, added: false}; }), deletions: []};
         }
+        // When the live prompt is empty (e.g. a brand-new install before
+        // anything was published), there is no "deleted" content — flag
+        // every line as an addition with no deletion markers.
+        if (!oldStr) {
+            return {lines: b.map(function (line) { return {value: line, added: true}; }), deletions: []};
+        }
         const dp = Array.from({length: m + 1}, function () { return new Int32Array(n + 1); });
         for (let i = m - 1; i >= 0; i--) {
             for (let j = n - 1; j >= 0; j--) {
@@ -335,25 +341,44 @@
         });
     }
 
-    // Matches the textarea's `padding: 16px 18px` + `font-size: 13px;
-    // line-height: 1.7`. Keep in sync if those CSS values change.
-    const HL_LINE_HEIGHT = 13 * 1.7;
-    const HL_PADDING_TOP = 16;
+    // Matches the textarea's horizontal padding so the deletion markers
+    // span the full width of the visible text column.
     const HL_PADDING_X = 18;
 
     function renderHighlight() {
         const diff = lcsLineDiff(liveContent || '', draftEl.value);
-        const linesHtml = diff.lines.map(function (l) {
-            const escaped = escapeHtml(l.value) || '​';  // keep empty lines occupying a row
-            return l.added
+        // Wrap each line in a probe span so we can read its real on-screen
+        // top position after the browser lays it out — that handles word
+        // wrap and sub-pixel rounding correctly, which a static
+        // `lineIndex × lineHeight` formula cannot.
+        const linesHtml = diff.lines.map(function (l, idx) {
+            const escaped = escapeHtml(l.value) || '​';
+            const inner = l.added
                 ? '<span style="background:#ffe0b3;border-radius:2px;box-shadow:0 0 0 1px #ffe0b3">' + escaped + '</span>'
                 : escaped;
+            return '<span data-line-idx="' + idx + '">' + inner + '</span>';
         }).join('\n');
-        const markersHtml = diff.deletions.map(function (idx) {
-            const y = HL_PADDING_TOP + idx * HL_LINE_HEIGHT - 1;
-            return '<div style="position:absolute;left:' + HL_PADDING_X + 'px;right:' + HL_PADDING_X + 'px;height:0;border-top:2px solid #d33;top:' + y.toFixed(2) + 'px;pointer-events:none"></div>';
-        }).join('');
-        highlightEl.innerHTML = markersHtml + linesHtml + '\n';
+        highlightEl.innerHTML = linesHtml + '\n';
+
+        // Second pass — now that lines are in the DOM, place a thin red bar
+        // at the exact top edge of the line that follows each deletion (or
+        // at the bottom of the last line for a trailing deletion).
+        diff.deletions.forEach(function (idx) {
+            let y;
+            if (idx >= diff.lines.length) {
+                const last = highlightEl.querySelector('[data-line-idx="' + (diff.lines.length - 1) + '"]');
+                if (!last) return;
+                y = last.offsetTop + last.offsetHeight;
+            } else {
+                const span = highlightEl.querySelector('[data-line-idx="' + idx + '"]');
+                if (!span) return;
+                y = span.offsetTop;
+            }
+            const marker = document.createElement('div');
+            marker.style.cssText = 'position:absolute;left:' + HL_PADDING_X + 'px;right:' + HL_PADDING_X + 'px;height:0;border-top:2px solid #d33;top:' + (y - 1) + 'px;pointer-events:none';
+            highlightEl.appendChild(marker);
+        });
+
         highlightEl.scrollTop = draftEl.scrollTop;
     }
     draftEl.addEventListener('input', renderHighlight);
