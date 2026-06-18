@@ -9,8 +9,12 @@ class OpenAIService:
             timeout=30.0,
         )
 
-    def generate_response(self, system_prompt, user_message, model='gpt-4o-mini'):
+    def generate_response(self, system_prompt, user_message, model='gpt-4o-mini', temperature=0.7):
         """Returns (text, error, metadata).
+
+        `temperature` is forwarded to OpenAI (0.0 = deterministic, 2.0 =
+        most creative). Caller passes the value configured on
+        AutoResponderConfig.openai_temperature.
 
         metadata is a dict with optional keys:
           - search_queries: list[str] of queries the model issued to file_search
@@ -32,7 +36,7 @@ class OpenAIService:
                         },
                     }],
                     max_output_tokens=1024,
-                    temperature=0.7,
+                    temperature=temperature,
                 )
                 return (
                     response.output_text,
@@ -47,7 +51,7 @@ class OpenAIService:
                     {'role': 'user', 'content': user_message},
                 ],
                 max_tokens=1024,
-                temperature=0.7,
+                temperature=temperature,
             )
             return completion.choices[0].message.content, None, {}
         except openai.APITimeoutError as e:

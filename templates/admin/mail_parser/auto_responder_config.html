@@ -177,6 +177,25 @@
                     </select>
                 </div>
 
+                <div class="field-group">
+                    <label class="field-label" for="openai_temperature">
+                        Temperature
+                        <span style="font-weight: 700; color: #01B5E2; margin-left: 8px;" id="openai_temperature_value">{{ config.openai_temperature }}</span>
+                    </label>
+                    <p class="field-help">Lower = more deterministic / factual. Higher = more creative / varied. OpenAI range: 0.0 to 2.0.</p>
+                    <div style="display: flex; align-items: center; gap: 12px; padding: 4px 0;">
+                        <span style="font-size: 11px; color: #888; min-width: 70px;">0.0 · strict</span>
+                        <input type="range"
+                               id="openai_temperature"
+                               name="openai_temperature"
+                               min="0" max="2" step="0.05"
+                               value="{{ config.openai_temperature }}"
+                               style="flex: 1; accent-color: #01B5E2;"
+                               oninput="document.getElementById('openai_temperature_value').textContent = parseFloat(this.value).toFixed(2);">
+                        <span style="font-size: 11px; color: #888; min-width: 80px; text-align: right;">2.0 · creative</span>
+                    </div>
+                </div>
+
                 <div class="save-bar">
                     <button class="btn blue" type="submit">
                         <i class="material-icons left">save</i>Save

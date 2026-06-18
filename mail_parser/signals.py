@@ -112,6 +112,7 @@ def generate_ai_response(webhook):
         system_prompt=get_system_prompt(),
         user_message=user_message,
         model=config.openai_model,
+        temperature=config.openai_temperature,
     )
 
     if error:

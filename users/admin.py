@@ -746,6 +746,14 @@ class MyAdminSite(admin.AdminSite):
         if request.method == 'POST':
             config.is_enabled = 'is_enabled' in request.POST
             config.openai_model = request.POST.get('openai_model', config.openai_model)
+            try:
+                temp = float(request.POST.get('openai_temperature', config.openai_temperature))
+                # Clamp to OpenAI's documented range so we never POST an
+                # invalid value upstream — the slider already enforces this
+                # client-side, but a tampered POST shouldn't crash the view.
+                config.openai_temperature = max(0.0, min(2.0, temp))
+            except (TypeError, ValueError):
+                pass  # keep previous value on parse failure
             config.is_email_enabled = 'is_email_enabled' in request.POST
             config.send_to_user = 'send_to_user' in request.POST
             config.test_emails = request.POST.get('test_emails', '')

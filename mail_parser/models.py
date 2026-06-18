@@ -232,6 +232,9 @@ class AutoResponderConfig(models.Model):
     # deploy — it is intentionally not stored in the DB.
     is_enabled = models.BooleanField(default=False)
     openai_model = models.CharField(max_length=50, default='gpt-4o-mini')
+    # 0 = deterministic, 2 = very creative. OpenAI's documented range for
+    # both Chat Completions and the Responses API is 0.0–2.0.
+    openai_temperature = models.FloatField(default=0.7)
 
     # Email sending
     is_email_enabled = models.BooleanField(default=False)
