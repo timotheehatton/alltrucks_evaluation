@@ -383,7 +383,6 @@ class MyAdminSite(admin.AdminSite):
                         first_name=form.cleaned_data['manager_first_name'],
                         last_name=form.cleaned_data['manager_last_name'],
                         user_type='manager',
-                        language=company.country,
                         company=company,
                         ct_number=form.cleaned_data['manager_ct_number'],
                         is_active=False
