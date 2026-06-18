@@ -183,7 +183,7 @@
                         <span style="font-weight: 700; color: #01B5E2; margin-left: 8px;" id="openai_temperature_value">{{ config.openai_temperature }}</span>
                     </label>
                     <p class="field-help">Lower = more deterministic / factual. Higher = more creative / varied. OpenAI range: 0.0 to 2.0.</p>
-                    <div style="display: flex; align-items: center; gap: 12px; padding: 4px 0;">
+                    <div class="temperature-slider" style="display: flex; align-items: center; gap: 12px; padding: 4px 0;">
                         <span style="font-size: 11px; color: #888; min-width: 70px;">0.0 · strict</span>
                         <input type="range"
                                id="openai_temperature"
@@ -195,6 +195,17 @@
                         <span style="font-size: 11px; color: #888; min-width: 80px; text-align: right;">2.0 · creative</span>
                     </div>
                 </div>
+                <style>
+                    /* Materialize injects a `.thumb` span with the current value
+                       as a bubble above the range thumb on focus/drag — it's
+                       absolutely positioned and ends up floating in the middle
+                       of nowhere on this page. We already show the live value
+                       next to the label, so hide it. */
+                    .temperature-slider .thumb,
+                    .temperature-slider input[type=range] + .thumb {
+                        display: none !important;
+                    }
+                </style>
 
                 <div class="save-bar">
                     <button class="btn blue" type="submit">
