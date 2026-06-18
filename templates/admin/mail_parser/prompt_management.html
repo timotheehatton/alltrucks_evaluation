@@ -173,9 +173,7 @@
 </div>
 
 <!-- ============ STATE / TEMPLATES ============ -->
-{% for c in testable_webhooks %}
-<script id="webhook-meta-{{ c.id }}" type="application/json">{"id": {{ c.id }}, "vehicle": "{{ c.vehicle|escapejs }}", "lang": "{{ c.lang|escapejs }}", "issue": "{{ c.issue|escapejs }}", "prod_answer": {{ c.prod_answer|escapejs|safe|stringformat:'r' }} }</script>
-{% endfor %}
+{{ webhook_metas|json_script:"webhook-metas" }}
 {% for ver in versions_view %}
 <script id="version-content-{{ ver.id }}" type="text/plain">{{ ver.content }}</script>
 {% endfor %}
@@ -334,9 +332,9 @@
     }
 
     // ── Comparison cards ───────────────────────────────────────────────
+    const webhookMetas = JSON.parse(document.getElementById('webhook-metas').textContent);
     function webhookMeta(id) {
-        const el = document.getElementById('webhook-meta-' + id);
-        return el ? JSON.parse(el.textContent) : null;
+        return webhookMetas[id] || null;
     }
 
     function addComparisonCard(webhookId) {

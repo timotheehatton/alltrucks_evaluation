@@ -812,16 +812,27 @@ class MyAdminSite(admin.AdminSite):
         # Cases the operator can test the draft against — must already
         # carry an AI response so we have something to compare.
         testable_webhooks = []
+        webhook_metas = {}
         for w in InboundWebhook.objects.exclude(ai_response='').order_by('-id')[:20]:
             issue = (w.parsed_issue or w.subject or '').replace('\n', ' ')
+            vehicle = f'{w.vehicle_brand} {w.vehicle_model}'.strip() or f'Webhook #{w.id}'
+            lang = (w.language or '').upper() or '—'
+            issue_short = issue[:160] + ('…' if len(issue) > 160 else '')
             testable_webhooks.append({
                 'id': w.id,
                 'label': f'#{w.id} · {w.sender_email[:30]} · {(w.subject or "")[:50]}',
-                'vehicle': f'{w.vehicle_brand} {w.vehicle_model}'.strip() or f'Webhook #{w.id}',
-                'lang': (w.language or '').upper() or '—',
-                'issue': issue[:160] + ('…' if len(issue) > 160 else ''),
+                'vehicle': vehicle,
+                'lang': lang,
+                'issue': issue_short,
                 'prod_answer': w.ai_response,
             })
+            webhook_metas[str(w.id)] = {
+                'id': w.id,
+                'vehicle': vehicle,
+                'lang': lang,
+                'issue': issue_short,
+                'prod_answer': w.ai_response,
+            }
 
         return render(request, 'admin/mail_parser/prompt_management.html', {
             'active': active,
@@ -830,6 +841,7 @@ class MyAdminSite(admin.AdminSite):
             'active_meta': active_meta,
             'versions_view': versions_view,
             'testable_webhooks': testable_webhooks,
+            'webhook_metas': webhook_metas,
         })
 
     @staticmethod
