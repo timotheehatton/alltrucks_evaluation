@@ -775,43 +775,69 @@ class MyAdminSite(admin.AdminSite):
     # =========================================================================
 
     def prompt_management_view(self, request):
-        from difflib import unified_diff
+        # Order ASC so v1 = oldest, vN = newest. Then reverse for display.
+        versions_asc = list(PromptVersion.objects.order_by('created_at'))
+        labels = {v.id: f'v{i + 1}' for i, v in enumerate(versions_asc)}
 
-        versions = list(PromptVersion.objects.all())
-        active = next((v for v in versions if v.is_active), None)
+        active = next((v for v in versions_asc if v.is_active), None)
         active_content = active.content if active else ''
+        active_label = labels.get(active.id) if active else ''
+        active_meta = {
+            'date': active.activated_at.strftime('%b %d, %Y') if active and active.activated_at else (
+                active.created_at.strftime('%b %d, %Y') if active else ''
+            ),
+            'author': self._user_display_name(active.activated_by or active.created_by) if active else '',
+            'note': active.notes if active else '',
+        }
 
-        # Pre-compute a diff vs active for every non-active version so the
-        # template can render it inline on row expand without a roundtrip.
-        history = []
-        for v in versions:
-            if v.is_active or not active_content:
-                diff_lines = []
+        # Versions for the history table — newest first.
+        versions_view = []
+        for v in reversed(versions_asc):
+            label = labels[v.id]
+            if v.is_active:
+                pill = {'bg': '#e3f6ea', 'color': '#1f8a52', 'text': 'LIVE'}
             else:
-                diff_lines = list(unified_diff(
-                    active_content.splitlines(),
-                    v.content.splitlines(),
-                    fromfile=f'active (#{active.id})',
-                    tofile=f'#{v.id} {v.label}',
-                    lineterm='',
-                    n=2,
-                ))
-            history.append({'v': v, 'diff_lines': diff_lines})
+                pill = {'bg': '#eef1f6', 'color': '#7a8699', 'text': 'ARCHIVED'}
+            versions_view.append({
+                'id': v.id,
+                'v': label,
+                'date': (v.activated_at or v.created_at).strftime('%b %d, %Y'),
+                'author': self._user_display_name(v.activated_by or v.created_by),
+                'note': v.notes or '—',
+                'pill': pill,
+                'is_active': v.is_active,
+                'content': v.content,
+            })
 
-        # Webhooks that already carry an AI response — those are the only
-        # ones useful as "compare against the original" test fixtures.
-        testable_webhooks = list(
-            InboundWebhook.objects
-            .exclude(ai_response='')
-            .order_by('-id')[:20]
-        )
+        # Cases the operator can test the draft against — must already
+        # carry an AI response so we have something to compare.
+        testable_webhooks = []
+        for w in InboundWebhook.objects.exclude(ai_response='').order_by('-id')[:20]:
+            issue = (w.parsed_issue or w.subject or '').replace('\n', ' ')
+            testable_webhooks.append({
+                'id': w.id,
+                'label': f'#{w.id} · {w.sender_email[:30]} · {(w.subject or "")[:50]}',
+                'vehicle': f'{w.vehicle_brand} {w.vehicle_model}'.strip() or f'Webhook #{w.id}',
+                'lang': (w.language or '').upper() or '—',
+                'issue': issue[:160] + ('…' if len(issue) > 160 else ''),
+                'prod_answer': w.ai_response,
+            })
 
         return render(request, 'admin/mail_parser/prompt_management.html', {
             'active': active,
             'active_content': active_content,
-            'history': history,
+            'active_label': active_label,
+            'active_meta': active_meta,
+            'versions_view': versions_view,
             'testable_webhooks': testable_webhooks,
         })
+
+    @staticmethod
+    def _user_display_name(user):
+        if not user:
+            return 'System'
+        full = f'{user.first_name} {user.last_name}'.strip()
+        return full or (user.email or 'Unknown')
 
     def prompt_save_view(self, request):
         from django.http import HttpResponseNotAllowed

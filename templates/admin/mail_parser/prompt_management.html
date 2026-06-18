@@ -3,341 +3,519 @@
 
 {% block stylesheets %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/admin/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .prompt-page { max-width: 1400px; padding-bottom: 80px; }
-        .prompt-page .page-title { font-size: 22px; margin: 8px 0 16px; color: #1a1a2e; }
-        .prompt-page .card {
-            background: #fff; border: 1px solid #e8e8e8; border-radius: 8px;
-            padding: 18px 20px; margin-bottom: 16px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        .prompt-page-wrapper {
+            font-family: 'DM Sans', system-ui, sans-serif;
+            background: #f3f6fb;
+            color: #233149;
+            -webkit-font-smoothing: antialiased;
+            padding: 40px 52px 80px;
+            max-width: 1240px;
+            margin: 0 auto;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
-        .prompt-page .card-title {
-            font-size: 13px; font-weight: 700; color: #00193E;
-            text-transform: uppercase; letter-spacing: 0.5px;
-            margin: 0 0 12px 0; padding-bottom: 8px; border-bottom: 1px solid #eee;
-        }
-        .prompt-page textarea.prompt-editor {
-            width: 100%; min-height: 280px; padding: 12px;
-            font-family: 'Consolas','Monaco',monospace; font-size: 13px;
-            line-height: 1.5; border: 1px solid #ddd; border-radius: 6px;
-            background: #fafafa; resize: vertical;
-        }
-        .prompt-page .field-group { margin: 12px 0; }
-        .prompt-page .field-group label.field-label {
-            font-size: 12px; font-weight: 700; color: #555;
-            text-transform: uppercase; letter-spacing: 0.4px;
-            display: block; margin-bottom: 4px;
-        }
-        .prompt-page input[type="text"], .prompt-page textarea.notes {
-            width: 100%; padding: 8px 10px; border: 1px solid #ddd;
-            border-radius: 4px; font-size: 13px; background: #fff;
-        }
-        .prompt-page textarea.notes { min-height: 60px; font-family: inherit; }
-        .prompt-page .save-bar {
-            display: flex; align-items: center; gap: 14px;
-            margin-top: 16px; padding-top: 14px; border-top: 1px solid #eee;
-        }
-        .prompt-page .save-bar label { display: flex; align-items: center; gap: 6px; color: #555; }
-
-        .prompt-page .test-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
-            margin-top: 14px;
-        }
-        @media (max-width: 900px) { .prompt-page .test-grid { grid-template-columns: 1fr; } }
-        .prompt-page .test-pane {
-            background: #fafafa; border: 1px solid #eee; border-radius: 6px;
-            padding: 12px 14px; min-height: 200px;
-        }
-        .prompt-page .test-pane h4 {
-            margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #888;
-            text-transform: uppercase; letter-spacing: 0.4px;
-        }
-        .prompt-page .test-pane pre {
-            margin: 0; white-space: pre-wrap; font-family: inherit;
-            font-size: 13px; line-height: 1.5; color: #1a1a2e;
-        }
-        .prompt-page .test-pane .latency {
-            display: inline-block; margin-top: 8px; padding: 2px 8px;
-            background: #e8f5e9; color: #2e7d32; font-size: 11px;
-            font-weight: 700; border-radius: 3px;
-        }
-        .prompt-page .test-pane.error { background: #ffebee; }
-        .prompt-page .test-pane.error pre { color: #c62828; }
-        .prompt-page .spinner {
-            display: inline-block; width: 14px; height: 14px;
-            border: 2px solid #ddd; border-top-color: #01B5E2;
-            border-radius: 50%; animation: spin 0.8s linear infinite;
-            vertical-align: middle; margin-right: 6px;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .prompt-page table.history { width: 100%; border-collapse: collapse; font-size: 13px; }
-        .prompt-page table.history th {
-            text-align: left; padding: 8px 10px; background: #fafafa;
-            font-size: 11px; font-weight: 700; color: #888;
-            text-transform: uppercase; letter-spacing: 0.4px;
-            border-bottom: 2px solid #eee;
-        }
-        .prompt-page table.history td {
-            padding: 10px; border-bottom: 1px solid #f4f4f4; color: #1a1a2e;
-            vertical-align: top;
-        }
-        .prompt-page table.history tr.history-row { cursor: pointer; }
-        .prompt-page table.history tr.history-row:hover td { background: #f4fafd; }
-        .prompt-page table.history tr.history-detail { display: none; }
-        .prompt-page table.history tr.history-detail.open { display: table-row; }
-        .prompt-page table.history tr.history-detail td { background: #fcfcfc; padding: 0; }
-        .prompt-page .badge {
-            display: inline-block; padding: 2px 8px; border-radius: 3px;
-            font-size: 10px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-        .prompt-page .badge.live { background: #01B5E2; color: #fff; }
-        .prompt-page .badge.past { background: #eee; color: #555; }
-        .prompt-page .diff {
-            margin: 0; padding: 12px; max-height: 360px; overflow: auto;
-            font-family: 'Consolas','Monaco',monospace; font-size: 12px;
-            line-height: 1.5; background: #fff;
-        }
-        .prompt-page .diff .add { background: #e6ffed; color: #22863a; }
-        .prompt-page .diff .del { background: #ffeef0; color: #b31d28; }
-        .prompt-page .diff .ctx { color: #555; }
-        .prompt-page .diff .meta { color: #888; font-style: italic; }
-        .prompt-page .full-content {
-            white-space: pre-wrap; padding: 12px; font-family: 'Consolas','Monaco',monospace;
-            font-size: 12px; line-height: 1.5; background: #fff;
-            border-top: 1px solid #eee; max-height: 360px; overflow: auto;
-        }
-
-        .prompt-page .btn-primary {
-            background: #01B5E2; color: #fff; border: 0; border-radius: 4px;
-            padding: 8px 14px; font-size: 12px; font-weight: 700; cursor: pointer;
-            text-transform: uppercase; letter-spacing: 0.4px;
-        }
-        .prompt-page .btn-primary:hover { background: #0298bd; }
-        .prompt-page .btn-secondary {
-            background: #fff; color: #00193E; border: 1px solid #01B5E2;
-            border-radius: 4px; padding: 6px 10px; font-size: 11px;
-            font-weight: 700; cursor: pointer; text-transform: uppercase;
-            letter-spacing: 0.4px;
-        }
-        .prompt-page .btn-secondary:hover { background: #f4fafd; }
+        .prompt-page-wrapper * { box-sizing: border-box; }
+        .prompt-page-wrapper h1, .prompt-page-wrapper h2, .prompt-page-wrapper h3 { margin: 0; }
+        .prompt-page-wrapper p { margin: 0; }
+        .prompt-page-wrapper button { font-family: inherit; }
+        .prompt-page-wrapper input, .prompt-page-wrapper textarea { font-family: inherit; }
+        @keyframes pm-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pm-spin { to { transform: rotate(360deg); } }
+        .pm-spin { animation: pm-spin 1s linear infinite; }
+        .pm-rise { animation: pm-rise .25s ease; }
     </style>
 {% endblock %}
 
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
-    <div class="content prompt-page">
-        <h1 class="page-title">Prompt management</h1>
+<div class="prompt-page-wrapper">
 
-        {% if messages %}
-            <div style="margin-bottom: 12px;">
-                {% for message in messages %}
-                    <div class="card-panel {% if message.tags == 'success' %}green lighten-4 green-text text-darken-2{% elif message.tags == 'error' %}red lighten-4 red-text text-darken-2{% else %}grey lighten-4 grey-text text-darken-2{% endif %}" style="padding: 10px; margin: 0 0 8px 0; font-size: 13px;">
-                        {{ message }}
-                    </div>
-                {% endfor %}
+    <!-- HEADER -->
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:30px">
+        <div>
+            <h1 style="font-size:30px;font-weight:700;letter-spacing:-.6px;color:#1d2940">Prompt Management</h1>
+            <p style="margin-top:8px;font-size:15px;color:#7a8699;max-width:640px;line-height:1.5">Iterate on the prompt that powers the automatic e-mail replies. Edit it to create a draft, test it on recent cases, then publish a new version to production.</p>
+        </div>
+    </div>
+
+    <!-- SECTION 1: EDIT -->
+    <div style="display:flex;align-items:center;gap:13px;margin-bottom:4px">
+        <span style="width:28px;height:28px;border-radius:50%;background:#1ba7e0;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center">1</span>
+        <span style="font-size:15px;font-weight:700;letter-spacing:.09em;color:#1d2940">EDIT PROMPT</span>
+    </div>
+    <div style="height:2px;background:#2fb6e8;border-radius:2px;margin-bottom:22px"></div>
+
+    <div style="display:grid;grid-template-columns:1.9fr 1fr;gap:22px;margin-bottom:46px">
+        <!-- editor card -->
+        <div style="background:#fff;border:1px solid #e7ecf3;border-radius:16px;box-shadow:0 1px 3px rgba(16,33,64,.05);padding:22px 24px;display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                <div style="display:flex;align-items:center;gap:10px">
+                    <span style="font-size:16px;font-weight:700;color:#1d2940">Working Draft</span>
+                    <span id="unsaved-badge" style="display:none;background:#fff3e0;color:#c2701a;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.03em">UNSAVED CHANGES</span>
+                </div>
+                <span style="font-size:12.5px;color:#9aa6b8">~<span id="token-est">0</span> tokens · <span id="char-count">0</span> chars</span>
             </div>
-        {% endif %}
 
-        <!-- Editor -->
-        <div class="card">
-            <h3 class="card-title">Editor — create new version</h3>
-            <form method="POST" action="{% url 'admin:prompt_save' %}" id="save-form">
+            <form id="save-form" method="POST" action="{% url 'admin:prompt_save' %}">
                 {% csrf_token %}
-                <div class="field-group">
-                    <label class="field-label" for="content">Prompt content</label>
-                    <textarea class="prompt-editor" id="content" name="content" required>{{ active_content }}</textarea>
-                </div>
-                <div class="field-group">
-                    <label class="field-label" for="label">Label</label>
-                    <input type="text" id="label" name="label" maxlength="120" placeholder="e.g. v3 brand-neutral wording">
-                </div>
-                <div class="field-group">
-                    <label class="field-label" for="notes">Notes (optional)</label>
-                    <textarea class="notes" id="notes" name="notes" placeholder="Why is this version being created? What did you change?"></textarea>
-                </div>
-                <div class="save-bar">
-                    <label>
-                        <input type="checkbox" name="activate_now" id="activate_now" class="filled-in" style="opacity: 1; position: static; appearance: checkbox;">
-                        <span style="margin-left: 4px;">Activate immediately (push live)</span>
-                    </label>
-                    <button class="btn-primary" type="submit">
-                        <i class="material-icons left" style="font-size: 16px; vertical-align: middle;">save</i>Save version
+                <textarea id="draft-content" name="content" spellcheck="false" style="width:100%;min-height:340px;resize:vertical;border:1px solid #e2e8f1;border-radius:10px;padding:16px 18px;font-family:'SFMono-Regular',Menlo,Consolas,monospace;font-size:13px;line-height:1.7;color:#2b3a4f;background:#fbfcfe">{{ active_content }}</textarea>
+
+                <input type="hidden" name="label" id="hidden-label" value="">
+                <input type="hidden" name="notes" id="hidden-notes" value="">
+                <input type="hidden" name="activate_now" id="hidden-activate" value="">
+
+                <div style="display:flex;gap:12px;margin-top:22px;padding-top:18px;border-top:1px solid #eef1f6">
+                    <button type="button" id="save-draft-btn" style="display:flex;align-items:center;gap:8px;background:#1ba7e0;color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(27,167,224,.28)">
+                        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5V4Z"/><path d="M8 4v5h7M8 14h8v6H8z"/></svg>Save draft
+                    </button>
+                    <button type="button" id="reset-btn" style="display:flex;align-items:center;gap:8px;background:#fff;color:#41506a;border:1px solid #d3dbe7;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/></svg>Reset to {{ active_label|default:"production" }}
                     </button>
                 </div>
             </form>
         </div>
 
-        <!-- Test on past case -->
-        <div class="card">
-            <h3 class="card-title">Test on past case</h3>
-            <p style="font-size: 12px; color: #888; margin: 0 0 10px 0;">
-                Runs your draft (from the editor above) against the issue text of a past webhook. Costs one OpenAI call per click.
-            </p>
-            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-                <select id="test-webhook" class="browser-default" style="flex: 1; min-width: 280px; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px;">
-                    <option value="">— Select a past webhook —</option>
-                    {% for w in testable_webhooks %}
-                        <option value="{{ w.id }}">#{{ w.id }} · {{ w.sender_email|truncatechars:35 }} · {{ w.subject|truncatechars:50 }}</option>
-                    {% endfor %}
-                </select>
-                <button type="button" class="btn-primary" id="test-run">
-                    <i class="material-icons left" style="font-size: 16px; vertical-align: middle;">play_arrow</i>Run with draft above
-                </button>
-            </div>
-            <div class="test-grid">
-                <div class="test-pane" id="pane-original">
-                    <h4>Original response (DB)</h4>
-                    <pre id="original-text" style="color: #888; font-style: italic;">Pick a webhook to load its stored AI response.</pre>
+        <!-- settings / production info card -->
+        <div style="display:flex;flex-direction:column;gap:22px">
+            <div style="background:#f7fafd;border:1px solid #e3edf5;border-radius:16px;padding:20px 22px">
+                <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#9aa6b8;margin-bottom:12px">CURRENTLY IN PRODUCTION</div>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                    <span style="font-size:20px;font-weight:700;color:#1d2940">{{ active_label|default:"—" }}</span>
+                    <span style="background:#e3f6ea;color:#1f8a52;font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px">LIVE</span>
                 </div>
-                <div class="test-pane" id="pane-draft">
-                    <h4>Draft response (live OpenAI call)</h4>
-                    <pre id="draft-text" style="color: #888; font-style: italic;">Run the test to generate.</pre>
-                </div>
+                <div style="font-size:13px;color:#7a8699;line-height:1.55">Published <b style="color:#41506a">{{ active_meta.date|default:"—" }}</b> by <b style="color:#41506a">{{ active_meta.author|default:"—" }}</b></div>
+                {% if active_meta.note %}
+                <div style="font-size:13px;color:#7a8699;line-height:1.5;margin-top:6px">{{ active_meta.note }}</div>
+                {% endif %}
             </div>
-        </div>
-
-        <!-- History -->
-        <div class="card">
-            <h3 class="card-title">History ({{ history|length }} version{{ history|length|pluralize }})</h3>
-            <table class="history">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Label</th>
-                        <th>Created</th>
-                        <th>By</th>
-                        <th>Activated</th>
-                        <th>Status</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for h in history %}
-                    <tr class="history-row" data-idx="{{ forloop.counter0 }}">
-                        <td><strong>#{{ h.v.id }}</strong></td>
-                        <td>{{ h.v.label|default:"—" }}</td>
-                        <td>{{ h.v.created_at|date:"Y-m-d H:i" }}</td>
-                        <td>{{ h.v.created_by|default:"—" }}</td>
-                        <td>{% if h.v.activated_at %}{{ h.v.activated_at|date:"Y-m-d H:i" }}{% else %}—{% endif %}</td>
-                        <td>
-                            {% if h.v.is_active %}
-                                <span class="badge live">Live</span>
-                            {% else %}
-                                <span class="badge past">Past</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            {% if not h.v.is_active %}
-                                <form method="POST" action="{% url 'admin:prompt_activate' h.v.id %}" style="display: inline;" onclick="event.stopPropagation();">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn-secondary"
-                                        onclick="return confirm('Activate version #{{ h.v.id }} as the live prompt?');">Activate</button>
-                                </form>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr class="history-detail" data-idx="{{ forloop.counter0 }}">
-                        <td colspan="7">
-                            {% if h.v.notes %}
-                                <div style="padding: 12px 14px; border-bottom: 1px solid #eee; font-size: 12px; color: #555;">
-                                    <strong>Notes:</strong> {{ h.v.notes }}
-                                </div>
-                            {% endif %}
-                            {% if h.v.is_active %}
-                                <div style="padding: 8px 14px; font-size: 11px; color: #888;">Live version — full content shown below.</div>
-                                <pre class="full-content">{{ h.v.content }}</pre>
-                            {% elif h.diff_lines %}
-                                <div style="padding: 8px 14px; font-size: 11px; color: #888;">Diff vs the active version (additions in green, removals in red).</div>
-                                <pre class="diff">{% for line in h.diff_lines %}{% if line|slice:":3" == "+++" or line|slice:":3" == "---" %}<span class="meta">{{ line }}</span>
-{% elif line|slice:":2" == "@@" %}<span class="meta">{{ line }}</span>
-{% elif line|slice:":1" == "+" %}<span class="add">{{ line }}</span>
-{% elif line|slice:":1" == "-" %}<span class="del">{{ line }}</span>
-{% else %}<span class="ctx">{{ line }}</span>
-{% endif %}{% endfor %}</pre>
-                            {% else %}
-                                <pre class="full-content">{{ h.v.content }}</pre>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
         </div>
     </div>
 
-    <script>
-    (function () {
-        // ── Click-to-expand history rows ───────────────────────────────────
-        document.querySelectorAll('tr.history-row').forEach(function (row) {
-            row.addEventListener('click', function () {
-                var idx = row.dataset.idx;
-                var detail = document.querySelector('tr.history-detail[data-idx="' + idx + '"]');
-                if (detail) detail.classList.toggle('open');
-            });
-        });
+    <!-- SECTION 2: TEST -->
+    <div style="display:flex;align-items:center;gap:13px;margin-bottom:4px">
+        <span style="width:28px;height:28px;border-radius:50%;background:#1ba7e0;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center">2</span>
+        <span style="font-size:15px;font-weight:700;letter-spacing:.09em;color:#1d2940">TEST &amp; COMPARE</span>
+    </div>
+    <div style="height:2px;background:#2fb6e8;border-radius:2px;margin-bottom:22px"></div>
 
-        // ── Load original response when webhook picked ─────────────────────
-        var webhookSelect = document.getElementById('test-webhook');
-        var originalText = document.getElementById('original-text');
-        var draftText = document.getElementById('draft-text');
-        var paneDraft = document.getElementById('pane-draft');
+    <div style="background:#fff;border:1px solid #e7ecf3;border-radius:16px;box-shadow:0 1px 3px rgba(16,33,64,.05);padding:22px 24px;margin-bottom:46px">
+        <!-- toolbar -->
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:16px">
+            <div style="flex:1;min-width:280px;max-width:520px">
+                <label style="display:block;font-size:13px;font-weight:600;color:#41506a;margin-bottom:8px">Recent cases to test against</label>
+                <div id="case-menu-anchor" style="position:relative">
+                    <button type="button" id="case-menu-toggle" style="width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e2e8f1;border-radius:10px;padding:11px 14px;font-size:14px;color:#2b3a4f;background:#fbfcfe;cursor:pointer;text-align:left">
+                        <span style="display:flex;align-items:center;gap:9px">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1ba7e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            <span id="case-selection-label" style="font-weight:600">No cases selected</span>
+                        </span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa6b8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </button>
+                    <div id="case-menu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:30;background:#fff;border:1px solid #e2e8f1;border-radius:12px;box-shadow:0 16px 40px rgba(16,33,64,.18);padding:6px;max-height:340px;overflow-y:auto">
+                        <div style="padding:8px 12px 9px;font-size:11.5px;font-weight:700;letter-spacing:.05em;color:#9aa6b8;border-bottom:1px solid #f0f3f7;margin-bottom:4px">SELECT UP TO 3 CASES</div>
+                        {% for c in testable_webhooks %}
+                        <div class="case-chip" data-id="{{ c.id }}" style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13.5px;color:#2b3a4f">
+                            <span class="chip-checkbox" style="width:16px;height:16px;border:1.5px solid #c8d2e1;border-radius:4px;flex:none;display:flex;align-items:center;justify-content:center;background:#fff"></span>
+                            <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.label }}</span>
+                        </div>
+                        {% empty %}
+                        <div style="padding:14px 12px;font-size:13px;color:#9aa6b8">No past webhooks with an AI response.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        function resetPanes() {
-            paneDraft.classList.remove('error');
-            draftText.style.color = '#888';
-            draftText.style.fontStyle = 'italic';
-            draftText.textContent = 'Run the test to generate.';
+        <!-- comparison cards container -->
+        <div id="comparison-list" style="display:flex;flex-direction:column;gap:18px;margin-top:6px"></div>
+
+        <!-- empty state -->
+        <div id="comparison-empty" style="padding:42px 20px;text-align:center;color:#9aa6b8;font-size:13.5px;border:1px dashed #d3dbe7;border-radius:12px;margin-top:6px">
+            Pick one or more recent cases from the dropdown above to compare the current prompt with your draft.
+        </div>
+
+        <!-- publish bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-top:22px;padding:18px 20px;background:#f5f7fa;border:1px solid #e7ecf3;border-radius:12px">
+            <div style="font-size:14px;color:#41506a;line-height:1.5" id="publish-hint">Save and activate the editor content as the new live prompt.</div>
+            <button type="button" id="open-publish-confirm" style="display:flex;align-items:center;gap:8px;background:#22a05a;color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(34,160,90,.3)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l14 0M13 6l6 6-6 6"/></svg>Publish draft to production
+            </button>
+        </div>
+    </div>
+
+    <!-- SECTION 3: HISTORY -->
+    <div style="display:flex;align-items:center;gap:13px;margin-bottom:4px">
+        <span style="width:28px;height:28px;border-radius:50%;background:#1ba7e0;color:#fff;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center">3</span>
+        <span style="font-size:15px;font-weight:700;letter-spacing:.09em;color:#1d2940">VERSION HISTORY</span>
+    </div>
+    <div style="height:2px;background:#2fb6e8;border-radius:2px;margin-bottom:22px"></div>
+
+    <div style="background:#fff;border:1px solid #e7ecf3;border-radius:16px;box-shadow:0 1px 3px rgba(16,33,64,.05);overflow:hidden">
+        <div style="display:grid;grid-template-columns:90px 130px 1.1fr 120px 2fr 90px;gap:0;padding:14px 22px;background:#f5f7fa;border-bottom:1px solid #e7ecf3;font-size:12px;font-weight:700;letter-spacing:.05em;color:#8593a8">
+            <span>VERSION</span><span>UPDATED</span><span>UPDATED BY</span><span>STATUS</span><span>CHANGELOG</span><span></span>
+        </div>
+        {% for ver in versions_view %}
+        <div style="display:grid;grid-template-columns:90px 130px 1.1fr 120px 2fr 90px;gap:0;align-items:center;padding:16px 22px;border-bottom:1px solid #f0f3f7;{% if ver.is_active %}background:#f0fbf6{% else %}background:#fff{% endif %}">
+            <span style="font-size:14.5px;font-weight:700;color:#1d2940">{{ ver.v }}</span>
+            <span style="font-size:13.5px;color:#5f6b7d">{{ ver.date }}</span>
+            <span style="font-size:13.5px;color:#41506a;font-weight:600">{{ ver.author }}</span>
+            <span><span style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;background:{{ ver.pill.bg }};color:{{ ver.pill.color }}">{{ ver.pill.text }}</span></span>
+            <span style="font-size:13.5px;color:#5f6b7d;line-height:1.45;padding-right:14px">{{ ver.note }}</span>
+            <button type="button" class="view-version-btn" data-id="{{ ver.id }}" style="justify-self:start;background:#fff;border:1px solid #d3dbe7;color:#1583b8;font-size:13px;font-weight:600;padding:7px 14px;border-radius:8px;cursor:pointer">View</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ============ STATE / TEMPLATES ============ -->
+<script id="active-content-raw" type="text/plain">{{ active_content }}</script>
+{% for c in testable_webhooks %}
+<script id="webhook-meta-{{ c.id }}" type="application/json">{"id": {{ c.id }}, "vehicle": "{{ c.vehicle|escapejs }}", "lang": "{{ c.lang|escapejs }}", "issue": "{{ c.issue|escapejs }}", "prod_answer": {{ c.prod_answer|escapejs|safe|stringformat:'r' }} }</script>
+{% endfor %}
+{% for ver in versions_view %}
+<script id="version-content-{{ ver.id }}" type="text/plain">{{ ver.content }}</script>
+{% endfor %}
+
+<!-- ============ MODALS ============ -->
+<div id="view-modal" style="display:none;position:fixed;inset:0;background:rgba(16,28,53,.5);align-items:center;justify-content:center;z-index:70;padding:40px;font-family:'DM Sans',system-ui,sans-serif">
+    <div id="view-modal-card" style="background:#fff;border-radius:18px;width:680px;max-width:100%;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(16,33,64,.4);overflow:hidden" class="pm-rise">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:22px 26px;border-bottom:1px solid #eef1f6">
+            <div style="display:flex;align-items:center;gap:12px">
+                <span id="view-modal-version" style="font-size:20px;font-weight:700;color:#1d2940"></span>
+                <span id="view-modal-pill" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px"></span>
+            </div>
+            <button type="button" class="view-modal-close" style="background:none;border:none;cursor:pointer;color:#9aa6b8;padding:4px;display:flex"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+        </div>
+        <div id="view-modal-meta" style="padding:18px 26px;border-bottom:1px solid #f0f3f7;font-size:13.5px;color:#7a8699"></div>
+        <div style="padding:22px 26px;overflow-y:auto;flex:1">
+            <div style="font-size:12px;font-weight:700;letter-spacing:.06em;color:#9aa6b8;margin-bottom:10px">PROMPT</div>
+            <pre id="view-modal-content" style="margin:0;white-space:pre-wrap;font-family:'SFMono-Regular',Menlo,Consolas,monospace;font-size:12.5px;line-height:1.7;color:#2b3a4f;background:#fbfcfe;border:1px solid #eef1f6;border-radius:10px;padding:18px"></pre>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 26px;border-top:1px solid #eef1f6">
+            <button type="button" id="load-into-draft-btn" style="background:#fff;color:#41506a;border:1px solid #d3dbe7;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer">Load into draft</button>
+            <form id="rollback-form" method="POST" action="" style="display:none">
+                {% csrf_token %}
+                <button type="submit" style="display:flex;align-items:center;gap:8px;background:#1ba7e0;color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(27,167,224,.28)">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/></svg>Restore this version to production
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div id="publish-modal" style="display:none;position:fixed;inset:0;background:rgba(16,28,53,.5);align-items:center;justify-content:center;z-index:80;padding:40px;font-family:'DM Sans',system-ui,sans-serif">
+    <div style="background:#fff;border-radius:18px;width:480px;max-width:100%;box-shadow:0 24px 64px rgba(16,33,64,.4);overflow:hidden" class="pm-rise">
+        <div style="padding:26px 28px 8px">
+            <div style="font-size:19px;font-weight:700;color:#1d2940;margin-bottom:8px">Publish new version</div>
+            <p style="font-size:14px;color:#7a8699;line-height:1.55">This will save the current editor content as a new version and activate it as the live prompt. All subsequent AI replies will use it.</p>
+        </div>
+        <div style="padding:18px 28px 4px">
+            <label style="display:block;font-size:13px;font-weight:600;color:#41506a;margin-bottom:8px">Changelog note</label>
+            <input id="publish-note" placeholder="What changed in this version?" style="width:100%;border:1px solid #e2e8f1;border-radius:10px;padding:11px 13px;font-size:14px;color:#2b3a4f;background:#fbfcfe">
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:12px;padding:22px 28px 24px">
+            <button type="button" class="publish-cancel" style="background:#fff;color:#41506a;border:1px solid #d3dbe7;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:600;cursor:pointer">Cancel</button>
+            <button type="button" id="do-publish-btn" style="display:flex;align-items:center;gap:8px;background:#22a05a;color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(34,160,90,.3)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>Publish to production
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" style="display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1d2940;color:#fff;padding:13px 22px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 12px 32px rgba(16,33,64,.32);align-items:center;gap:10px;z-index:60;font-family:'DM Sans',system-ui,sans-serif" class="pm-rise">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg><span id="toast-msg"></span>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const draftEl = document.getElementById('draft-content');
+    const initialContent = document.getElementById('active-content-raw').textContent;
+    const unsavedBadge = document.getElementById('unsaved-badge');
+    const tokenEst = document.getElementById('token-est');
+    const charCount = document.getElementById('char-count');
+    const selectionLabel = document.getElementById('case-selection-label');
+    const caseMenu = document.getElementById('case-menu');
+    const comparisonList = document.getElementById('comparison-list');
+    const comparisonEmpty = document.getElementById('comparison-empty');
+
+    let selectedCases = [];  // [webhook_id, ...]
+
+    // ── Editor state ───────────────────────────────────────────────────
+    function updateMeta() {
+        const v = draftEl.value;
+        charCount.textContent = v.length.toLocaleString('en-US');
+        tokenEst.textContent = Math.ceil(v.length / 4).toLocaleString('en-US');
+        if (v.trim() !== initialContent.trim()) {
+            unsavedBadge.style.display = 'inline-block';
+        } else {
+            unsavedBadge.style.display = 'none';
         }
+    }
+    draftEl.addEventListener('input', updateMeta);
+    updateMeta();
 
-        // ── Run test ───────────────────────────────────────────────────────
-        document.getElementById('test-run').addEventListener('click', function () {
-            var webhookId = webhookSelect.value;
-            var draft = document.getElementById('content').value.trim();
+    document.getElementById('reset-btn').addEventListener('click', function () {
+        draftEl.value = initialContent;
+        updateMeta();
+    });
 
-            if (!webhookId) { alert('Pick a webhook from the dropdown first.'); return; }
-            if (!draft) { alert('The draft editor is empty.'); return; }
+    document.getElementById('save-draft-btn').addEventListener('click', function () {
+        const note = prompt('Optional changelog note for this draft (leave empty to skip):', '') || '';
+        document.getElementById('hidden-notes').value = note;
+        document.getElementById('hidden-label').value = '';
+        document.getElementById('hidden-activate').value = '';
+        document.getElementById('save-form').submit();
+    });
 
-            paneDraft.classList.remove('error');
-            draftText.style.color = '#555';
-            draftText.style.fontStyle = 'normal';
-            draftText.innerHTML = '<span class="spinner"></span>Calling OpenAI…';
+    // ── Case menu dropdown ─────────────────────────────────────────────
+    document.getElementById('case-menu-toggle').addEventListener('click', function (e) {
+        e.stopPropagation();
+        caseMenu.style.display = caseMenu.style.display === 'none' ? 'block' : 'none';
+    });
+    document.addEventListener('click', function (e) {
+        if (!document.getElementById('case-menu-anchor').contains(e.target)) {
+            caseMenu.style.display = 'none';
+        }
+    });
 
-            var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-            fetch('{% url "admin:prompt_test" %}', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
-                body: JSON.stringify({ draft_content: draft, webhook_id: webhookId }),
-            })
-            .then(function (r) { return r.json().then(function (b) { return [r.ok, b]; }); })
-            .then(function (pair) {
-                var ok = pair[0], body = pair[1];
-                if (!ok) {
-                    paneDraft.classList.add('error');
-                    draftText.textContent = body.error || 'Request failed';
+    function updateChipStyles() {
+        document.querySelectorAll('.case-chip').forEach(function (chip) {
+            const id = parseInt(chip.dataset.id, 10);
+            const sel = selectedCases.includes(id);
+            chip.style.background = sel ? '#f4fafd' : 'transparent';
+            const box = chip.querySelector('.chip-checkbox');
+            if (sel) {
+                box.style.background = '#1ba7e0';
+                box.style.borderColor = '#1ba7e0';
+                box.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>';
+            } else {
+                box.style.background = '#fff';
+                box.style.borderColor = '#c8d2e1';
+                box.innerHTML = '';
+            }
+        });
+        if (selectedCases.length === 0) {
+            selectionLabel.textContent = 'No cases selected';
+        } else if (selectedCases.length === 1) {
+            selectionLabel.textContent = '1 case selected';
+        } else {
+            selectionLabel.textContent = selectedCases.length + ' cases selected';
+        }
+    }
+
+    document.querySelectorAll('.case-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+            const id = parseInt(chip.dataset.id, 10);
+            const idx = selectedCases.indexOf(id);
+            if (idx >= 0) {
+                selectedCases.splice(idx, 1);
+                removeComparisonCard(id);
+            } else {
+                if (selectedCases.length >= 3) {
+                    showToast('You can compare up to 3 cases.');
                     return;
                 }
-                draftText.textContent = body.ai_response || '(empty response)';
-                var latencyEl = document.createElement('span');
-                latencyEl.className = 'latency';
-                latencyEl.textContent = body.latency_seconds + 's';
-                draftText.appendChild(document.createElement('br'));
-                draftText.appendChild(latencyEl);
+                selectedCases.push(id);
+                addComparisonCard(id);
+            }
+            updateChipStyles();
+            updateEmptyState();
+        });
+    });
 
-                // Also refresh the original pane to match this webhook
-                originalText.textContent = body.original_response || '(no stored response)';
-                originalText.style.color = '#1a1a2e';
-                originalText.style.fontStyle = 'normal';
-            })
-            .catch(function (err) {
-                paneDraft.classList.add('error');
-                draftText.textContent = 'Network error: ' + err;
-            });
+    function updateEmptyState() {
+        comparisonEmpty.style.display = selectedCases.length === 0 ? 'block' : 'none';
+    }
+
+    // ── Comparison cards ───────────────────────────────────────────────
+    function webhookMeta(id) {
+        const el = document.getElementById('webhook-meta-' + id);
+        return el ? JSON.parse(el.textContent) : null;
+    }
+
+    function addComparisonCard(webhookId) {
+        const meta = webhookMeta(webhookId);
+        if (!meta) return;
+
+        const card = document.createElement('div');
+        card.id = 'compare-card-' + webhookId;
+        card.style.cssText = 'background:#fff;border:1px solid #e7ecf3;border-radius:14px;overflow:hidden;box-shadow:0 1px 3px rgba(16,33,64,.05)';
+
+        const safe = (s) => (s || '').replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+
+        card.innerHTML = `
+            <div style="display:flex;align-items:center;gap:14px;padding:13px 18px;border-bottom:1px solid #eef1f6;flex-wrap:wrap">
+                <div style="display:flex;align-items:center;gap:9px">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#1ba7e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 17h2l2-6h11l2 6h2"/><circle cx="6" cy="17" r="1.8"/><circle cx="17" cy="17" r="1.8"/><path d="M3 13v4h2"/></svg>
+                    <span style="font-size:14.5px;font-weight:700;color:#1d2940">${safe(meta.vehicle)}</span>
+                </div>
+                <span style="background:#eaf3fb;color:#1583b8;font-size:11px;font-weight:700;padding:3px 8px;border-radius:6px">${safe(meta.lang)}</span>
+                <span style="flex:1;min-width:200px;font-size:13px;color:#5f6b7d;line-height:1.45"><b style="color:#8593a8;font-weight:600">Issue:</b> ${safe(meta.issue)}</span>
+                <button type="button" data-action="remove" title="Remove from comparison" style="background:none;border:none;cursor:pointer;color:#aab4c4;padding:4px;display:flex"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:#e7ecf3">
+                <div style="background:#fff;display:flex;flex-direction:column">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#f5f7fa;border-bottom:1px solid #eef1f6">
+                        <span style="font-size:13px;font-weight:700;color:#41506a">Current — Production {{ active_label|escapejs }}</span>
+                        <span style="background:#eef1f6;color:#7a8699;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px">LIVE</span>
+                    </div>
+                    <div style="padding:16px 18px;font-size:13px;line-height:1.6;color:#3c4a60;white-space:pre-wrap;max-height:400px;overflow-y:auto">${safe(meta.prod_answer)}</div>
+                </div>
+                <div style="background:#fff;display:flex;flex-direction:column">
+                    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#eaf6fc;border-bottom:1px solid #dceefa">
+                        <span style="font-size:13px;font-weight:700;color:#1583b8">New — Working Draft</span>
+                        <span data-role="draft-badge" style="display:none;background:#1ba7e0;color:#fff;font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:6px"></span>
+                    </div>
+                    <div data-role="draft-pending" style="padding:16px;flex:1;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;color:#9aa6b8">
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#bcd5e6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+                        <span style="font-size:12.5px;max-width:200px;line-height:1.5">Click <b>Regenerate</b> to test the draft on this case.</span>
+                        <button type="button" data-action="regenerate" style="margin-top:6px;background:#1ba7e0;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12.5px;font-weight:700;cursor:pointer">Regenerate</button>
+                    </div>
+                    <div data-role="draft-content" style="display:none;padding:16px 18px;font-size:13px;line-height:1.6;color:#3c4a60;white-space:pre-wrap;max-height:400px;overflow-y:auto"></div>
+                </div>
+            </div>
+        `;
+
+        card.querySelector('[data-action="remove"]').addEventListener('click', function () {
+            const idx = selectedCases.indexOf(webhookId);
+            if (idx >= 0) selectedCases.splice(idx, 1);
+            removeComparisonCard(webhookId);
+            updateChipStyles();
+            updateEmptyState();
+        });
+        card.querySelector('[data-action="regenerate"]').addEventListener('click', function () {
+            runTest(webhookId, card);
         });
 
-        webhookSelect.addEventListener('change', resetPanes);
-    })();
-    </script>
+        comparisonList.appendChild(card);
+    }
+
+    function removeComparisonCard(webhookId) {
+        const el = document.getElementById('compare-card-' + webhookId);
+        if (el) el.remove();
+    }
+
+    function runTest(webhookId, card) {
+        const pending = card.querySelector('[data-role="draft-pending"]');
+        const draftContent = card.querySelector('[data-role="draft-content"]');
+        const draftBadge = card.querySelector('[data-role="draft-badge"]');
+        pending.innerHTML = '<svg width="30" height="30" viewBox="0 0 24 24" class="pm-spin" fill="none" stroke="#1ba7e0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/></svg><span style="font-size:12.5px;color:#7a8699">Calling OpenAI…</span>';
+
+        fetch('{% url "admin:prompt_test" %}', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': csrfToken},
+            body: JSON.stringify({draft_content: draftEl.value, webhook_id: webhookId}),
+        })
+        .then(function (r) { return r.json().then(function (b) { return [r.ok, b]; }); })
+        .then(function (pair) {
+            const ok = pair[0], body = pair[1];
+            if (!ok) {
+                pending.innerHTML = '<div style="padding:16px;color:#c62828;font-size:13px">' + (body.error || 'Request failed') + '</div>';
+                return;
+            }
+            pending.style.display = 'none';
+            draftContent.style.display = 'block';
+            draftContent.textContent = body.ai_response || '(empty response)';
+            draftBadge.style.display = 'inline-block';
+            draftBadge.textContent = body.latency_seconds + 's';
+        })
+        .catch(function (err) {
+            pending.innerHTML = '<div style="padding:16px;color:#c62828;font-size:13px">Network error: ' + err + '</div>';
+        });
+    }
+
+    // ── View modal ──────────────────────────────────────────────────────
+    const versionsData = {
+        {% for ver in versions_view %}
+        {{ ver.id }}: {
+            v: '{{ ver.v|escapejs }}',
+            date: '{{ ver.date|escapejs }}',
+            author: '{{ ver.author|escapejs }}',
+            note: {{ ver.note|escapejs|safe|stringformat:'r' }},
+            isActive: {% if ver.is_active %}true{% else %}false{% endif %},
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    };
+
+    const viewModal = document.getElementById('view-modal');
+    document.querySelectorAll('.view-version-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const id = parseInt(btn.dataset.id, 10);
+            openVersion(id);
+        });
+    });
+
+    function openVersion(id) {
+        const data = versionsData[id];
+        if (!data) return;
+        const content = document.getElementById('version-content-' + id).textContent;
+        document.getElementById('view-modal-version').textContent = data.v;
+        const pill = document.getElementById('view-modal-pill');
+        if (data.isActive) {
+            pill.textContent = 'LIVE'; pill.style.background = '#e3f6ea'; pill.style.color = '#1f8a52';
+        } else {
+            pill.textContent = 'ARCHIVED'; pill.style.background = '#eef1f6'; pill.style.color = '#7a8699';
+        }
+        document.getElementById('view-modal-meta').innerHTML = 'Updated <b style="color:#41506a">' + escapeHtml(data.date) + '</b> by <b style="color:#41506a">' + escapeHtml(data.author) + '</b> — ' + escapeHtml(data.note || '—');
+        document.getElementById('view-modal-content').textContent = content;
+        document.getElementById('load-into-draft-btn').onclick = function () {
+            draftEl.value = content;
+            updateMeta();
+            closeView();
+            showToast('Loaded into the draft editor.');
+        };
+        const rollbackForm = document.getElementById('rollback-form');
+        if (data.isActive) {
+            rollbackForm.style.display = 'none';
+        } else {
+            rollbackForm.style.display = 'block';
+            rollbackForm.action = '/admin/prompt/' + id + '/activate/';
+        }
+        viewModal.style.display = 'flex';
+    }
+
+    function closeView() { viewModal.style.display = 'none'; }
+    document.querySelectorAll('.view-modal-close').forEach(function (b) { b.addEventListener('click', closeView); });
+    viewModal.addEventListener('click', function (e) { if (e.target === viewModal) closeView(); });
+
+    // ── Publish modal ──────────────────────────────────────────────────
+    const publishModal = document.getElementById('publish-modal');
+    document.getElementById('open-publish-confirm').addEventListener('click', function () {
+        publishModal.style.display = 'flex';
+        document.getElementById('publish-note').focus();
+    });
+    document.querySelectorAll('.publish-cancel').forEach(function (b) {
+        b.addEventListener('click', function () { publishModal.style.display = 'none'; });
+    });
+    publishModal.addEventListener('click', function (e) { if (e.target === publishModal) publishModal.style.display = 'none'; });
+
+    document.getElementById('do-publish-btn').addEventListener('click', function () {
+        const note = document.getElementById('publish-note').value.trim();
+        document.getElementById('hidden-notes').value = note;
+        document.getElementById('hidden-label').value = '';
+        document.getElementById('hidden-activate').value = 'on';
+        document.getElementById('save-form').submit();
+    });
+
+    // ── Helpers ─────────────────────────────────────────────────────────
+    function escapeHtml(s) {
+        return (s || '').replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
+    }
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        document.getElementById('toast-msg').textContent = msg;
+        t.style.display = 'flex';
+        setTimeout(function () { t.style.display = 'none'; }, 2400);
+    }
+})();
+</script>
 {% endblock %}
