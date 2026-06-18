@@ -24,6 +24,7 @@ from mail_parser.models import (
     KnowledgeBaseCase,
     KnowledgeBaseFile,
     OutboundEmail,
+    PromptDraft,
     PromptVersion,
 )
 from mail_parser.services.knowledge_base import (
@@ -70,6 +71,7 @@ class MyAdminSite(admin.AdminSite):
             path('auto-responder-config/', self.admin_view(self.auto_responder_config_view), name='auto_responder_config'),
             path('prompt/', self.admin_view(self.prompt_management_view), name='prompt_management'),
             path('prompt/save/', self.admin_view(self.prompt_save_view), name='prompt_save'),
+            path('prompt/reset/', self.admin_view(self.prompt_reset_view), name='prompt_reset'),
             path('prompt/<int:version_id>/activate/', self.admin_view(self.prompt_activate_view), name='prompt_activate'),
             path('prompt/test/', self.admin_view(self.prompt_test_view), name='prompt_test'),
             path('knowledge-base/', self.admin_view(self.kb_page_view), name='knowledge_base'),
@@ -774,29 +776,26 @@ class MyAdminSite(admin.AdminSite):
     # =========================================================================
 
     def prompt_management_view(self, request):
-        # Order ASC so v1 = oldest, vN = newest. Then reverse for display.
-        versions_asc = list(PromptVersion.objects.order_by('created_at'))
+        # History only ever contains published versions; v1 = oldest,
+        # vN = newest. Reverse for display below.
+        versions_asc = list(PromptVersion.objects.order_by('activated_at'))
         labels = {v.id: f'v{i + 1}' for i, v in enumerate(versions_asc)}
 
         active = next((v for v in versions_asc if v.is_active), None)
         active_content = active.content if active else ''
         active_label = labels.get(active.id) if active else ''
         active_meta = {
-            'date': active.activated_at.strftime('%b %d, %Y') if active and active.activated_at else (
-                active.created_at.strftime('%b %d, %Y') if active else ''
-            ),
+            'date': active.activated_at.strftime('%b %d, %Y') if active and active.activated_at else '',
             'author': self._user_display_name(active.activated_by or active.created_by) if active else '',
             'note': active.notes if active else '',
         }
 
-        # The editor textarea picks up the most recently saved version
-        # (draft or published) so that hitting "Save draft" then editing
-        # again continues where the user left off instead of snapping back
-        # to the live prompt.
-        latest = versions_asc[-1] if versions_asc else None
-        editor_content = latest.content if latest else ''
-        editor_label = labels.get(latest.id) if latest else ''
-        editor_is_draft = bool(latest and not latest.is_active)
+        # The editor sits on the singleton draft row — mutable, no version
+        # number. It's flagged DRAFT only when its content has diverged
+        # from the live prompt.
+        draft = PromptDraft.load()
+        editor_content = draft.content or active_content
+        editor_is_draft = (editor_content or '').strip() != (active_content or '').strip()
 
         # Versions for the history table — newest first.
         versions_view = []
@@ -848,7 +847,6 @@ class MyAdminSite(admin.AdminSite):
             'active_label': active_label,
             'active_meta': active_meta,
             'editor_content': editor_content,
-            'editor_label': editor_label,
             'editor_is_draft': editor_is_draft,
             'versions_view': versions_view,
             'testable_webhooks': testable_webhooks,
@@ -867,26 +865,37 @@ class MyAdminSite(admin.AdminSite):
         if request.method != 'POST':
             return HttpResponseNotAllowed(['POST'])
         content = request.POST.get('content', '').strip()
-        label = request.POST.get('label', '').strip()[:120]
         notes = request.POST.get('notes', '').strip()
         activate_now = request.POST.get('activate_now') == 'on'
+        user = request.user if request.user.is_authenticated else None
 
         if not content:
             messages.error(request, 'Prompt content cannot be empty.')
             return redirect('admin:prompt_management')
 
-        version = PromptVersion.objects.create(
-            content=content,
-            label=label,
-            notes=notes,
-            created_by=request.user if request.user.is_authenticated else None,
-        )
-        version_label = f'v{PromptVersion.objects.filter(created_at__lte=version.created_at).count()}'
         if activate_now:
-            version.activate(user=request.user if request.user.is_authenticated else None)
+            version = PromptVersion.objects.create(
+                content=content,
+                notes=notes,
+                created_by=user,
+            )
+            # activate() also aligns the draft to this content.
+            version.activate(user=user)
+            version_label = f'v{PromptVersion.objects.count()}'
             messages.success(request, f'{version_label} published to production.')
         else:
-            messages.success(request, f'Draft saved as {version_label}.')
+            PromptDraft.load().align_to(content, user)
+            messages.success(request, 'Draft saved.')
+        return redirect('admin:prompt_management')
+
+    def prompt_reset_view(self, request):
+        from django.http import HttpResponseNotAllowed
+        if request.method != 'POST':
+            return HttpResponseNotAllowed(['POST'])
+        user = request.user if request.user.is_authenticated else None
+        active = PromptVersion.objects.filter(is_active=True).order_by('-activated_at').first()
+        PromptDraft.load().align_to(active.content if active else '', user)
+        messages.success(request, 'Draft reset to the live prompt.')
         return redirect('admin:prompt_management')
 
     def prompt_activate_view(self, request, version_id):
@@ -894,8 +903,11 @@ class MyAdminSite(admin.AdminSite):
         if request.method != 'POST':
             return HttpResponseNotAllowed(['POST'])
         version = get_object_or_404(PromptVersion, id=version_id)
+        # .activate() also aligns the draft to this version's content.
         version.activate(user=request.user if request.user.is_authenticated else None)
-        messages.success(request, f'Version #{version.id} ({version.label or "no label"}) is now live.')
+        versions_asc = list(PromptVersion.objects.order_by('activated_at'))
+        labels = {v.id: f'v{i + 1}' for i, v in enumerate(versions_asc)}
+        messages.success(request, f'{labels.get(version.id, "Version")} is now live.')
         return redirect('admin:prompt_management')
 
     def prompt_test_view(self, request):

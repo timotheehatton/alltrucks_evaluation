@@ -538,4 +538,35 @@ class PromptVersion(models.Model):
             self.activated_at = timezone.now()
             self.activated_by = user
             self.save(update_fields=['is_active', 'activated_at', 'activated_by'])
+            PromptDraft.load().align_to(self.content, user)
         invalidate_cache()
+
+
+class PromptDraft(models.Model):
+    """Singleton scratchpad for the in-progress prompt edit.
+
+    A single row, mutated in place — Save draft overwrites it. Publishing
+    a draft turns it into a new immutable `PromptVersion` (and leaves the
+    draft aligned with the just-published content). Reset overwrites it
+    with the current live `PromptVersion.content`.
+    """
+
+    content = models.TextField(blank=True, default='')
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(
+        'users.User', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='+',
+    )
+
+    class Meta:
+        verbose_name = 'Prompt Draft'
+
+    @classmethod
+    def load(cls):
+        obj, _ = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def align_to(self, content, user):
+        self.content = content
+        self.updated_by = user
+        self.save(update_fields=['content', 'updated_at', 'updated_by'])

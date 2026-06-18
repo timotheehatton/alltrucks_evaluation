@@ -57,7 +57,7 @@
                 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
                     <span style="font-size:16px;font-weight:700;color:#1d2940">Working Draft</span>
                     {% if editor_is_draft %}
-                    <span style="background:#fff3e0;color:#c2701a;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.03em">DRAFT {{ editor_label }}</span>
+                    <span id="draft-pill" style="background:#fff3e0;color:#c2701a;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.03em">DRAFT</span>
                     {% endif %}
                     <span id="unsaved-badge" style="display:none;background:#fff3e0;color:#c2701a;font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.03em">UNSAVED CHANGES</span>
                 </div>
@@ -68,19 +68,20 @@
                 {% csrf_token %}
                 <textarea id="draft-content" name="content" spellcheck="false" style="width:100%;min-height:340px;resize:vertical;border:1px solid #e2e8f1;border-radius:10px;padding:16px 18px;font-family:'SFMono-Regular',Menlo,Consolas,monospace;font-size:13px;line-height:1.7;color:#2b3a4f;background:#fbfcfe">{{ editor_content }}</textarea>
 
-                <input type="hidden" name="label" id="hidden-label" value="">
                 <input type="hidden" name="notes" id="hidden-notes" value="">
                 <input type="hidden" name="activate_now" id="hidden-activate" value="">
-                <input type="hidden" id="live-content" value="{{ active_content }}">
 
                 <div style="display:flex;gap:12px;margin-top:22px;padding-top:18px;border-top:1px solid #eef1f6">
                     <button type="button" id="save-draft-btn" style="display:flex;align-items:center;gap:8px;background:#1ba7e0;color:#fff;border:none;border-radius:10px;padding:11px 20px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(27,167,224,.28)">
                         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5V4Z"/><path d="M8 4v5h7M8 14h8v6H8z"/></svg>Save draft
                     </button>
-                    <button type="button" id="reset-btn" style="display:flex;align-items:center;gap:8px;background:#fff;color:#41506a;border:1px solid #d3dbe7;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/></svg>Reset to live{% if active_label %} ({{ active_label }}){% endif %}
-                    </button>
                 </div>
+            </form>
+            <form id="reset-form" method="POST" action="{% url 'admin:prompt_reset' %}" style="display:inline">
+                {% csrf_token %}
+                <button type="submit" id="reset-btn" style="display:flex;align-items:center;gap:8px;background:#fff;color:#41506a;border:1px solid #d3dbe7;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;margin-top:12px">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/></svg>Reset to live{% if active_label %} ({{ active_label }}){% endif %}
+                </button>
             </form>
         </div>
 
@@ -263,15 +264,8 @@
     draftEl.addEventListener('input', updateMeta);
     updateMeta();
 
-    const liveContent = document.getElementById('live-content').value;
-    document.getElementById('reset-btn').addEventListener('click', function () {
-        draftEl.value = liveContent;
-        updateMeta();
-    });
-
     document.getElementById('save-draft-btn').addEventListener('click', function () {
         document.getElementById('hidden-notes').value = '';
-        document.getElementById('hidden-label').value = '';
         document.getElementById('hidden-activate').value = '';
         document.getElementById('save-form').submit();
     });
@@ -501,7 +495,6 @@
     document.getElementById('do-publish-btn').addEventListener('click', function () {
         const note = document.getElementById('publish-note').value.trim();
         document.getElementById('hidden-notes').value = note;
-        document.getElementById('hidden-label').value = '';
         document.getElementById('hidden-activate').value = 'on';
         document.getElementById('save-form').submit();
     });
