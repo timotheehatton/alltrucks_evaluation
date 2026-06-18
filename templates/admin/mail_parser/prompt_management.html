@@ -66,7 +66,11 @@
 
             <form id="save-form" method="POST" action="{% url 'admin:prompt_save' %}">
                 {% csrf_token %}
-                <textarea id="draft-content" name="content" spellcheck="false" style="width:100%;min-height:340px;resize:vertical;border:1px solid #e2e8f1;border-radius:10px;padding:16px 18px;font-family:'SFMono-Regular',Menlo,Consolas,monospace;font-size:13px;line-height:1.7;color:#2b3a4f;background:#fbfcfe">{{ editor_content }}</textarea>
+                <div id="editor-wrap" style="position:relative">
+                    <div id="editor-highlight" aria-hidden="true" style="position:absolute;top:0;left:0;right:0;bottom:0;padding:16px 18px;border:1px solid transparent;border-radius:10px;font-family:'SFMono-Regular',Menlo,Consolas,monospace;font-size:13px;line-height:1.7;color:transparent;background:#fbfcfe;pointer-events:none;overflow:hidden;white-space:pre-wrap;word-wrap:break-word;word-break:break-word"></div>
+                    <textarea id="draft-content" name="content" spellcheck="false" style="position:relative;z-index:1;width:100%;min-height:340px;resize:vertical;border:1px solid #e2e8f1;border-radius:10px;padding:16px 18px;font-family:'SFMono-Regular',Menlo,Consolas,monospace;font-size:13px;line-height:1.7;color:#2b3a4f;background:transparent">{{ editor_content }}</textarea>
+                </div>
+                {{ active_content|json_script:"live-content-data" }}
 
                 <input type="hidden" name="notes" id="hidden-notes" value="">
                 <input type="hidden" name="activate_now" id="hidden-activate" value="">
@@ -275,6 +279,67 @@
     }
     draftEl.addEventListener('input', updateMeta);
     updateMeta();
+
+    // ── Live diff highlight (vs. the published prompt) ─────────────────
+    const highlightEl = document.getElementById('editor-highlight');
+    const liveContent = JSON.parse(document.getElementById('live-content-data').textContent);
+
+    function lcsLineDiff(oldStr, newStr) {
+        const a = oldStr.split('\n');
+        const b = newStr.split('\n');
+        const m = a.length, n = b.length;
+        // Skip the heavy DP table when the texts are identical — common
+        // case on first load if there's no draft yet.
+        if (oldStr === newStr) {
+            return b.map(function (line) { return {value: line, added: false}; });
+        }
+        const dp = Array.from({length: m + 1}, function () { return new Int32Array(n + 1); });
+        for (let i = m - 1; i >= 0; i--) {
+            for (let j = n - 1; j >= 0; j--) {
+                if (a[i] === b[j]) dp[i][j] = dp[i + 1][j + 1] + 1;
+                else dp[i][j] = Math.max(dp[i + 1][j], dp[i][j + 1]);
+            }
+        }
+        const out = [];
+        let i = 0, j = 0;
+        while (i < m && j < n) {
+            if (a[i] === b[j]) {
+                out.push({value: b[j], added: false});
+                i++; j++;
+            } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+                i++;  // line removed — not visible in the textarea
+            } else {
+                out.push({value: b[j], added: true});
+                j++;
+            }
+        }
+        while (j < n) out.push({value: b[j++], added: true});
+        return out;
+    }
+
+    function escapeHtml(s) {
+        return (s || '').replace(/[&<>"']/g, function (c) {
+            return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+        });
+    }
+
+    function renderHighlight() {
+        const lines = lcsLineDiff(liveContent || '', draftEl.value);
+        const html = lines.map(function (l) {
+            const escaped = escapeHtml(l.value) || '​';  // keep empty lines occupying a row
+            return l.added
+                ? '<span style="background:#ffe0b3;border-radius:2px;box-shadow:0 0 0 1px #ffe0b3">' + escaped + '</span>'
+                : escaped;
+        }).join('\n');
+        // Trailing newline forces the last line to render at the right height.
+        highlightEl.innerHTML = html + '\n';
+        highlightEl.scrollTop = draftEl.scrollTop;
+    }
+    draftEl.addEventListener('input', renderHighlight);
+    draftEl.addEventListener('scroll', function () {
+        highlightEl.scrollTop = draftEl.scrollTop;
+    });
+    renderHighlight();
 
     document.getElementById('save-draft-btn').addEventListener('click', function () {
         document.getElementById('hidden-notes').value = '';
@@ -512,10 +577,6 @@
     });
 
     // ── Helpers ─────────────────────────────────────────────────────────
-    function escapeHtml(s) {
-        return (s || '').replace(/[&<>"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; });
-    }
-
     function showToast(msg) {
         const t = document.getElementById('toast');
         document.getElementById('toast-msg').textContent = msg;
