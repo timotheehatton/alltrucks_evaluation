@@ -789,6 +789,15 @@ class MyAdminSite(admin.AdminSite):
             'note': active.notes if active else '',
         }
 
+        # The editor textarea picks up the most recently saved version
+        # (draft or published) so that hitting "Save draft" then editing
+        # again continues where the user left off instead of snapping back
+        # to the live prompt.
+        latest = versions_asc[-1] if versions_asc else None
+        editor_content = latest.content if latest else ''
+        editor_label = labels.get(latest.id) if latest else ''
+        editor_is_draft = bool(latest and not latest.is_active)
+
         # Versions for the history table — newest first.
         versions_view = []
         for v in reversed(versions_asc):
@@ -838,6 +847,9 @@ class MyAdminSite(admin.AdminSite):
             'active_content': active_content,
             'active_label': active_label,
             'active_meta': active_meta,
+            'editor_content': editor_content,
+            'editor_label': editor_label,
+            'editor_is_draft': editor_is_draft,
             'versions_view': versions_view,
             'testable_webhooks': testable_webhooks,
             'webhook_metas': webhook_metas,
