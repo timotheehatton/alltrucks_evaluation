@@ -7,6 +7,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        .prompt-page-outer {
+            /* Clear the 250px fixed sidebar (matches `.main-content`
+               convention in static/css/admin/style.css). */
+            margin-left: 250px;
+            background: #f3f6fb;
+            min-height: 100vh;
+        }
         .prompt-page-wrapper {
             font-family: 'DM Sans', system-ui, sans-serif;
             background: #f3f6fb;
@@ -15,7 +22,6 @@
             padding: 40px 52px 80px;
             max-width: 1240px;
             margin: 0 auto;
-            min-height: 100vh;
             box-sizing: border-box;
         }
         .prompt-page-wrapper * { box-sizing: border-box; }
@@ -33,6 +39,7 @@
 {% block sidebar %}{{ block.super }}{% endblock sidebar %}
 
 {% block body %}
+<div class="prompt-page-outer">
 <div class="prompt-page-wrapper">
 
     <!-- HEADER -->
@@ -243,6 +250,7 @@
             </button>
         </div>
     </div>
+</div>
 </div>
 
 <div id="toast" style="display:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#1d2940;color:#fff;padding:13px 22px;border-radius:12px;font-size:14px;font-weight:600;box-shadow:0 12px 32px rgba(16,33,64,.32);align-items:center;gap:10px;z-index:60;font-family:'DM Sans',system-ui,sans-serif" class="pm-rise">
